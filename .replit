@@ -1,7 +1,4 @@
-modules = ["nodejs-20"]
-[[deployment.rewrites]]
-from = "/*"
-to = "/index.html"
+
 
 modules = ["nodejs-20", "web", "postgresql-16"]
 run = "npm run dev"
@@ -14,6 +11,10 @@ channel = "stable-24_05"
 deploymentTarget = "static"
 build = ["npm", "run", "build"]
 publicDir = "dist/public"
+
+[[deployment.rewrites]]
+from = "/*"
+to = "/index.html"
 
 [[ports]]
 localPort = 5000
