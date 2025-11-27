@@ -1,0 +1,93 @@
+{
+  "description": "Correções para as Tools do Workflow Wilson Pizza",
+  "corrections": [
+    {
+      "nodeId": "5207db30-d18d-47f4-a3ce-b5389bedc51a",
+      "nodeName": "AtualizarEndereco",
+      "changes": {
+        "parameters": {
+          "operation": "update",
+          "tableId": "enderecos",
+          "matchType": "allFilters",
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "cliente_id",
+                "condition": "eq",
+                "keyValue": "={{ $fromAI('cliente_id', '', 'string') }}"
+              },
+              {
+                "keyName": "id",
+                "condition": "eq",
+                "keyValue": "={{ $fromAI('endereco_id', '', 'string') }}"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "nodeId": "c4ac2524-460d-4ca8-bb6f-60a508574aef",
+      "nodeName": "ConsultarHorario",
+      "changes": {
+        "parameters": {
+          "operation": "getAll",
+          "tableId": "horarios_funcionamento",
+          "returnAll": true,
+          "matchType": "allFilters",
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "dia_semana",
+                "condition": "eq",
+                "keyValue": "={{ $fromAI('dia_semana', '', 'string') }}"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "nodeName": "BuscarPedidoPorId_NOVO",
+      "type": "n8n-nodes-base.supabaseTool",
+      "description": "CRIAR NOVO NODE - Buscar pedido por ID (complementa ConsultarPedido)",
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get one row in Supabase - Buscar Pedido por ID",
+        "operation": "getAll",
+        "tableId": "pedidos",
+        "returnAll": true,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $fromAI('pedido_id', '', 'string') }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    }
+  ],
+  "sqlToExecute": "Veja o arquivo: supabase_complete_schema.sql",
+  "tablesExpected": {
+    "clientes": "Armazena dados dos clientes",
+    "enderecos": "Armazena endereços de entrega",
+    "cardapio": "Armazena 45+ pizzas e seus preços",
+    "horarios_funcionamento": "Armazena horários de funcionamento (7 dias)",
+    "pedidos": "Armazena pedidos",
+    "itens_pedido": "Armazena itens de cada pedido"
+  },
+  "apiEndpoints": {
+    "n8nWorkflowUrl": "https://n8n-docker-production-6703.up.railway.app/workflow/H5VKBLg9Ne0rGXhe",
+    "supabaseProject": "URL do seu Supabase",
+    "credentialId": "q00udc5ywtGaQxOc (pizzaria)"
+  }
+}

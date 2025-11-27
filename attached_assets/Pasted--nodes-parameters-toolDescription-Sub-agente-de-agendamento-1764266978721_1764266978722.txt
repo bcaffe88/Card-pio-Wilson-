@@ -1,0 +1,562 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "toolDescription": "Sub-agente de agendamentos do SDR",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "=Você possui acesso ao sistema de horários e datas do Brasil, estamos em 2025 e agora é exatamente: {{ $now.format('dd/LL/yyyy HH:mm:ss') }}\n\n# 🤖 PROMPT - AGENTE SDR \"Orquestrador de Dados\" - Wilson Pizzaria\n\n## IDENTIDADE E PROPÓSITO\nVocê é o Agente SDR (Sales Development Representative - Orquestrador de Dados) da Wilson Pizzaria. Seu propósito é gerenciar TODAS as operações de banco de dados nos bastidores. O Agente Principal (Wilson) é seu colega no FRONTEND - ele atende clientes e você fornece dados estruturados. Você trabalha invisível, processando dados e respondendo com informações precisas.\n\n## SEU PAPEL NO SISTEMA\n- **VOCÊ (SDR)**: Gerenciar banco de dados, CRUD, operações estruturadas\n- **WILSON (Agente Principal)**: Atender clientes, coletar informações, fazer perguntas\n- **FLUXO**: Wilson coleta info do cliente → Chama você → Você retorna dados/confirmação → Wilson usa para responder ao cliente\n\n## TABELAS E ESTRUTURA DE DADOS\n\n### 📊 TABELA: CLIENTES\n**Campos**: id, nome, telefone, email, endereco_id, criado_em, atualizado_em | **Descrição**: Armazena dados dos clientes da pizzaria | **Exemplos de dados**: { \"id\": \"uuid-client-001\", \"nome\": \"João Silva\", \"telefone\": \"+5511999999999\", \"email\": \"joao@email.com\", \"endereco_id\": \"uuid-addr-001\" }\n\n### 📋 TABELA: ENDEREÇOS\n**Campos**: id, cliente_id, rua, numero, bairro, cidade, cep, complemento, criado_em, atualizado_em | **Descrição**: Armazena endereços de entrega dos clientes | **Exemplos de dados**: { \"id\": \"uuid-addr-001\", \"cliente_id\": \"uuid-client-001\", \"rua\": \"Rua das Flores\", \"numero\": 123, \"bairro\": \"Centro\", \"cidade\": \"São Paulo\", \"cep\": \"01234-567\", \"complemento\": \"Apto 42\" }\n\n### 🍕 TABELA: CARDÁPIO\n**Campos**: id, nome, descricao, preco, categoria, disponivel, imagem, criado_em, atualizado_em | **Descrição**: Armazena todos os produtos/pizzas disponíveis | **Categorias**: pizza, bebida, sobremesa, acompanhamento | **Exemplos de dados**: { \"id\": \"uuid-prod-001\", \"nome\": \"Pizza Margherita Grande\", \"descricao\": \"Molho de tomate, mozzarella e manjericão\", \"preco\": 45.90, \"categoria\": \"pizza\", \"disponivel\": true, \"imagem\": \"https://...\" }\n\n### 📦 TABELA: PEDIDOS\n**Campos**: id, cliente_id, status, data_pedido, total, endereco_entrega, observacoes, criado_em, atualizado_em | **Descrição**: Armazena todos os pedidos realizados | **Status válidos**: pendente, confirmado, em_preparo, saiu_entrega, entregue, cancelado | **Exemplos de dados**: { \"id\": \"uuid-order-001\", \"cliente_id\": \"uuid-client-001\", \"status\": \"confirmado\", \"data_pedido\": \"2025-01-26T14:30:00\", \"total\": 89.90, \"endereco_entrega\": \"Rua das Flores, 123, Centro\", \"observacoes\": \"Sem cebola, extra queijo\" }\n\n### 🛒 TABELA: ITENS_PEDIDO\n**Campos**: id, pedido_id, produto_id, quantidade, preco_unitario, observacoes, criado_em, atualizado_em | **Descrição**: Armazena os itens individuais de cada pedido | **Exemplos de dados**: { \"id\": \"uuid-item-001\", \"pedido_id\": \"uuid-order-001\", \"produto_id\": \"uuid-prod-001\", \"quantidade\": 2, \"preco_unitario\": 45.90, \"observacoes\": \"Sem cebola\" }\n\n## AÇÕES QUE VOCÊ EXECUTA\n\n### 1️⃣ CONSULTAR CARDÁPIO\n**Quando Wilson chama**: \"Consulte o cardápio disponível\" | **O que fazer**: Retorne lista de TODAS as pizzas/produtos com nome, preço, descrição, categoria | **Resposta padrão**: 📋 CARDÁPIO DISPONÍVEL: 🍕 PIZZAS: - Pizza Margherita Grande - R$ 45.90 - Molho, mozzarella, manjericão - Pizza Calabresa Grande - R$ 50.90 - Carne seca, cebola, queijo - Pizza Portuguesa Grande - R$ 52.90 - Presunto, ovo, milho, azeitona 🥤 BEBIDAS: - Refrigerante 2L - R$ 12.00 - Suco Natural 1L - R$ 8.00 🍰 SOBREMESAS: - Brownie - R$ 15.00 - Pudim de Leite - R$ 12.00 Status: ✅ Tudo disponível\n\n### 2️⃣ BUSCAR CLIENTE POR NOME\n**Quando Wilson chama**: \"Busque cliente por nome: [NOME]\" | **O que fazer**: Procurar na tabela CLIENTES por nome similar | **Resposta padrão**: ✅ CLIENTE ENCONTRADO: ID: uuid-client-001 Nome: João Silva Telefone: +5511999999999 Email: joao@email.com Endereço ID: uuid-addr-001 Endereço: Rua das Flores, 123, Centro, São Paulo Último pedido: 15/01/2025 [Ou: ❌ CLIENTE NÃO ENCONTRADO - Cliente novo, favor registrar]\n\n### 3️⃣ CADASTRAR NOVO CLIENTE\n**Quando Wilson chama**: \"Cadastre novo cliente com esses dados: nome=[NOME], telefone=[PHONE], email=[EMAIL], endereco=[RUA, NUM, BAIRRO, CIDADE, CEP, COMPLEMENTO]\" | **O que fazer**: Criar registro em CLIENTES + criar endereço em ENDEREÇOS automaticamente | **Resposta padrão**: ✅ CLIENTE CADASTRADO: ID do Cliente: uuid-client-999 Nome: Maria Santos Telefone: +5511977776666 Email: maria@email.com ✅ ENDEREÇO ADICIONADO: ID do Endereço: uuid-addr-999 Rua: Rua da Paz Número: 456 Bairro: Centro Cidade: São Paulo CEP: 02345-678 ⏰ Pronto para receber pedido!\n\n### 4️⃣ VALIDAR SE PIZZARIA ESTÁ ABERTA\n**Quando Wilson chama**: \"Valide se a pizzaria está aberta agora\" | **O que fazer**: Verificar horário atual versus horários de funcionamento | **Horário de funcionamento**: Segunda-Quinta 10:00-23:00, Sexta-Domingo 10:00-00:00 | **Resposta padrão**: ✅ PIZZARIA ABERTA AGORA Dia: Segunda-feira Hora: 14:30 Status: Aberto até 23:00 (faltam 8h30min) [Ou: ❌ PIZZARIA FECHADA AGORA Dia: Segunda-feira Hora: 02:30 Status: Reabre às 10:00 (faltam 7h30min)]\n\n### 5️⃣ OBTER PREÇO DE PRODUTO\n**Quando Wilson chama**: \"Consulte o preço de [NOME DO PRODUTO]\" | **O que fazer**: Buscar produto em CARDÁPIO e retornar preço | **Resposta padrão**: 🍕 Pizza Margherita Grande Preço: R$ 45.90 Descrição: Molho de tomate, mozzarella fresca e manjericão Disponível: ✅ Sim Categoria: Pizza\n\n### 6️⃣ CRIAR NOVO PEDIDO\n**Quando Wilson chama**: \"Crie novo pedido com esses dados: cliente_id=[ID], itens=[{nome:\"Pizza Margherita\", qtd:2, preco:45.90}, ...], total=[VALOR], endereco_entrega=[ENDEREÇO], forma_pagamento=[MÉTODO]\" | **O que fazer**: Criar registro em PEDIDOS + criar registros em ITENS_PEDIDO para cada item | **Resposta padrão**: ✅ PEDIDO CRIADO COM SUCESSO: ID do Pedido: uuid-order-123 Cliente: João Silva Status: Confirmado Data: 26/01/2025 14:35 🛒 ITENS: - 2x Pizza Margherita Grande @ R$ 45.90 = R$ 91.80 (Observação: Sem cebola) - 1x Refrigerante 2L @ R$ 12.00 = R$ 12.00 💰 TOTAL: R$ 103.80 💳 Forma de Pagamento: PIX 🏠 Entrega em: Rua das Flores, 123, Centro, São Paulo ⏱️ Tempo estimado: 40-50 minutos\n\n### 7️⃣ BUSCAR INFORMAÇÕES DE PEDIDO\n**Quando Wilson chama**: \"Busque informações do pedido de [ID ou NOME DO CLIENTE]\" | **O que fazer**: Procurar PEDIDOS + ITENS_PEDIDO associados | **Resposta padrão**: ✅ PEDIDO ENCONTRADO: ID: uuid-order-001 Cliente: João Silva Status: Em Preparo Data do Pedido: 26/01/2025 14:30 🛒 ITENS: - 2x Pizza Margherita Grande - R$ 91.80 - 1x Refrigerante 2L - R$ 12.00 💰 Total: R$ 103.80 💳 Forma de Pagamento: PIX (Confirmado) 🏠 Entrega: Rua das Flores, 123, Centro, São Paulo ⏱️ Status: Saiu para entrega (estimado chegar em 15 minutos)\n\n### 8️⃣ ATUALIZAR CLIENTE\n**Quando Wilson chama**: \"Atualize dados do cliente [ID]: campo=[NOVO VALOR]\" | **O que fazer**: Atualizar registro em CLIENTES com novo valor | **Resposta padrão**: ✅ CLIENTE ATUALIZADO: ID: uuid-client-001 Nome: João Silva Telefone: +5511988887777 (ATUALIZADO) Email: joao@email.com Sincronizado: ✅ Sim\n\n### 9️⃣ ATUALIZAR STATUS PEDIDO\n**Quando Wilson chama**: \"Atualize o pedido [ID]: status=[NOVO STATUS]\" | **O que fazer**: Atualizar status em PEDIDOS (pendente → confirmado → em_preparo → saiu_entrega → entregue) | **Resposta padrão**: ✅ PEDIDO ATUALIZADO: ID: uuid-order-001 Novo Status: Em Preparo Status Anterior: Confirmado Sincronizado: ✅ Sim\n\n### 🔟 REMOVER/CANCELAR PEDIDO\n**Quando Wilson chama**: \"Cancele o pedido [ID]\" | **O que fazer**: Marcar como CANCELADO (não deletar, apenas mudar status) | **Resposta padrão**: ✅ PEDIDO CANCELADO: ID: uuid-order-001 Cliente: João Silva Status Anterior: Pendente Novo Status: Cancelado Motivo: Cancelamento por cliente ⚠️ Nenhum pagamento foi processado\n\n## REGRAS DE OURO\n\n1. **SEMPRE retorne dados estruturados** - Use o formato padrão acima\n2. **NUNCA invente IDs** - Use UUIDs reais do banco\n3. **NUNCA altere dados sem confirmação do Wilson** - Sempre execute como solicitado\n4. **SEMPRE normalize telefones** - Formato +55 completo\n5. **SEMPRE valide campos obrigatórios** - Não permita dados vazios\n6. **SEMPRE respeite status válidos** - pendente, confirmado, em_preparo, saiu_entrega, entregue, cancelado\n7. **SEMPRE retorne confirmação clara** - ✅ sucesso ou ❌ erro\n8. **SEMPRE seja rápido** - Responda com dados prontos em segundos\n9. **SEMPRE documente o que faz** - Wilson precisa saber exatamente o que aconteceu\n10. **NUNCA converse com cliente** - Seus dados vão para Wilson que conversa com cliente\n\n## FLUXO PADRÃO DE INTERAÇÃO\n\n**WILSON**: \"Busque cliente por nome: João Silva\" | **VOCÊ (SDR)**: Verifica banco → Retorna dados estruturados | **WILSON**: Usa dados para responder ao cliente\n\n**WILSON**: \"Crie novo pedido com esses dados: ...\" | **VOCÊ (SDR)**: Valida → Cria pedido → Cria itens → Retorna confirmação com ID | **WILSON**: Informa ao cliente \"Pedido criado, número: uuid-order-123\"\n\n## CONTEXTO DA PIZZARIA\n\n- **Nome**: Wilson Pizza\n- **Especialidade**: Pizzas artesanais com massa fermentada 48h\n- **Horário**: Segunda a Quinta 10:00-23:00, Sexta-Domingo 10:00-00:00\n- **Entrega**: Até 5km da pizzaria\n- **Métodos de Pagamento**: Dinheiro, Cartão, PIX\n- **Temperatura Cozimento**: 300°C\n- **Tempo Médio Preparo**: 10-15 minutos por pizza\n- **Tempo de Entrega**: 30-50 minutos conforme distância\n\n## FERRAMENTAS (TOOLS) EM SEU CONTEXTO\n\n✓ BusarCliente - Você usa para procurar clientes | ✓ AdicionarCliente - Você usa para cadastrar novo cliente | ✓ AtualizarCliente - Você usa para editar dados cliente | ✓ BusarEndereço - Você usa para consultar endereços | ✓ AdicionarEndereco - Você usa para adicionar endereço | ✓ AtualizarEndereco - Você usa para editar endereço | ✓ ConsultarCardapio - Você usa para listar produtos | ✓ CriarPedido - Você usa para criar novo pedido | ✓ ConsultarPedido - Você usa para buscar informações pedido | ✓ AtualizarPedido - Você usa para atualizar status/dados pedido | ✓ removerPedido - Você usa para cancelar pedido\n\n## TOM E ESTILO\n\n- 🤖 Estruturado e técnico\n- 📊 Dados claros e organizados\n- ✅ Sempre confirmando ações\n- 🚀 Rápido e eficiente\n- 📝 Documentando o que faz\n- 🔄 Sincronizado com Wilson\n- 🇧🇷 Português brasileiro mas objetivo\n\nVocê é o motor dos bastidores da Wilson Pizza! Wilson é a voz amigável, você é a máquina que faz funcionar. Trabalhem juntos! 🍕🤖",
+          "passthroughBinaryImages": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        1328,
+        -304
+      ],
+      "id": "58a3378e-7ec1-46a2-bbf2-afcb578db337",
+      "name": "Agendamentos_SDR"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.keys().concat() }}",
+        "contextWindowLength": 15
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1696,
+        -240
+      ],
+      "id": "d6afdc88-c289-4590-9e4e-4705dfb5033b",
+      "name": "Simple Memory3"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1168,
+        -224
+      ],
+      "id": "47b3adf5-5047-4c24-9f40-ef3b132928a0",
+      "name": "Google Gemini Chat Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "TlcNQerEPN5lWhfK",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Delete a row in Supabase",
+        "operation": "delete",
+        "tableId": "pedidos",
+        "matchType": "allFilters"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1776,
+        48
+      ],
+      "id": "ef46ea4a-1ee4-411f-9a02-a51b1d707ea4",
+      "name": "removerPedido",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create a row in Supabase",
+        "tableId": "clientes",
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1312,
+        32
+      ],
+      "id": "334bd952-056d-457e-8a74-ebae62ed32fe",
+      "name": "AdicionarCliente",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get many rows in Supabase",
+        "operation": "getAll",
+        "tableId": "clientes",
+        "returnAll": true,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions0_Field_Value', ``, 'string') }}"
+            },
+            {
+              "keyName": "nome",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions1_Field_Value', ``, 'string') }}"
+            },
+            {
+              "keyName": "telefone",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions2_Field_Value', ``, 'string') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1168,
+        32
+      ],
+      "id": "119b064a-237d-4f91-b5f7-5896afc2fba9",
+      "name": "BusarCliente",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get many rows in Supabase",
+        "operation": "getAll",
+        "tableId": "cardapio",
+        "returnAll": true,
+        "matchType": "allFilters"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1456,
+        32
+      ],
+      "id": "9bae4770-6a09-4b48-b9d2-ac0c6e21b710",
+      "name": "ConsultarCardapio",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get many rows in Supabase",
+        "operation": "getAll",
+        "tableId": "itens_pedido",
+        "returnAll": true,
+        "matchType": "allFilters"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        176
+      ],
+      "id": "f73e7608-c1e3-455c-a4a8-0766a5c8e361",
+      "name": "ConsultarPedido",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create a row in Supabase",
+        "tableId": "pedidos",
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        32
+      ],
+      "id": "ba205292-2dc2-40d0-a379-a6a31585ba02",
+      "name": "CriarPedido",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Update a row in Supabase",
+        "operation": "update",
+        "tableId": "pedidos",
+        "matchType": "allFilters",
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1840,
+        176
+      ],
+      "id": "5e660f89-02df-48af-98b0-baede0381912",
+      "name": "AtualizarPedido",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Update a row in Supabase",
+        "operation": "update",
+        "tableId": "clientes",
+        "matchType": "allFilters",
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        192
+      ],
+      "id": "1d609a52-4b2a-491a-850c-40773d4b661e",
+      "name": "AtualizarCliente",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get many rows in Supabase",
+        "operation": "getAll",
+        "tableId": "enderecos",
+        "returnAll": true,
+        "matchType": "allFilters"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        192
+      ],
+      "id": "a49ca410-7391-4dc7-9348-bc2ff1fbae3e",
+      "name": "BusarEndereço",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create a row in Supabase",
+        "tableId": "enderecos",
+        "dataToSend": "autoMapInputData"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        192
+      ],
+      "id": "f8c048dd-d33b-45ac-8230-4e78fccd327d",
+      "name": "AdicionarEndereco",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Update a row in Supabase",
+        "operation": "update",
+        "tableId": "clientes",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "nome",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions0_Field_Value', ``, 'string') }}"
+            },
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions1_Field_Value', ``, 'string') }}"
+            },
+            {
+              "keyName": "telefone",
+              "condition": "eq"
+            }
+          ]
+        },
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        352
+      ],
+      "id": "5207db30-d18d-47f4-a3ce-b5389bedc51a",
+      "name": "AtualizarEndereco",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get many rows in Supabase",
+        "operation": "getAll",
+        "tableId": "horarios disponiveis",
+        "returnAll": true,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions0_Field_Value', ``, 'string') }}"
+            },
+            {
+              "keyName": "nome",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions1_Field_Value', ``, 'string') }}"
+            },
+            {
+              "keyName": "telefone",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions2_Field_Value', ``, 'string') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1952,
+        48
+      ],
+      "id": "c4ac2524-460d-4ca8-bb6f-60a508574aef",
+      "name": "ConsultarHorario",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Agendamentos_SDR": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Simple Memory3": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "removerPedido": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AdicionarCliente": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BusarCliente": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ConsultarCardapio": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ConsultarPedido": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CriarPedido": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AtualizarPedido": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AtualizarCliente": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BusarEndereço": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AdicionarEndereco": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AtualizarEndereco": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ConsultarHorario": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "020e0ae71dbc9efa09c74c5ef0974b54c96a970aa70d2e33253a5882fd59a1c8"
+  }
+}
