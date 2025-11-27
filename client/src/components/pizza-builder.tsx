@@ -1,19 +1,20 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useCartStore } from "@/lib/store";
-import { MENU_ITEMS, SIZES, Size, PizzaFlavor } from "@/data/menu";
-import { Check, Plus, Minus } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { MENU_ITEMS, SIZES, CRUST_OPTIONS, EDGE_OPTIONS, getEdgePrice, Size, PizzaFlavor } from "@/data/menu";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function PizzaBuilder() {
   const { isBuilderOpen, closeBuilder, currentBuilderItem, addToCart } = useCartStore();
   const [selectedSize, setSelectedSize] = useState<Size>("G");
   const [selectedFlavors, setSelectedFlavors] = useState<PizzaFlavor[]>([]);
+  const [selectedCrust, setSelectedCrust] = useState<string>("media");
+  const [selectedEdge, setSelectedEdge] = useState<string>("sem-borda");
   
   // Reset state when opening
   useEffect(() => {
@@ -27,6 +28,8 @@ export function PizzaBuilder() {
       }
       
       setSelectedFlavors([currentBuilderItem]);
+      setSelectedCrust("media");
+      setSelectedEdge("sem-borda");
     }
   }, [isBuilderOpen, currentBuilderItem]);
 
@@ -41,11 +44,13 @@ export function PizzaBuilder() {
     item.prices[selectedSize] !== undefined
   );
 
-  // Price Calculation: Highest price flavor for that size
+  // Price Calculation
   const calculatePrice = () => {
     if (selectedFlavors.length === 0) return 0;
-    const prices = selectedFlavors.map(f => f.prices[selectedSize] || 0);
-    return Math.max(...prices);
+    const flavorPrices = selectedFlavors.map(f => f.prices[selectedSize] || 0);
+    const basePrice = Math.max(...flavorPrices); // Highest price logic
+    const edgePrice = getEdgePrice(selectedEdge, selectedSize);
+    return basePrice + edgePrice;
   };
 
   const totalPrice = calculatePrice();
@@ -69,7 +74,10 @@ export function PizzaBuilder() {
       size: selectedSize,
       flavors: selectedFlavors,
       quantity: 1,
-      price: totalPrice
+      price: totalPrice,
+      crust: selectedCrust,
+      edge: selectedEdge,
+      edgePrice: getEdgePrice(selectedEdge, selectedSize)
     });
   };
 
@@ -97,7 +105,7 @@ export function PizzaBuilder() {
             {/* Size Selection */}
             <section>
               <h3 className="text-lg font-heading font-semibold mb-3 text-foreground flex items-center justify-between">
-                Escolha o Tamanho
+                1. Escolha o Tamanho
                 <span className="text-sm font-normal text-muted-foreground bg-secondary px-2 py-1 rounded-md">
                   {currentSizeConfig.slices} fatias
                 </span>
@@ -108,9 +116,9 @@ export function PizzaBuilder() {
                     key={size}
                     onClick={() => {
                       setSelectedSize(size);
-                      // Reset flavors if not compatible, but try to keep current one if possible
+                      // Reset flavors if not compatible
                       if (!currentBuilderItem.prices[size]) {
-                         // This case shouldn't happen often due to logic above, but safe guard
+                         // Logic handled by effect
                       }
                     }}
                     className={cn(
@@ -131,11 +139,60 @@ export function PizzaBuilder() {
               </div>
             </section>
 
+            {/* Crust Selection */}
+            <section>
+              <h3 className="text-lg font-heading font-semibold mb-3 text-foreground">
+                2. Escolha a Massa
+              </h3>
+              <RadioGroup value={selectedCrust} onValueChange={setSelectedCrust} className="grid grid-cols-3 gap-2">
+                {CRUST_OPTIONS.map((crust) => (
+                  <div key={crust.id}>
+                    <RadioGroupItem value={crust.id} id={crust.id} className="peer sr-only" />
+                    <Label
+                      htmlFor={crust.id}
+                      className="flex flex-col items-center justify-center rounded-xl border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 peer-data-[state=checked]:text-primary cursor-pointer transition-all h-full"
+                    >
+                      <span className="font-medium text-sm text-center">{crust.name}</span>
+                    </Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            </section>
+
+            {/* Edge Selection */}
+            <section>
+              <h3 className="text-lg font-heading font-semibold mb-3 text-foreground">
+                3. Escolha a Borda
+              </h3>
+              <div className="grid grid-cols-2 gap-2">
+                {EDGE_OPTIONS.map((edge) => {
+                  const price = getEdgePrice(edge.id, selectedSize);
+                  return (
+                    <button
+                      key={edge.id}
+                      onClick={() => setSelectedEdge(edge.id)}
+                      className={cn(
+                        "flex items-center justify-between p-3 rounded-xl border-2 transition-all text-left",
+                        selectedEdge === edge.id
+                          ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                          : "border-muted hover:border-primary/50"
+                      )}
+                    >
+                      <span className="font-medium text-sm">{edge.name}</span>
+                      {price > 0 && (
+                        <span className="text-xs font-bold text-accent">+ R$ {price.toFixed(2)}</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+
             {/* Flavor Selection */}
             <section>
               <div className="flex items-center justify-between mb-4 sticky top-0 bg-card py-2 z-10 border-b border-border/50 backdrop-blur-sm">
                 <h3 className="text-lg font-heading font-semibold text-foreground">
-                  Sabores
+                  4. Sabores
                 </h3>
                 <div className="text-sm font-medium px-3 py-1 rounded-full bg-accent/10 text-accent-foreground/90 bg-accent">
                   {selectedFlavors.length}/{maxFlavors} selecionados

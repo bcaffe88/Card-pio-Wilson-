@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { PizzaFlavor, Size, MENU_ITEMS } from '@/data/menu';
+import { PizzaFlavor, Size, MENU_ITEMS, CrustOption, EdgeOption } from '@/data/menu';
 
 export interface CartItem {
   id: string; // Unique ID for cart item
@@ -8,6 +8,9 @@ export interface CartItem {
   quantity: number;
   price: number;
   notes?: string;
+  crust: string; // Crust ID
+  edge: string; // Edge ID
+  edgePrice: number;
 }
 
 interface CartState {

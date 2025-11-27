@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCartStore } from "@/lib/store";
@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { SIZES } from "@/data/menu";
+import { SIZES, CRUST_OPTIONS, EDGE_OPTIONS } from "@/data/menu";
 
 export function CartDrawer() {
   const { items, isCartOpen, toggleCart, removeFromCart, updateQuantity } = useCartStore();
@@ -21,14 +21,19 @@ export function CartDrawer() {
   const [changeFor, setChangeFor] = useState('');
   const [notes, setNotes] = useState('');
 
+  // Calculate total considering base price (which includes edge price now) * quantity
   const total = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
   const handleCheckout = () => {
-    const phoneNumber = "5587999480699"; // From PDF
+    const phoneNumber = "5587999480699";
     
     const itemsList = items.map(item => {
       const flavors = item.flavors.map(f => f.name).join(', ');
-      return `- ${item.quantity}x Pizza ${SIZES[item.size].label} (${flavors})`;
+      const crustName = CRUST_OPTIONS.find(c => c.id === item.crust)?.name || 'Massa Média';
+      const edgeName = EDGE_OPTIONS.find(e => e.id === item.edge)?.name || 'Sem Borda';
+      const edgePrice = item.edgePrice > 0 ? `(+R$ ${item.edgePrice.toFixed(2)})` : '';
+      
+      return `- ${item.quantity}x Pizza ${SIZES[item.size].label} (${flavors})\n  ${crustName} | ${edgeName} ${edgePrice}`;
     }).join('\n');
 
     const message = `
@@ -80,53 +85,60 @@ ${paymentMethod === 'dinheiro' ? `*TROCO PARA:* ${changeFor || 'Sem troco'}` : '
             <ScrollArea className="flex-1 bg-background/50">
               {step === 'cart' ? (
                 <div className="p-6 space-y-6">
-                  {items.map((item) => (
-                    <div key={item.id} className="flex gap-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-                      <div className="w-20 h-20 rounded-lg overflow-hidden shrink-0 border border-border bg-muted">
-                         <img src={item.flavors[0].image} alt={item.flavors[0].name} className="w-full h-full object-cover" />
-                      </div>
-                      
-                      <div className="flex-1 space-y-1">
-                        <div className="flex justify-between items-start">
-                          <h4 className="font-bold text-sm line-clamp-2 leading-tight">
-                            {item.flavors.map(f => f.name).join(' + ')}
-                          </h4>
-                          <button 
-                            onClick={() => removeFromCart(item.id)}
-                            className="text-muted-foreground hover:text-destructive transition-colors p-1"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                  {items.map((item) => {
+                     const edgeName = EDGE_OPTIONS.find(e => e.id === item.edge)?.name;
+                     const crustName = CRUST_OPTIONS.find(c => c.id === item.crust)?.name;
+                     
+                     return (
+                      <div key={item.id} className="flex gap-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                        <div className="w-20 h-20 rounded-lg overflow-hidden shrink-0 border border-border bg-muted">
+                          <img src={item.flavors[0].image} alt={item.flavors[0].name} className="w-full h-full object-cover" />
                         </div>
                         
-                        <p className="text-xs text-muted-foreground">
-                          Tamanho {SIZES[item.size].label} • {item.flavors.length} Sabores
-                        </p>
-                        
-                        <div className="flex justify-between items-center pt-2">
-                          <span className="font-bold text-primary">
-                            R$ {(item.price * item.quantity).toFixed(2)}
-                          </span>
+                        <div className="flex-1 space-y-1">
+                          <div className="flex justify-between items-start">
+                            <h4 className="font-bold text-sm line-clamp-2 leading-tight">
+                              {item.flavors.map(f => f.name).join(' + ')}
+                            </h4>
+                            <button 
+                              onClick={() => removeFromCart(item.id)}
+                              className="text-muted-foreground hover:text-destructive transition-colors p-1"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                           
-                          <div className="flex items-center gap-3 bg-card border border-border rounded-md h-8 px-1 shadow-sm">
-                            <button 
-                              onClick={() => updateQuantity(item.id, -1)}
-                              className="p-1 hover:bg-muted rounded text-foreground/70"
-                            >
-                              <Minus className="w-3 h-3" />
-                            </button>
-                            <span className="text-xs font-medium w-4 text-center">{item.quantity}</span>
-                            <button 
-                              onClick={() => updateQuantity(item.id, 1)}
-                              className="p-1 hover:bg-muted rounded text-foreground/70"
-                            >
-                              <Plus className="w-3 h-3" />
-                            </button>
+                          <div className="text-xs text-muted-foreground space-y-0.5">
+                            <p>Tamanho {SIZES[item.size].label}</p>
+                            <p>{crustName}</p>
+                            {item.edge !== 'sem-borda' && <p className="text-accent">{edgeName}</p>}
+                          </div>
+                          
+                          <div className="flex justify-between items-center pt-2">
+                            <span className="font-bold text-primary">
+                              R$ {(item.price * item.quantity).toFixed(2)}
+                            </span>
+                            
+                            <div className="flex items-center gap-3 bg-card border border-border rounded-md h-8 px-1 shadow-sm">
+                              <button 
+                                onClick={() => updateQuantity(item.id, -1)}
+                                className="p-1 hover:bg-muted rounded text-foreground/70"
+                              >
+                                <Minus className="w-3 h-3" />
+                              </button>
+                              <span className="text-xs font-medium w-4 text-center">{item.quantity}</span>
+                              <button 
+                                onClick={() => updateQuantity(item.id, 1)}
+                                className="p-1 hover:bg-muted rounded text-foreground/70"
+                              >
+                                <Plus className="w-3 h-3" />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="p-6 space-y-8 animate-in slide-in-from-right-4 duration-300">

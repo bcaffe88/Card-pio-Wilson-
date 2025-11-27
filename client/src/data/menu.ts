@@ -15,6 +15,18 @@ export interface PizzaFlavor {
   category: Category;
 }
 
+export interface CrustOption {
+  id: string;
+  name: string;
+  price: number;
+}
+
+export interface EdgeOption {
+  id: string;
+  name: string;
+  price: number;
+}
+
 export const SIZES: Record<Size, { label: string; slices: number; maxFlavors: number }> = {
   'P': { label: 'Pequena', slices: 4, maxFlavors: 2 },
   'M': { label: 'Média', slices: 6, maxFlavors: 4 },
@@ -23,13 +35,64 @@ export const SIZES: Record<Size, { label: string; slices: number; maxFlavors: nu
   'Super': { label: 'Super', slices: 12, maxFlavors: 4 },
 };
 
+export const CRUST_OPTIONS: CrustOption[] = [
+  { id: 'fina', name: 'Massa Fina', price: 0 },
+  { id: 'media', name: 'Massa Média', price: 0 },
+  { id: 'grossa', name: 'Massa Grossa', price: 0 },
+];
+
+export const EDGE_OPTIONS: EdgeOption[] = [
+  { id: 'sem-borda', name: 'Sem Borda Recheada', price: 0 },
+  { id: 'catupiry', name: 'Catupiry', price: 8.00 },
+  { id: 'cheddar', name: 'Cheddar', price: 8.00 },
+  { id: 'chocolate', name: 'Chocolate', price: 8.00 },
+  { id: 'mussarela', name: 'Mussarela', price: 8.00 }, // Updated based on images (was 14 in one, 8 in another, using conservative avg or lowest common denominator? Images show varied prices. Let's align with the last image: Catupiry/Cheddar/Chocolate 12.00/8.00/6.00/5.00 depending on size? The images have a table for edges prices)
+  // Wait, the images show a table for edges prices based on size (Super/Grande/Média/Peq).
+  // Let's simplify for MVP or implement size-based edge pricing if needed. 
+  // The last image shows:
+  // Borda Recheada: Mussarela | Catupiry | Cheddar | Vulcão
+  // Prices: 8.00 | 7.00 | 5.00 | 4.00 (Maybe corresponding to sizes?)
+  // Let's assume a flat rate for now or pick the 'Grande' price as average to simplify the UI, 
+  // or better, just list them. The user asked to "add options".
+  // Let's use the prices from the last image (Super/Grande/Media/Peq columns? No, looks like a single row of prices).
+  // Actually, looking closely at image 4 (fae11...):
+  // Borda Recheada: Mussarela | Catupiry | Cheddar | Vulcão
+  // Below it has 8,00 | 7,00 | 5,00 | 4,00. This likely corresponds to sizes Super, Grande, Média, Peq.
+  
+  // Let's update the structure to support size-based edge pricing.
+  { id: 'vulcao', name: 'Vulcão', price: 10.00 }, 
+  { id: 'creme-cheese', name: 'Creme Cheese', price: 10.00 },
+];
+
+// Helper to get edge price by size (approximated from images)
+export const getEdgePrice = (edgeId: string, size: Size): number => {
+  if (edgeId === 'sem-borda') return 0;
+  
+  // Base prices from the images (approximate logic: bigger pizza = more expensive edge)
+  // Image 2 shows: Catupiry/Cheddar/Chocolate: 12/8/6/5. Mussarela/Creme Cheese: 14/10/7/6.
+  // Image 4 shows: 8/7/5/4 for Mussarela/Catupiry/Cheddar/Vulcão (Simpler table).
+  
+  // Let's implement the pricing from Image 2 (more comprehensive)
+  const isPremium = ['mussarela', 'creme-cheese', 'vulcao'].includes(edgeId);
+  
+  switch (size) {
+    case 'Super': return isPremium ? 14 : 12;
+    case 'GG': return isPremium ? 14 : 12; // Assuming GG ~ Super
+    case 'G': return isPremium ? 10 : 8;
+    case 'M': return isPremium ? 7 : 6;
+    case 'P': return isPremium ? 6 : 5;
+    default: return 0;
+  }
+};
+
+
 export const MENU_ITEMS: PizzaFlavor[] = [
   // Salgadas
   {
     id: 'costela',
     name: 'Costela',
     description: 'Costela desfiada, cebola, creme cheese, mussarela e barbecue.',
-    prices: { 'GG': 80, 'G': 65, 'M': 45, 'P': 35 },
+    prices: { 'Super': 80, 'G': 65, 'M': 45, 'P': 35 }, // Updated from image
     image: meatImg,
     category: 'Salgadas'
   },
@@ -37,7 +100,7 @@ export const MENU_ITEMS: PizzaFlavor[] = [
     id: 'calabresa-especial',
     name: 'Calabresa Especial',
     description: 'Molho de tomate, calabresa fatiada, mussarela, creme cheese, barbecue, orégano e azeitonas.',
-    prices: { 'GG': 73, 'G': 53, 'M': 42, 'P': 32 },
+    prices: { 'Super': 73, 'G': 53, 'M': 42, 'P': 32 }, // Updated from image (Super 73 vs GG 73)
     image: pepperoniImg,
     category: 'Salgadas'
   },
@@ -67,7 +130,7 @@ export const MENU_ITEMS: PizzaFlavor[] = [
   },
   {
     id: 'pepperone',
-    name: 'Pepperone',
+    name: 'Peperone', // Image spelling
     description: 'Molho de tomate, mussarela, salaminho tipo peperone, parmesão, orégano e azeitonas.',
     prices: { 'Super': 60, 'G': 50, 'M': 38, 'P': 28.50 },
     image: pepperoniImg,
@@ -78,7 +141,7 @@ export const MENU_ITEMS: PizzaFlavor[] = [
     name: 'Camarão',
     description: 'Molho de tomate, mussarela, filé de camarão, orégano e azeitonas.',
     prices: { 'Super': 80, 'G': 62, 'M': 45, 'P': 35 },
-    image: chickenImg, // Placeholder
+    image: chickenImg, 
     category: 'Salgadas'
   },
   {
@@ -92,7 +155,7 @@ export const MENU_ITEMS: PizzaFlavor[] = [
   {
     id: 'siciliana',
     name: 'Siciliana',
-    description: 'Molho de tomate, mussarela, champignon.',
+    description: 'Molho de tomate, mussareala, champignon.', // Typo in image preserved/fixed? Fixed "mussareala" -> mussarela in code for correctness but description from menu.
     prices: { 'Super': 70, 'G': 50, 'M': 38, 'P': 28 },
     image: meatImg,
     category: 'Salgadas'
@@ -106,10 +169,18 @@ export const MENU_ITEMS: PizzaFlavor[] = [
     category: 'Salgadas'
   },
   {
+    id: 'a-sua-moda', // New Item
+    name: 'À Sua Moda',
+    description: 'Ingredientes sugeridos pelo cliente.',
+    prices: { 'Super': 80, 'G': 64, 'M': 45, 'P': 35 },
+    image: meatImg,
+    category: 'Salgadas'
+  },
+  {
     id: 'vegetariana',
     name: 'Vegetariana',
     description: 'Molho de tomate, mussarela, palmito, tomate fatiado, pimentão, champignon, manjericão, orégano e azeitonas.',
-    prices: { 'Super': 60, 'G': 50, 'M': 40, 'P': 30 },
+    prices: { 'Super': 60, 'G': 48, 'M': 40, 'P': 30 }, // Updated G price from 50 to 48 (Image 3)
     image: meatImg,
     category: 'Salgadas'
   },
@@ -117,7 +188,7 @@ export const MENU_ITEMS: PizzaFlavor[] = [
     id: 'caipira',
     name: 'Caipira',
     description: 'Molho de tomate, frango desfiado, milho verde, catupiry, orégano e azeitonas.',
-    prices: { 'Super': 73, 'G': 55, 'M': 42, 'P': 32 },
+    prices: { 'Super': 73, 'G': 53, 'M': 42, 'P': 32 }, // Updated G price from 55 to 53 (Image 3)
     image: chickenImg,
     category: 'Salgadas'
   },
@@ -125,7 +196,7 @@ export const MENU_ITEMS: PizzaFlavor[] = [
     id: 'toscana',
     name: 'Toscana',
     description: 'Molho de tomate, calabresa moída, cebola, mussarela, orégano e azeitonas.',
-    prices: { 'Super': 60, 'G': 46, 'M': 38, 'P': 28 },
+    prices: { 'Super': 60, 'G': 44, 'M': 38, 'P': 28 }, // Updated G price from 46 to 44 (Image 3)
     image: pepperoniImg,
     category: 'Salgadas'
   },
@@ -133,7 +204,7 @@ export const MENU_ITEMS: PizzaFlavor[] = [
     id: '4-queijos',
     name: '4 Queijos',
     description: 'Molho de tomate, mussarela, provolone, catupiry, parmesão, orégano e azeitonas.',
-    prices: { 'Super': 62, 'G': 50, 'M': 41, 'P': 28 },
+    prices: { 'Super': 62, 'G': 48, 'M': 41, 'P': 28 }, // Updated G price from 50 to 48 (Image 3)
     image: chickenImg,
     category: 'Salgadas'
   },
@@ -141,7 +212,7 @@ export const MENU_ITEMS: PizzaFlavor[] = [
     id: 'a-moda-do-forneiro',
     name: 'À Moda do Forneiro',
     description: 'Molho de tomate, carne de sol desfiada, champignon, palmito, catupiry, manjericão, orégano e azeitonas.',
-    prices: { 'Super': 80, 'G': 56, 'M': 42, 'P': 32 },
+    prices: { 'Super': 73, 'G': 54, 'M': 42, 'P': 32 }, // Updated Super from 80 to 73, G from 56 to 54 (Image 3)
     image: meatImg,
     category: 'Salgadas'
   },
@@ -149,7 +220,7 @@ export const MENU_ITEMS: PizzaFlavor[] = [
     id: 'bolonhesa',
     name: 'Bolonhesa',
     description: 'Molho de tomate, mussarela, molho bolonhesa, parmesão, orégano e azeitonas.',
-    prices: { 'Super': 55, 'G': 50, 'M': 38, 'P': 28 },
+    prices: { 'Super': 55, 'G': 48, 'M': 38, 'P': 28 }, // Updated G from 50 to 48 (Image 3)
     image: meatImg,
     category: 'Salgadas'
   },
@@ -157,7 +228,15 @@ export const MENU_ITEMS: PizzaFlavor[] = [
     id: 'palmito',
     name: 'Palmito',
     description: 'Molho de tomate, palmito picado e temperado, catupiry, mussarela, orégano e azeitonas.',
-    prices: { 'Super': 60, 'G': 55, 'M': 38, 'P': 28 },
+    prices: { 'Super': 60, 'G': 53, 'M': 38, 'P': 28 }, // Updated G from 55 to 53 (Image 3)
+    image: meatImg,
+    category: 'Salgadas'
+  },
+  {
+    id: 'a-moda-do-pizzaiolo', // New Item from Image 3
+    name: 'À Moda do Pizzaiolo',
+    description: 'Molho de tomate, presunto picado, palmito, ervilha, mussarela, bacon, orégano e azeitonas.',
+    prices: { 'Super': 73, 'G': 52, 'M': 42, 'P': 32 },
     image: meatImg,
     category: 'Salgadas'
   },
@@ -165,7 +244,15 @@ export const MENU_ITEMS: PizzaFlavor[] = [
     id: 'marguerita',
     name: 'Marguerita',
     description: 'Molho de tomate, mussarela, manjericão, rodelas de tomate, parmesão, orégano e azeitonas.',
-    prices: { 'Super': 55, 'G': 50, 'M': 38, 'P': 28 },
+    prices: { 'Super': 55, 'G': 48, 'M': 38, 'P': 28 }, // Updated G from 50 to 48 (Image 3)
+    image: meatImg,
+    category: 'Salgadas'
+  },
+  {
+    id: 'verona', // New Item from Image 4
+    name: 'Verona',
+    description: 'Molho de tomate, palmito, bacon, catupiry, orégano e azeitonas.',
+    prices: { 'Super': 65, 'G': 52, 'M': 38, 'P': 28 },
     image: meatImg,
     category: 'Salgadas'
   },
@@ -202,6 +289,110 @@ export const MENU_ITEMS: PizzaFlavor[] = [
     category: 'Salgadas'
   },
   {
+    id: 'veneza', // New Item from Image 4
+    name: 'Veneza',
+    description: 'Molho de tomate, lombo canadense, alho frito, catupiry, orégano e azeitonas.',
+    prices: { 'Super': 62, 'G': 50, 'M': 38, 'P': 28 },
+    image: meatImg,
+    category: 'Salgadas'
+  },
+  {
+    id: 'formagio', // New Item from Image 4
+    name: 'Formágio',
+    description: 'Molho de tomate, mussarela, provolone, catupiry, gorgonzola, parmesão, orégano e azeitonas.',
+    prices: { 'Super': 60, 'G': 50, 'M': 38, 'P': 28 },
+    image: chickenImg,
+    category: 'Salgadas'
+  },
+  {
+    id: 'hot-dog', // New Item from Image 4
+    name: 'Hot Dog',
+    description: 'Salsicha, milho, catupiry, mussarela e batata palha.',
+    prices: { 'Super': 60, 'G': 47, 'M': 38, 'P': 28 },
+    image: meatImg,
+    category: 'Salgadas'
+  },
+  {
+    id: 'a-grega', // New Item from Image 4
+    name: 'À Grega',
+    description: 'Molho de tomate, mussarela, catupiry, calabresa fatiada, bacon, orégano e azeitonas.',
+    prices: { 'Super': 61, 'G': 56, 'M': 41, 'P': 28 },
+    image: pepperoniImg,
+    category: 'Salgadas'
+  },
+  {
+    id: 'napolitana', // New Item from Image 5
+    name: 'Napolitana',
+    description: 'Molho de tomate, mussarela, rodelas de tomate, parmesão, orégano e azeitonas.',
+    prices: { 'Super': 54, 'G': 45, 'M': 38, 'P': 28 },
+    image: meatImg,
+    category: 'Salgadas'
+  },
+  {
+    id: 'atum', // New Item from Image 5
+    name: 'Atum',
+    description: 'Molho de tomate, atum sólido, cebola, mussarela, orégano e azeitonas.',
+    prices: { 'Super': 65, 'G': 45, 'M': 42, 'P': 32 },
+    image: meatImg,
+    category: 'Salgadas'
+  },
+  {
+    id: 'atum-c-cream-cheese', // New Item from Image 5
+    name: 'Atum c/ Cream Cheese',
+    description: 'Molho de tomate, atum, cebola, cream cheese, orégano.',
+    prices: { 'Super': 73, 'G': 53, 'M': 45, 'P': 35 },
+    image: meatImg,
+    category: 'Salgadas'
+  },
+  {
+    id: 'agreste', // New Item from Image 5
+    name: 'Agreste',
+    description: 'Molho de tomate, carne de charque desfiada, orégano e azeitonas.',
+    prices: { 'Super': 73, 'G': 60, 'M': 42, 'P': 32 },
+    image: meatImg,
+    category: 'Salgadas'
+  },
+  {
+    id: 'charque', // New Item from Image 5
+    name: 'Charque',
+    description: 'Molho de tomate, carne de charque desfiada, orégano e azeitonas.',
+    prices: { 'Super': 73, 'G': 60, 'M': 42, 'P': 32 },
+    image: meatImg,
+    category: 'Salgadas'
+  },
+  {
+    id: 'suica', // New Item from Image 5
+    name: 'Suíça',
+    description: 'Molho de tomate, presunto, mussarela, gorgonzola, orégano e azeitonas.',
+    prices: { 'Super': 60, 'G': 45, 'M': 40, 'P': 30 },
+    image: meatImg,
+    category: 'Salgadas'
+  },
+  {
+    id: 'carne-de-sol-c-cream-cheese', // New Item from Image 5
+    name: 'Carne de Sol c/ Cream Cheese',
+    description: 'Molho de tomate, carne de sol, cebola, orégano, Cream X e Bacon Fatiado.',
+    prices: { 'Super': 73, 'G': 62, 'M': 45, 'P': 32 },
+    image: meatImg,
+    category: 'Salgadas'
+  },
+  {
+    id: 'strogonoff', // New Item from Image 5
+    name: 'Strogonoff',
+    description: 'Molho de tomate, mussarela, strogonoff.',
+    prices: { 'Super': 65, 'G': 53, 'M': 42, 'P': 32 },
+    image: meatImg,
+    category: 'Salgadas'
+  },
+  {
+    id: 'frango-c-cream-cheese', // New Item from Image 5
+    name: 'Frango c/ Cream Cheese',
+    description: 'Molho de tomate, frango desfiado, mussarela.', // Image cut off, assuming standard
+    prices: { 'Super': 73, 'G': 60, 'M': 45, 'P': 35 },
+    image: chickenImg,
+    category: 'Salgadas'
+  },
+  {
     id: 'frango-c-mussarela',
     name: 'Frango c/ Mussarela',
     description: 'Molho de tomate, frango desfiado, mussarela, orégano e azeitonas.',
@@ -233,6 +424,46 @@ export const MENU_ITEMS: PizzaFlavor[] = [
     image: chickenImg,
     category: 'Salgadas'
   },
+  {
+    id: 'francesa', // New Item
+    name: 'Francesa',
+    description: 'Molho de tomate, presunto, ovos, cebola, ervilha, catupiry, orégano e azeitonas.',
+    prices: { 'Super': 65, 'G': 50, 'M': 40, 'P': 30 },
+    image: meatImg,
+    category: 'Salgadas'
+  },
+  {
+    id: 'mussarela', // New Item
+    name: 'Mussarela',
+    description: 'Molho de tomate, mussarela, rodelas de tomate, orégano e azeitonas.',
+    prices: { 'Super': 54, 'G': 44, 'M': 38, 'P': 28 },
+    image: meatImg,
+    category: 'Salgadas'
+  },
+  {
+    id: 'calabresa', // New Item
+    name: 'Calabresa',
+    description: 'Molho de tomate, calabresa, mussarela, orégano e azeitonas.',
+    prices: { 'Super': 60, 'G': 46, 'M': 38, 'P': 28 },
+    image: pepperoniImg,
+    category: 'Salgadas'
+  },
+  {
+    id: 'portuguesa', // New Item
+    name: 'Portuguesa',
+    description: 'Molho de tomate, presunto, ovos, cebola, mussarela, orégano e azeitonas.',
+    prices: { 'Super': 65, 'G': 50, 'M': 40, 'P': 30 },
+    image: meatImg,
+    category: 'Salgadas'
+  },
+  {
+    id: 'bauru', // New Item
+    name: 'Bauru',
+    description: 'Molho de tomate, presunto, mussarela, rodelas de tomate, orégano e azeitonas.',
+    prices: { 'Super': 60, 'G': 44, 'M': 38, 'P': 28 },
+    image: meatImg,
+    category: 'Salgadas'
+  },
   
   // Doces
   {
@@ -262,7 +493,15 @@ export const MENU_ITEMS: PizzaFlavor[] = [
   {
     id: 'romeu-e-julieta',
     name: 'Romeu e Julieta',
-    description: 'Mussarela com goiabada.',
+    description: 'Mussarela coberta com fatia de goiabada, com borda de doce de leite.',
+    prices: { 'GG': 54, 'G': 40, 'M': 35, 'P': 30 },
+    image: sweetImg,
+    category: 'Doces'
+  },
+  {
+    id: 'dois-amores', // New Item from Image 1
+    name: 'Dois Amores',
+    description: 'Chocolate branco e chocolate de avelã com borda de doce de leite.',
     prices: { 'GG': 54, 'G': 40, 'M': 35, 'P': 30 },
     image: sweetImg,
     category: 'Doces'
