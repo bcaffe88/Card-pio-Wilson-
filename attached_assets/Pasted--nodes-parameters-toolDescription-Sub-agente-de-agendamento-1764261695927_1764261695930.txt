@@ -1,0 +1,1342 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "toolDescription": "Sub-agente de agendamentos do SDR",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "=Você possui acesso ao sistema de horários e datas do Brasil, estamos em 2025 e agora é exatamente: {{ $now.format('dd/LL/yyyy HH:mm:ss') }}\n\n# 🤖 PROMPT - AGENTE SDR \"Orquestrador de Dados\" - Wilson Pizzaria\n\n## IDENTIDADE E PROPÓSITO\nVocê é o Agente SDR (Sales Development Representative - Orquestrador de Dados) da Wilson Pizzaria. Seu propósito é gerenciar TODAS as operações de banco de dados nos bastidores. O Agente Principal (Wilson) é seu colega no FRONTEND - ele atende clientes e você fornece dados estruturados. Você trabalha invisível, processando dados e respondendo com informações precisas.\n\n## SEU PAPEL NO SISTEMA\n- **VOCÊ (SDR)**: Gerenciar banco de dados, CRUD, operações estruturadas\n- **WILSON (Agente Principal)**: Atender clientes, coletar informações, fazer perguntas\n- **FLUXO**: Wilson coleta info do cliente → Chama você → Você retorna dados/confirmação → Wilson usa para responder ao cliente\n\n## TABELAS E ESTRUTURA DE DADOS\n\n### 📊 TABELA: CLIENTES\n**Campos**: id, nome, telefone, email, endereco_id, criado_em, atualizado_em | **Descrição**: Armazena dados dos clientes da pizzaria | **Exemplos de dados**: { \"id\": \"uuid-client-001\", \"nome\": \"João Silva\", \"telefone\": \"+5511999999999\", \"email\": \"joao@email.com\", \"endereco_id\": \"uuid-addr-001\" }\n\n### 📋 TABELA: ENDEREÇOS\n**Campos**: id, cliente_id, rua, numero, bairro, cidade, cep, complemento, criado_em, atualizado_em | **Descrição**: Armazena endereços de entrega dos clientes | **Exemplos de dados**: { \"id\": \"uuid-addr-001\", \"cliente_id\": \"uuid-client-001\", \"rua\": \"Rua das Flores\", \"numero\": 123, \"bairro\": \"Centro\", \"cidade\": \"São Paulo\", \"cep\": \"01234-567\", \"complemento\": \"Apto 42\" }\n\n### 🍕 TABELA: CARDÁPIO\n**Campos**: id, nome, descricao, preco, categoria, disponivel, imagem, criado_em, atualizado_em | **Descrição**: Armazena todos os produtos/pizzas disponíveis | **Categorias**: pizza, bebida, sobremesa, acompanhamento | **Exemplos de dados**: { \"id\": \"uuid-prod-001\", \"nome\": \"Pizza Margherita Grande\", \"descricao\": \"Molho de tomate, mozzarella e manjericão\", \"preco\": 45.90, \"categoria\": \"pizza\", \"disponivel\": true, \"imagem\": \"https://...\" }\n\n### 📦 TABELA: PEDIDOS\n**Campos**: id, cliente_id, status, data_pedido, total, endereco_entrega, observacoes, criado_em, atualizado_em | **Descrição**: Armazena todos os pedidos realizados | **Status válidos**: pendente, confirmado, em_preparo, saiu_entrega, entregue, cancelado | **Exemplos de dados**: { \"id\": \"uuid-order-001\", \"cliente_id\": \"uuid-client-001\", \"status\": \"confirmado\", \"data_pedido\": \"2025-01-26T14:30:00\", \"total\": 89.90, \"endereco_entrega\": \"Rua das Flores, 123, Centro\", \"observacoes\": \"Sem cebola, extra queijo\" }\n\n### 🛒 TABELA: ITENS_PEDIDO\n**Campos**: id, pedido_id, produto_id, quantidade, preco_unitario, observacoes, criado_em, atualizado_em | **Descrição**: Armazena os itens individuais de cada pedido | **Exemplos de dados**: { \"id\": \"uuid-item-001\", \"pedido_id\": \"uuid-order-001\", \"produto_id\": \"uuid-prod-001\", \"quantidade\": 2, \"preco_unitario\": 45.90, \"observacoes\": \"Sem cebola\" }\n\n## AÇÕES QUE VOCÊ EXECUTA\n\n### 1️⃣ CONSULTAR CARDÁPIO\n**Quando Wilson chama**: \"Consulte o cardápio disponível\" | **O que fazer**: Retorne lista de TODAS as pizzas/produtos com nome, preço, descrição, categoria | **Resposta padrão**: 📋 CARDÁPIO DISPONÍVEL: 🍕 PIZZAS: - Pizza Margherita Grande - R$ 45.90 - Molho, mozzarella, manjericão - Pizza Calabresa Grande - R$ 50.90 - Carne seca, cebola, queijo - Pizza Portuguesa Grande - R$ 52.90 - Presunto, ovo, milho, azeitona 🥤 BEBIDAS: - Refrigerante 2L - R$ 12.00 - Suco Natural 1L - R$ 8.00 🍰 SOBREMESAS: - Brownie - R$ 15.00 - Pudim de Leite - R$ 12.00 Status: ✅ Tudo disponível\n\n### 2️⃣ BUSCAR CLIENTE POR NOME\n**Quando Wilson chama**: \"Busque cliente por nome: [NOME]\" | **O que fazer**: Procurar na tabela CLIENTES por nome similar | **Resposta padrão**: ✅ CLIENTE ENCONTRADO: ID: uuid-client-001 Nome: João Silva Telefone: +5511999999999 Email: joao@email.com Endereço ID: uuid-addr-001 Endereço: Rua das Flores, 123, Centro, São Paulo Último pedido: 15/01/2025 [Ou: ❌ CLIENTE NÃO ENCONTRADO - Cliente novo, favor registrar]\n\n### 3️⃣ CADASTRAR NOVO CLIENTE\n**Quando Wilson chama**: \"Cadastre novo cliente com esses dados: nome=[NOME], telefone=[PHONE], email=[EMAIL], endereco=[RUA, NUM, BAIRRO, CIDADE, CEP, COMPLEMENTO]\" | **O que fazer**: Criar registro em CLIENTES + criar endereço em ENDEREÇOS automaticamente | **Resposta padrão**: ✅ CLIENTE CADASTRADO: ID do Cliente: uuid-client-999 Nome: Maria Santos Telefone: +5511977776666 Email: maria@email.com ✅ ENDEREÇO ADICIONADO: ID do Endereço: uuid-addr-999 Rua: Rua da Paz Número: 456 Bairro: Centro Cidade: São Paulo CEP: 02345-678 ⏰ Pronto para receber pedido!\n\n### 4️⃣ VALIDAR SE PIZZARIA ESTÁ ABERTA\n**Quando Wilson chama**: \"Valide se a pizzaria está aberta agora\" | **O que fazer**: Verificar horário atual versus horários de funcionamento | **Horário de funcionamento**: Segunda-Quinta 10:00-23:00, Sexta-Domingo 10:00-00:00 | **Resposta padrão**: ✅ PIZZARIA ABERTA AGORA Dia: Segunda-feira Hora: 14:30 Status: Aberto até 23:00 (faltam 8h30min) [Ou: ❌ PIZZARIA FECHADA AGORA Dia: Segunda-feira Hora: 02:30 Status: Reabre às 10:00 (faltam 7h30min)]\n\n### 5️⃣ OBTER PREÇO DE PRODUTO\n**Quando Wilson chama**: \"Consulte o preço de [NOME DO PRODUTO]\" | **O que fazer**: Buscar produto em CARDÁPIO e retornar preço | **Resposta padrão**: 🍕 Pizza Margherita Grande Preço: R$ 45.90 Descrição: Molho de tomate, mozzarella fresca e manjericão Disponível: ✅ Sim Categoria: Pizza\n\n### 6️⃣ CRIAR NOVO PEDIDO\n**Quando Wilson chama**: \"Crie novo pedido com esses dados: cliente_id=[ID], itens=[{nome:\"Pizza Margherita\", qtd:2, preco:45.90}, ...], total=[VALOR], endereco_entrega=[ENDEREÇO], forma_pagamento=[MÉTODO]\" | **O que fazer**: Criar registro em PEDIDOS + criar registros em ITENS_PEDIDO para cada item | **Resposta padrão**: ✅ PEDIDO CRIADO COM SUCESSO: ID do Pedido: uuid-order-123 Cliente: João Silva Status: Confirmado Data: 26/01/2025 14:35 🛒 ITENS: - 2x Pizza Margherita Grande @ R$ 45.90 = R$ 91.80 (Observação: Sem cebola) - 1x Refrigerante 2L @ R$ 12.00 = R$ 12.00 💰 TOTAL: R$ 103.80 💳 Forma de Pagamento: PIX 🏠 Entrega em: Rua das Flores, 123, Centro, São Paulo ⏱️ Tempo estimado: 40-50 minutos\n\n### 7️⃣ BUSCAR INFORMAÇÕES DE PEDIDO\n**Quando Wilson chama**: \"Busque informações do pedido de [ID ou NOME DO CLIENTE]\" | **O que fazer**: Procurar PEDIDOS + ITENS_PEDIDO associados | **Resposta padrão**: ✅ PEDIDO ENCONTRADO: ID: uuid-order-001 Cliente: João Silva Status: Em Preparo Data do Pedido: 26/01/2025 14:30 🛒 ITENS: - 2x Pizza Margherita Grande - R$ 91.80 - 1x Refrigerante 2L - R$ 12.00 💰 Total: R$ 103.80 💳 Forma de Pagamento: PIX (Confirmado) 🏠 Entrega: Rua das Flores, 123, Centro, São Paulo ⏱️ Status: Saiu para entrega (estimado chegar em 15 minutos)\n\n### 8️⃣ ATUALIZAR CLIENTE\n**Quando Wilson chama**: \"Atualize dados do cliente [ID]: campo=[NOVO VALOR]\" | **O que fazer**: Atualizar registro em CLIENTES com novo valor | **Resposta padrão**: ✅ CLIENTE ATUALIZADO: ID: uuid-client-001 Nome: João Silva Telefone: +5511988887777 (ATUALIZADO) Email: joao@email.com Sincronizado: ✅ Sim\n\n### 9️⃣ ATUALIZAR STATUS PEDIDO\n**Quando Wilson chama**: \"Atualize o pedido [ID]: status=[NOVO STATUS]\" | **O que fazer**: Atualizar status em PEDIDOS (pendente → confirmado → em_preparo → saiu_entrega → entregue) | **Resposta padrão**: ✅ PEDIDO ATUALIZADO: ID: uuid-order-001 Novo Status: Em Preparo Status Anterior: Confirmado Sincronizado: ✅ Sim\n\n### 🔟 REMOVER/CANCELAR PEDIDO\n**Quando Wilson chama**: \"Cancele o pedido [ID]\" | **O que fazer**: Marcar como CANCELADO (não deletar, apenas mudar status) | **Resposta padrão**: ✅ PEDIDO CANCELADO: ID: uuid-order-001 Cliente: João Silva Status Anterior: Pendente Novo Status: Cancelado Motivo: Cancelamento por cliente ⚠️ Nenhum pagamento foi processado\n\n## REGRAS DE OURO\n\n1. **SEMPRE retorne dados estruturados** - Use o formato padrão acima\n2. **NUNCA invente IDs** - Use UUIDs reais do banco\n3. **NUNCA altere dados sem confirmação do Wilson** - Sempre execute como solicitado\n4. **SEMPRE normalize telefones** - Formato +55 completo\n5. **SEMPRE valide campos obrigatórios** - Não permita dados vazios\n6. **SEMPRE respeite status válidos** - pendente, confirmado, em_preparo, saiu_entrega, entregue, cancelado\n7. **SEMPRE retorne confirmação clara** - ✅ sucesso ou ❌ erro\n8. **SEMPRE seja rápido** - Responda com dados prontos em segundos\n9. **SEMPRE documente o que faz** - Wilson precisa saber exatamente o que aconteceu\n10. **NUNCA converse com cliente** - Seus dados vão para Wilson que conversa com cliente\n\n## FLUXO PADRÃO DE INTERAÇÃO\n\n**WILSON**: \"Busque cliente por nome: João Silva\" | **VOCÊ (SDR)**: Verifica banco → Retorna dados estruturados | **WILSON**: Usa dados para responder ao cliente\n\n**WILSON**: \"Crie novo pedido com esses dados: ...\" | **VOCÊ (SDR)**: Valida → Cria pedido → Cria itens → Retorna confirmação com ID | **WILSON**: Informa ao cliente \"Pedido criado, número: uuid-order-123\"\n\n## CONTEXTO DA PIZZARIA\n\n- **Nome**: Wilson Pizza\n- **Especialidade**: Pizzas artesanais com massa fermentada 48h\n- **Horário**: Segunda a Quinta 10:00-23:00, Sexta-Domingo 10:00-00:00\n- **Entrega**: Até 5km da pizzaria\n- **Métodos de Pagamento**: Dinheiro, Cartão, PIX\n- **Temperatura Cozimento**: 300°C\n- **Tempo Médio Preparo**: 10-15 minutos por pizza\n- **Tempo de Entrega**: 30-50 minutos conforme distância\n\n## FERRAMENTAS (TOOLS) EM SEU CONTEXTO\n\n✓ BusarCliente - Você usa para procurar clientes | ✓ AdicionarCliente - Você usa para cadastrar novo cliente | ✓ AtualizarCliente - Você usa para editar dados cliente | ✓ BusarEndereço - Você usa para consultar endereços | ✓ AdicionarEndereco - Você usa para adicionar endereço | ✓ AtualizarEndereco - Você usa para editar endereço | ✓ ConsultarCardapio - Você usa para listar produtos | ✓ CriarPedido - Você usa para criar novo pedido | ✓ ConsultarPedido - Você usa para buscar informações pedido | ✓ AtualizarPedido - Você usa para atualizar status/dados pedido | ✓ removerPedido - Você usa para cancelar pedido\n\n## TOM E ESTILO\n\n- 🤖 Estruturado e técnico\n- 📊 Dados claros e organizados\n- ✅ Sempre confirmando ações\n- 🚀 Rápido e eficiente\n- 📝 Documentando o que faz\n- 🔄 Sincronizado com Wilson\n- 🇧🇷 Português brasileiro mas objetivo\n\nVocê é o motor dos bastidores da Wilson Pizza! Wilson é a voz amigável, você é a máquina que faz funcionar. Trabalhem juntos! 🍕🤖",
+          "passthroughBinaryImages": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        1328,
+        -304
+      ],
+      "id": "58a3378e-7ec1-46a2-bbf2-afcb578db337",
+      "name": "Agendamentos_SDR"
+    },
+    {
+      "parameters": {
+        "content": "## Recebe Mensagem da API de WhatsApp",
+        "height": 256,
+        "width": 288,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        -848
+      ],
+      "typeVersion": 1,
+      "id": "9746e025-ee0d-488e-b798-12c399a0d731",
+      "name": "Sticky Note12"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.messages[0].text?.body || $json.transcription || \"Mensagem não identificada\" }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "# 🍕 WILSON - Agente de Atendimento Principal - Wilson Pizza\n\n## IDENTIDADE\nVocê é Wilson, o agente de atendimento inteligente da pizzaria \"Wilson Pizza\". Seu objetivo é atender clientes pelo WhatsApp de forma amigável, eficiente e profissional em português brasileiro. Você é o ROSTO da pizzaria e coordena com seu colega SDR nos bastidores para gerenciar dados.\n\n## PAPÉIS E RESPONSABILIDADES\n- **SUA FUNÇÃO**: Atender clientes, fazer perguntas, coletar informações, confirmar pedidos\n- **FUNÇÃO DO SDR**: Gerenciar banco de dados, buscar dados, criar/atualizar registros\n- **SINCRONIZAÇÃO**: Sempre que precisar de dados ou ação no banco, CONSULTE o SDR através do campo \"Chamar_SDR\"\n\n## COMPORTAMENTO PRINCIPAL\n- Sempre cumprimente o cliente de forma calorosa\n- Seja proativo em oferecer alternativas\n- Valide SEMPRE os horários antes de processar pedidos\n- Confirme detalhes do pedido antes de processar pagamento\n- Colete informações do cliente de forma natural e conversacional\n- Quando precisar de dados: CHAME O SDR (não invente informações)\n- Trate cada cliente com respeito e atenção\n\n## FLUXO DE ATENDIMENTO\n\n### 1. SAUDAÇÃO (Inicial)\n\"Bem-vindo à Wilson Pizza! 🍕 Somos especializados em pizzas artesanais de alta qualidade. Como posso ajudá-lo? 1️⃣ Ver Cardápio Online 2️⃣ Fazer Pedido Agora 3️⃣ Rastrear Pedido 4️⃣ Contato e Dúvidas\"\n\n### 2. RESPOSTA DO CLIENTE\n\n**Se cliente escolher opção 1 (Ver Cardápio)**:\nCHAME O SDR: \"Consulte o cardápio disponível\" → Aguarde resposta do SDR com lista de pizzas, preços e categorias → Apresente de forma atraente ao cliente → Pergunte: \"Viu algo que gostou? Posso anotar para você!\"\n\n**Se cliente escolher opção 2 (Fazer Pedido)**:\nPRIMEIRO: CHAME O SDR: \"Valide se a pizzaria está aberta agora\" → SE ABERTO: Continue para coleta de pedido → SE FECHADO: \"Que pena! Estamos fechados. Reabrimos às [horário]. Posso anotar seu pedido para depois?\"\n\n**Se cliente escolher opção 3 (Rastrear Pedido)**:\nPergunte o ID ou nome do pedido → CHAME O SDR: \"Busque informações do pedido de [ID/Nome]\" → Apresente status e informações ao cliente\n\n**Se cliente escolher opção 4 (Contato)**:\nOfereça: \"Posso ajudar com dúvidas sobre horários, ingredientes, promoções ou qualquer outra coisa!\"\n\n### 3. COLETAR PEDIDO (Fluxo Detalhado)\n\n**PASSO 1 - Verificar se é cliente existente**: Pergunte: \"Qual é seu nome completo?\" → CHAME O SDR: \"Busque cliente por nome: [NOME DO CLIENTE]\" → Se cliente existe: \"Ótimo! Encontrei seus dados, posso confirmar seu endereço?\" → Se cliente novo: \"Bem-vindo! Vou cadastrar seus dados\"\n\n**PASSO 2 - Confirmar/Coletar dados do cliente**: Para cliente existente: Confirme nome, telefone, endereço. Para cliente novo: Colete nome completo, telefone (formato: 11 99999-9999), endereço (rua, número, bairro, cidade, CEP), complemento (apto, casa número, etc) → CHAME O SDR: \"Cadastre novo cliente com esses dados: [DADOS]\" → Aguarde confirmação com ID do cliente\n\n**PASSO 3 - Coletar itens do pedido**: Pergunte de forma conversacional: \"Qual pizza você quer?\", \"Que tamanho?\", \"Quantidade?\", \"Tem alguma observação?\", \"Quer algo mais?\" → CHAME O SDR para confirmar preços: \"Consulte o preço de [NOME DO PRODUTO]\" → Após coletar tudo, resuma e peça confirmação: \"Deixa eu confirmar seu pedido: 🍕 2x Pizza Margherita Grande - R$ 91.80 🥤 1x Refrigerante 2L - R$ 12.00 TOTAL: R$ 103.80 Está tudo certo? Quer adicionar mais algo?\"\n\n**PASSO 4 - Método de pagamento**: \"Como você quer pagar? 💰 Dinheiro (à vista na retirada/entrega) 💳 Cartão de Crédito/Débito 📱 PIX (rápido e seguro)\" → Se dinheiro: Apenas registre a escolha → Se cartão/PIX: \"Vou gerar um link seguro para você! Um momento...\"\n\n**PASSO 5 - Confirmar e enviar à fila**: CHAME O SDR: \"Crie novo pedido com esses dados: cliente_id=[ID], itens=[LISTA], total=[VALOR], forma_pagamento=[MÉTODO]\" → Aguarde confirmação do SDR → Ao cliente: \"✅ Pedido recebido! Número do pedido: [ID] Tempo estimado: 40-50 minutos Você receberá atualizações aqui mesmo. Obrigado pela preferência! 🙏\"\n\n## CENÁRIOS ESPECIAIS\n\n### Cliente quer saber tempo de entrega\n\"Normalmente entregamos em 40-50 minutos. O tempo pode variar conforme a distância e volume de pedidos. Você será avisado quando sairmos para entrega! 🚗\"\n\n### Cliente quer cancelar pedido\n- Se ANTES de confirmar: \"Sem problema! Cancelei para você, sem custos\"\n- Se APÓS confirmar: \"Vou verificar com o gerente... Um momento\"\n\n### Cliente tem dúvidas sobre ingredientes\n\"Tenho certeza! Nossa pizzaiolo pode preparar do seu jeito. Qualquer ingrediente que quiser tirar ou adicionar, é só pedir! 👨‍🍳\"\n\n### Cliente quer promoção/cupom\n\"Ótima pergunta! No momento temos: - PRIMEIRA_COMPRA: 15% de desconto - FRIDAY: 10% segundas-feiras - REFERÊNCIA: Indique um amigo e ganhe R$20 Qual cupom gostaria de aplicar?\"\n\n## COMO CHAMAR O SDR (CRUCIAL)\n\nSempre que precisar de informação ou ação no banco, use este formato: **CHAMAR_SDR**: Ação: [AÇÃO] | Tipo: [TIPO] | Dados: [DADOS] | Esperado: [RESULTADO ESPERADO]\n\n**EXEMPLOS DE AÇÕES**:\n1. Ação: Consultar Cardápio | Tipo: READ | Dados: categoria=pizza, disponivel=true | Esperado: Lista de pizzas com preços\n2. Ação: Buscar Cliente | Tipo: READ | Dados: nome=\"João Silva\" | Esperado: ID, telefone, email, endereço_id\n3. Ação: Cadastrar Cliente | Tipo: CREATE | Dados: nome=\"Maria Santos\", telefone=\"+5511999999999\", email=\"maria@email.com\", endereco=\"Rua da Paz 456, Centro, São Paulo, 02345-678\" | Esperado: ID do cliente criado\n4. Ação: Validar Horário | Tipo: CHECK | Dados: dia_semana=\"segunda\", hora_atual=\"14:30\" | Esperado: aberto=true/false, proximo_horario=\"...\"\n5. Ação: Criar Pedido | Tipo: CREATE | Dados: cliente_id=\"uuid-001\", itens=[{nome:\"Pizza Margherita\", qtd:2, preco:45.90}], total=91.80, endereco_entrega=\"Rua das Flores, 123\" | Esperado: ID do pedido criado, confirmação\n6. Ação: Buscar Pedido | Tipo: READ | Dados: pedido_id=\"uuid-order-001\" | Esperado: Status, itens, total, endereço\n7. Ação: Atualizar Cliente | Tipo: UPDATE | Dados: cliente_id=\"uuid-001\", email=\"novo@email.com\" | Esperado: Confirmação de atualização\n\n## REGRAS IMPORTANTES\n\n1. **NUNCA invente preços** - SEMPRE CHAME O SDR para consultar preços\n2. **NUNCA invente dados de cliente** - CHAME O SDR para buscar\n3. **SEMPRE confirme totalizador** - Mostre todos os itens antes de cobrar\n4. **SEMPRE valide horários** - NUNCA aceite pedido fora do horário (CHAME O SDR)\n5. **SEMPRE colete dados corretos** - Valide telefone, endereço via SDR se necessário\n6. **NUNCA prometa tempo impossível** - Sempre 40-50 minutos\n7. **SEMPRE seja educado** - Mesmo com cliente irritado, mantenha tom profissional\n8. **SEMPRE confirme antes de ação** - Mostre resumo e peça confirmação\n9. **SEMPRE chame SDR para ações no BD** - Não faça suposições\n\n## DADOS DA PIZZARIA\n\n- **Nome**: Wilson Pizza\n- **Especialidade**: Pizzas artesanais com massa fermentada 48h\n- **Horário**: Segunda a Quinta 10:00-23:00, Sexta-Domingo 10:00-00:00\n- **Entrega**: Até 5km da pizzaria\n- **Métodos de Pagamento**: Dinheiro, Cartão, PIX\n\n## TOM DE COMUNICAÇÃO\n\n- 😊 Amigável e acolhedor\n- 🎯 Direto e objetivo\n- 🤝 Prestativo e responsivo\n- 📱 Adaptado para WhatsApp (breve, emojis moderados, quebras de linha)\n- 🇧🇷 Português brasileiro autêntico\n- 🔄 Sempre referenciando informações do SDR (não inventando)\n\n## QUALIDADE E EXCELÊNCIA\n\nSua meta é: 1. ✅ Receber pedido correto 2. ✅ Confirmar todos os dados com cliente 3. ✅ Coordenar com SDR para salvar dados 4. ✅ Processar pagamento com segurança 5. ✅ Entregar no tempo prometido 6. ✅ Cliente satisfeito e disposto a recomendar\n\nVocê é o rosto da Wilson Pizza. Seja excelente! E sempre coordene com o SDR - ele é seu colega nos bastidores! 🍕✨",
+          "passthroughBinaryImages": true,
+          "enableStreaming": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1488,
+        -768
+      ],
+      "id": "2ebb978e-d7d6-4028-9132-3c1610595023",
+      "name": "Agente Principal",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"message\": \"Perfeito! Vou ajustar aqui e já te confirmo o horário, beleza?\",\n  \"intent\": \"schedule\",\n  \"events\": [\n    {\n      \"type\": \"subagent\",\n      \"name\": \"Agente_CRM\",\n      \"action\": \"upsert\",\n      \"status\": \"planned\",\n      \"note\": \"registrar interesse e avanço de estágio\"\n    },\n    {\n      \"type\": \"subagent\",\n      \"name\": \"Agente_Agendamentos\",\n      \"action\": \"add\",\n      \"status\": \"planned\",\n      \"note\": \"criar compromisso amanhã às 14h com Lucas\"\n    }\n  ],\n  \"entities\": {\n    \"lead_id\": \"LEAD-001\",\n    \"whatsapp_e164\": \"+5531998765432\",\n    \"email\": \"rafael@clinicaexemplo.com\",\n    \"collaborator\": \"Lucas\",\n    \"datetime_iso\": \"2025-08-28T14:00:00-03:00\",\n    \"timezone\": \"America/Sao_Paulo\"\n  },\n  \"next\": \"confirm_time\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1680,
+        -576
+      ],
+      "id": "48eb0421-f78e-400e-94d0-c8c53a20e174",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.messages[0].type }}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "c8b3b188-8709-4ef7-b2dc-258b89b376d4"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Texto"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "6f47e431-d9e1-4f38-943a-fb9620ee890a",
+                    "leftValue": "={{ $json.messages[0].type }}",
+                    "rightValue": "audio",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Áudio"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        976,
+        -672
+      ],
+      "id": "ad2eeb81-a745-4184-a753-a4ba5785f4de",
+      "name": "Identificar se é Audio ou Texto"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1696,
+        -944
+      ],
+      "id": "730723c5-b576-4721-a5de-98e67584059d",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.keys().concat() }}",
+        "contextWindowLength": 15
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1696,
+        -240
+      ],
+      "id": "d6afdc88-c289-4590-9e4e-4705dfb5033b",
+      "name": "Simple Memory3"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        992,
+        -1024
+      ],
+      "id": "d765f65e-7e57-4dd9-8e7b-f6eaaa00c101",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "TlcNQerEPN5lWhfK",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1472,
+        -960
+      ],
+      "id": "63b2a913-d543-4598-857d-8577c5badecc",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "TlcNQerEPN5lWhfK",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1872,
+        -448
+      ],
+      "id": "a2306b41-6c92-4202-9fbc-2844eebaf16b",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "TlcNQerEPN5lWhfK",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1168,
+        -224
+      ],
+      "id": "47b3adf5-5047-4c24-9f40-ef3b132928a0",
+      "name": "Google Gemini Chat Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "TlcNQerEPN5lWhfK",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        336,
+        -752
+      ],
+      "id": "a5103a88-fc90-4a7d-9697-4543df368ad5",
+      "name": "WhatsApp Trigger",
+      "webhookId": "fae07476-79c9-4843-97d1-77ebd5293140",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "Xg7pVzmAvHG6XthG",
+          "name": "WhatsApp OAuth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v19.0/825145664022096/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"{{ $item(0).$node['WhatsApp Trigger'].json.messages[0].from }}\",\n  \"type\": \"text\",\n  \"text\": {\n    \"body\": \"{{ JSON.stringify($json.output.message).slice(1, -1) }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2032,
+        -656
+      ],
+      "id": "fbbdd656-2e17-4a8c-a4b9-d7e66dc99c07",
+      "name": "HTTP Request1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pTDnAuwa4NL6fytf",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "38d3fa2b-a4cb-44eb-bc86-a89911ef5e52",
+              "leftValue": "={{ $json.output.intent }}",
+              "rightValue": "schedule",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1856,
+        -864
+      ],
+      "id": "8efd6b02-9f0e-4cd3-925c-83fff116a74f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"nome_cliente\": \"{{ $('WhatsApp Trigger').item.json.contacts[0].profile.name }}\",\n  \"whats_cliente\": \"{{ $json.output.entities.whatsapp_e164 }}\",\n  \"data_formatada\": \"{{ DateTime.fromISO($json.output.entities.datetime_iso).setZone(\"America/Sao_Paulo\").toFormat(\"dd/MM/yyyy\") }}\",\n  \"hora_formatada\": \"{{ DateTime.fromISO($json.output.entities.datetime_iso).setZone(\"America/Sao_Paulo\").toFormat(\"HH:mm\") }}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2032,
+        -1008
+      ],
+      "id": "2fe7bd84-fa74-4bb4-8920-b194e4ba7a37",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v19.0/825145664022096/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"5587999480699\",\n  \"type\": \"text\",\n  \"text\": {\n    \"body\": \"{{ JSON.stringify('Novo Agendamento (Sofia) 🚀\\n\\nCliente: ' + $json.nome_cliente + '\\nWhatsApp: ' + $json.whats_cliente + '\\nData: ' + $json.data_formatada + '\\nHora: ' + $json.hora_formatada).slice(1, -1) }}\"\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2240,
+        -1008
+      ],
+      "id": "a8489902-a347-4e78-a79f-44c3a0ec7da7",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pTDnAuwa4NL6fytf",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://graph.facebook.com/v21.0/{{ $json.messages[0].audio.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"method\": \"GET\",\n  \"url\": \"https://graph.facebook.com/v21.0/{{ $json.messages[0].audio.id }}\",\n  \"authentication\": \"genericCredentialType\",\n  \"genericAuthType\": \"httpHeaderAuth\",\n  \"sendHeaders\": false,\n  \"options\": {\n    \"response\": {\n      \"response\": {\n        \"responseFormat\": \"json\"\n      }\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        608,
+        -880
+      ],
+      "id": "b11e24a6-8547-48b9-85c2-aed96dc44bb8",
+      "name": "Download Audio from WhatsApp",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pTDnAuwa4NL6fytf",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        832,
+        -880
+      ],
+      "id": "8a918e17-ab69-48ba-ab3b-271d0ec97247",
+      "name": "Get Audio File",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pTDnAuwa4NL6fytf",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "17c1f29e-7639-4ac7-bc61-72f4c1a09aad",
+              "name": "messages",
+              "value": "={\n  \"from\": $json.content.parts[0].text,\n  \"text\": {\n    \"body\": $json.text\n  },\n  \"type\": \"text\"\n}",
+              "type": "string"
+            },
+            {
+              "id": "c6767b3a-28d1-42b8-b872-fa4af1d89f66",
+              "name": "contacts",
+              "value": "={{ $('WhatsApp Trigger').item.json.contacts }}",
+              "type": "array"
+            },
+            {
+              "id": "fe42ad73-088e-473d-951a-f00b31fd4743",
+              "name": "transcription",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1168,
+        -880
+      ],
+      "id": "ea90a818-474c-48dd-9d02-16edb1624708",
+      "name": "Format Transcription"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v19.0/825145664022096/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"{{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}\",\n  \"type\": \"text\",\n  \"text\": {\n    \"body\": \"{{ JSON.stringify($('Agente Principal').item.json.output.message).slice(1, -1) }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2432,
+        -1008
+      ],
+      "id": "17c888c6-3c48-4a4d-917d-c5835c7f9dd5",
+      "name": "HTTP Request2",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pTDnAuwa4NL6fytf",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "/foodflow-wilson",
+        "options": {
+          "responseData": "=({\"success\":true})"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1072,
+        -1408
+      ],
+      "id": "4f6a24d0-294c-489c-8c45-6e002ca9c397",
+      "name": "Foodflow",
+      "webhookId": "dcb96e02-aa84-411c-9896-255223353c29",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"customerPhone\": \"{{ $json.body.order.customerPhone }}\",\n  \"customerName\": \"{{ $json.body.order.customerName }}\",\n  \"previousStatus\": \"{{ $json.body.previousStatus }}\",\n  \"newStatus\": \"{{ $json.body.newStatus }}\",\n  \"orderId\": \"{{ $json.body.orderId }}\",\n  \"items\": {{ JSON.stringify($json.body.order.items) }},\n  \"total\": \"{{ $json.body.order.total }}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1280,
+        -1408
+      ],
+      "id": "c42df7ab-69e0-4645-990b-f00ba14d291f",
+      "name": "Extract FoodFlow Data"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.customerPhone }}",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1456,
+        -1600
+      ],
+      "id": "75412b06-d2e0-4f51-9676-c580734f8ced",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1648,
+        -1600
+      ],
+      "id": "f9c1599f-08b3-4111-8a8f-4f809cb2dc7f",
+      "name": "Google Gemini Chat Model4",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "TlcNQerEPN5lWhfK",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{\n\"Analise a seguinte atualização de pedido recebida e execute a ação apropriada:\\n\\n\" +\nJSON.stringify({\n  customerPhone: $json.customerPhone,\n  customerName: $json.customerName,\n  previousStatus: $json.previousStatus,\n  newStatus: $json.newStatus,\n  items: $json.items,\n  total: $json.total\n})\n}}\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Você é Don Wilson, o assistente virtual amigável da Wilson Pizza.\n\nUm pedido do cliente acabou de ser atualizado. Use os dados abaixo para gerar uma mensagem:\n\nDADOS DO PEDIDO:\n- Cliente: {{ $json.customerName }}\n- Status Novo: {{ $json.newStatus }}\n- Itens: {{ $json.items.map(i => i.quantity + \"x \" + i.name).join(', ') }}\n- Total: R$ {{ $json.total }}\n\nSUA TAREFA:\nEscreva uma mensagem curta, carismática e profissional para enviar ao WhatsApp do cliente.\n\nDIRETRIZES DE STATUS:\n- Se status for \"pending\" → Confirme o recebimento e diga que o preparo começará em breve.\n- Se status for \"confirmed\" → Celebre! Diga que o pedido foi aceito 🎉.\n- Se status for \"preparing\" → Avise que já está no forno/sendo feito ⏳.\n- Se status for \"ready\" → Avise que está pronto (para retirada ou aguardando entregador).\n- Se status for \"out_for_delivery\" → Avise que o entregador saiu 🏃.\n- Se status for \"delivered\" → Deseje um bom apetite 🍽️.\n\nIMPORTANTE:\n- Use o primeiro nome do cliente ({{ $json.customerName.split(' ')[0] }}).\n- Não invente informações que não estão aqui.\n- Responda APENAS com o texto da mensagem.\n",
+          "passthroughBinaryImages": true,
+          "enableStreaming": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1488,
+        -1408
+      ],
+      "id": "f5cda41c-443c-453f-96f6-03afd0eebf62",
+      "name": "Agente Principal1",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v19.0/825145664022096/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"recipient_type\": \"individual\",\n  \"to\": \"{{ $('Extract FoodFlow Data').first().json.customerPhone }}\",\n  \"type\": \"text\",\n  \"text\": {\n    \"body\": \"{{ $json.output }}\"\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1824,
+        -1408
+      ],
+      "id": "6b1790e8-d4f3-41af-b9a0-75d7638ec702",
+      "name": "HTTP Request3",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pTDnAuwa4NL6fytf",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $baseUrl }}/api/restaurant/settings",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        672,
+        -224
+      ],
+      "id": "validate-hours-node",
+      "name": "Validar Horários"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $baseUrl }}/api/whatsapp/order",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1632,
+        336
+      ],
+      "id": "send-order-node",
+      "name": "Enviar Pedido à Fila"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.stripe.com/v1/checkout/sessions",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        672,
+        96
+      ],
+      "id": "stripe-checkout-node",
+      "name": "Gerar Link Stripe"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Delete a row in Supabase",
+        "operation": "delete",
+        "tableId": "pedidos",
+        "matchType": "allFilters"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1776,
+        48
+      ],
+      "id": "ef46ea4a-1ee4-411f-9a02-a51b1d707ea4",
+      "name": "removerPedido",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create a row in Supabase",
+        "tableId": "clientes",
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1312,
+        32
+      ],
+      "id": "334bd952-056d-457e-8a74-ebae62ed32fe",
+      "name": "AdicionarCliente",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get many rows in Supabase",
+        "operation": "getAll",
+        "tableId": "clientes",
+        "returnAll": true,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions0_Field_Value', ``, 'string') }}"
+            },
+            {
+              "keyName": "nome",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions1_Field_Value', ``, 'string') }}"
+            },
+            {
+              "keyName": "telefone",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions2_Field_Value', ``, 'string') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1168,
+        32
+      ],
+      "id": "119b064a-237d-4f91-b5f7-5896afc2fba9",
+      "name": "BusarCliente",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get many rows in Supabase",
+        "operation": "getAll",
+        "tableId": "cardapio",
+        "returnAll": true,
+        "matchType": "allFilters"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1456,
+        32
+      ],
+      "id": "9bae4770-6a09-4b48-b9d2-ac0c6e21b710",
+      "name": "ConsultarCardapio",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get many rows in Supabase",
+        "operation": "getAll",
+        "tableId": "itens_pedido",
+        "returnAll": true,
+        "matchType": "allFilters"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        176
+      ],
+      "id": "f73e7608-c1e3-455c-a4a8-0766a5c8e361",
+      "name": "ConsultarPedido",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create a row in Supabase",
+        "tableId": "pedidos",
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        32
+      ],
+      "id": "ba205292-2dc2-40d0-a379-a6a31585ba02",
+      "name": "CriarPedido",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Update a row in Supabase",
+        "operation": "update",
+        "tableId": "pedidos",
+        "matchType": "allFilters",
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1840,
+        176
+      ],
+      "id": "5e660f89-02df-48af-98b0-baede0381912",
+      "name": "AtualizarPedido",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Update a row in Supabase",
+        "operation": "update",
+        "tableId": "clientes",
+        "matchType": "allFilters",
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        192
+      ],
+      "id": "1d609a52-4b2a-491a-850c-40773d4b661e",
+      "name": "AtualizarCliente",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get many rows in Supabase",
+        "operation": "getAll",
+        "tableId": "enderecos",
+        "returnAll": true,
+        "matchType": "allFilters"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        192
+      ],
+      "id": "a49ca410-7391-4dc7-9348-bc2ff1fbae3e",
+      "name": "BusarEndereço",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create a row in Supabase",
+        "tableId": "enderecos",
+        "dataToSend": "autoMapInputData"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        192
+      ],
+      "id": "f8c048dd-d33b-45ac-8230-4e78fccd327d",
+      "name": "AdicionarEndereco",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Update a row in Supabase",
+        "operation": "update",
+        "tableId": "clientes",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "nome",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions0_Field_Value', ``, 'string') }}"
+            },
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions1_Field_Value', ``, 'string') }}"
+            },
+            {
+              "keyName": "telefone",
+              "condition": "eq"
+            }
+          ]
+        },
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        352
+      ],
+      "id": "5207db30-d18d-47f4-a3ce-b5389bedc51a",
+      "name": "AtualizarEndereco",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Agendamentos_SDR": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Principal",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente Principal": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Agente Principal",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Identificar se é Audio ou Texto": {
+      "main": [
+        [
+          {
+            "node": "Agente Principal",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download Audio from WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agente Principal",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory3": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "Format Transcription",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente Principal",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Identificar se é Audio ou Texto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        []
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Audio from WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Get Audio File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Audio File": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Transcription": {
+      "main": [
+        [
+          {
+            "node": "Agente Principal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        []
+      ]
+    },
+    "Foodflow": {
+      "main": [
+        [
+          {
+            "node": "Extract FoodFlow Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract FoodFlow Data": {
+      "main": [
+        [
+          {
+            "node": "Agente Principal1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agente Principal1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente Principal1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente Principal1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "removerPedido": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AdicionarCliente": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BusarCliente": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ConsultarCardapio": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ConsultarPedido": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CriarPedido": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AtualizarPedido": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AtualizarCliente": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agendamentos_SDR",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "WhatsApp Trigger": [
+      {
+        "messaging_product": "whatsapp",
+        "metadata": {
+          "display_phone_number": "558796471074",
+          "phone_number_id": "825145664022096"
+        },
+        "contacts": [
+          {
+            "profile": {
+              "name": "Bruno Caffé | O Rei da Informatica"
+            },
+            "wa_id": "558799480699"
+          }
+        ],
+        "messages": [
+          {
+            "from": "558799480699",
+            "id": "wamid.HBgMNTU4Nzk5NDgwNjk5FQIAEhgWM0VCMDkwNzJFNTVCRkJCOTA5MTFENwA=",
+            "timestamp": "1764188557",
+            "text": {
+              "body": "boa tarde"
+            },
+            "type": "text"
+          }
+        ],
+        "field": "messages"
+      }
+    ]
+  },
+  "meta": {
+    "instanceId": "020e0ae71dbc9efa09c74c5ef0974b54c96a970aa70d2e33253a5882fd59a1c8"
+  }
+}
