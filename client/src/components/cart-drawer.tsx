@@ -3,13 +3,15 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCartStore } from "@/lib/store";
-import { Trash2, ShoppingBag, MessageCircle, Plus, Minus } from "lucide-react";
+import { Trash2, ShoppingBag, MessageCircle, Plus, Minus, MapPin, Store } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { SIZES, CRUST_OPTIONS, EDGE_OPTIONS } from "@/data/menu";
+// In a real app, we would import this from the admin store or context, but for mockup we use a hardcoded fallback or mock
+// import { useAdminStore } from "@/lib/admin-store"; 
 
 export function CartDrawer() {
   const { items, isCartOpen, toggleCart, removeFromCart, updateQuantity } = useCartStore();
@@ -20,8 +22,11 @@ export function CartDrawer() {
   const [deliveryMethod, setDeliveryMethod] = useState('entrega');
   const [changeFor, setChangeFor] = useState('');
   const [notes, setNotes] = useState('');
+  const [address, setAddress] = useState(''); // New address state
 
-  // Calculate total considering base price (which includes edge price now) * quantity
+  // Mock Restaurant Address (In real app, get from AdminStore)
+  const restaurantAddress = "Rua Principal, 123, Centro - Ouricuri/PE";
+
   const total = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
   const handleCheckout = () => {
@@ -36,6 +41,10 @@ export function CartDrawer() {
       return `- ${item.quantity}x Pizza ${SIZES[item.size].label} (${flavors})\n  ${crustName} | ${edgeName} ${edgePrice}`;
     }).join('\n');
 
+    const deliveryInfo = deliveryMethod === 'entrega' 
+      ? `*ENTREGA:* ${address || 'Endereço não informado'}` 
+      : `*RETIRADA:* Vou buscar no local`;
+
     const message = `
 *PEDIDO FOODFLOW DELIVERY*
 --------------------------------
@@ -46,7 +55,7 @@ ${itemsList}
 --------------------------------
 *PAGAMENTO:* ${paymentMethod.toUpperCase()}
 ${paymentMethod === 'dinheiro' ? `*TROCO PARA:* ${changeFor || 'Sem troco'}` : ''}
-*ENTREGA:* ${deliveryMethod.toUpperCase()}
+${deliveryInfo}
 *OBS:* ${notes || 'Nenhuma'}
     `.trim();
 
@@ -57,7 +66,7 @@ ${paymentMethod === 'dinheiro' ? `*TROCO PARA:* ${changeFor || 'Sem troco'}` : '
   return (
     <Sheet open={isCartOpen} onOpenChange={(open) => {
       toggleCart(open);
-      if (!open) setStep('cart'); // Reset step on close
+      if (!open) setStep('cart'); 
     }}>
       <SheetContent className="w-full sm:max-w-md flex flex-col p-0 bg-background">
         <SheetHeader className="p-6 border-b border-border bg-card">
@@ -170,6 +179,38 @@ ${paymentMethod === 'dinheiro' ? `*TROCO PARA:* ${changeFor || 'Sem troco'}` : '
                         </Label>
                       </div>
                     </RadioGroup>
+                    
+                    {/* Conditional Address Input or Restaurant Address */}
+                    <div className="mt-3 animate-in fade-in slide-in-from-top-2">
+                      {deliveryMethod === 'entrega' ? (
+                        <div className="space-y-2">
+                          <Label htmlFor="address" className="flex items-center gap-2">
+                            <MapPin className="w-4 h-4 text-primary" />
+                            Endereço de Entrega
+                          </Label>
+                          <Textarea 
+                            id="address" 
+                            placeholder="Rua, Número, Bairro, Ponto de Referência..." 
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            className="resize-none h-20"
+                          />
+                        </div>
+                      ) : (
+                        <div className="p-4 bg-secondary/30 rounded-lg border border-border space-y-2">
+                          <Label className="flex items-center gap-2">
+                            <Store className="w-4 h-4 text-primary" />
+                            Retirar em:
+                          </Label>
+                          <p className="text-sm text-foreground font-medium">
+                            {restaurantAddress}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Seu pedido estará pronto em aproximadamente 40 minutos.
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <Separator />
@@ -253,7 +294,8 @@ ${paymentMethod === 'dinheiro' ? `*TROCO PARA:* ${changeFor || 'Sem troco'}` : '
                   </Button>
                   <Button 
                     onClick={handleCheckout}
-                    className="flex-1 h-12 text-lg font-bold shadow-lg hover:shadow-xl transition-all bg-[#25D366] hover:bg-[#20bd5a] text-white border-none"
+                    disabled={deliveryMethod === 'entrega' && !address}
+                    className="flex-1 h-12 text-lg font-bold shadow-lg hover:shadow-xl transition-all bg-[#25D366] hover:bg-[#20bd5a] text-white border-none disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <MessageCircle className="mr-2 w-5 h-5" />
                     Enviar Pedido

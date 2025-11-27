@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { useAdminStore } from "@/lib/admin-store";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Upload, Database, Webhook } from "lucide-react";
+import { Save, Upload, Database, Webhook, Clock } from "lucide-react";
 
 export default function AdminSettings() {
   const store = useAdminStore();
@@ -23,6 +23,17 @@ export default function AdminSettings() {
     webhookUrl: store.webhookUrl,
     whatsappNotification: store.whatsappNotification
   });
+
+  // Mock Operating Hours State
+  const [hours, setHours] = useState([
+    { day: 'Segunda', open: '10:00', close: '23:00', active: true },
+    { day: 'Terça', open: '10:00', close: '23:00', active: true },
+    { day: 'Quarta', open: '10:00', close: '23:00', active: true },
+    { day: 'Quinta', open: '10:00', close: '23:00', active: true },
+    { day: 'Sexta', open: '10:00', close: '00:00', active: true },
+    { day: 'Sábado', open: '10:00', close: '00:00', active: true },
+    { day: 'Domingo', open: '10:00', close: '00:00', active: true },
+  ]);
 
   const handleSave = () => {
     store.updateSettings(formData);
@@ -92,6 +103,60 @@ export default function AdminSettings() {
                   value={formData.restaurantAddress}
                   onChange={(e) => setFormData({...formData, restaurantAddress: e.target.value})}
                 />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Horários de Funcionamento */}
+          <Card>
+             <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <div className="p-2 bg-green-500/10 rounded-lg text-green-500">
+                  <Clock className="w-5 h-5" />
+                </div>
+                Horários de Funcionamento
+              </CardTitle>
+              <CardDescription>Defina os horários para o agente validar automaticamente.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {hours.map((slot, idx) => (
+                  <div key={slot.day} className="flex items-center gap-4">
+                    <div className="w-24 font-medium">{slot.day}</div>
+                    <Input 
+                      type="time" 
+                      value={slot.open} 
+                      className="w-32" 
+                      onChange={(e) => {
+                        const newHours = [...hours];
+                        newHours[idx].open = e.target.value;
+                        setHours(newHours);
+                      }}
+                    />
+                    <span>às</span>
+                    <Input 
+                      type="time" 
+                      value={slot.close} 
+                      className="w-32"
+                      onChange={(e) => {
+                        const newHours = [...hours];
+                        newHours[idx].close = e.target.value;
+                        setHours(newHours);
+                      }}
+                    />
+                    <Switch 
+                      checked={slot.active}
+                      onCheckedChange={(c) => {
+                        const newHours = [...hours];
+                        newHours[idx].active = c;
+                        setHours(newHours);
+                      }}
+                    />
+                  </div>
+                ))}
+                <Button variant="outline" className="w-full mt-4" onClick={() => toast({ title: "Horários Sincronizados", description: "Tabela 'horarios_funcionamento' atualizada." })}>
+                  Sincronizar Horários com Supabase
+                </Button>
               </div>
             </CardContent>
           </Card>
