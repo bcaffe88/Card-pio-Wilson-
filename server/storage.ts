@@ -1,3 +1,12 @@
+import { db } from "./db";
+import {
+  cardapio,
+  clientes,
+  enderecos,
+  pedidos,
+  itens_pedido,
+  horarios_funcionamento,
+} from "@shared/schema";
 import {
   type Cardapio,
   type InsertCardapio,
@@ -13,201 +22,178 @@ import {
   type InsertHorario,
   type OrderStatus,
 } from "@shared/schema";
+import { eq, like, ilike } from "drizzle-orm";
 
 export interface IStorage {
-  // CARDÁPIO
   getCardapio(id: string): Promise<Cardapio | undefined>;
   getAllCardapio(): Promise<Cardapio[]>;
   getCardapioByCategoria(categoria: string): Promise<Cardapio[]>;
   searchCardapio(termo: string): Promise<Cardapio[]>;
-
-  // CLIENTES
   getCliente(id: string): Promise<Cliente | undefined>;
   getClienteByTelefone(telefone: string): Promise<Cliente | undefined>;
   createCliente(cliente: InsertCliente): Promise<Cliente>;
   updateCliente(id: string, cliente: Partial<InsertCliente>): Promise<Cliente>;
-
-  // ENDEREÇOS
   getEndereco(id: string): Promise<Endereco | undefined>;
   getEnderecosByCliente(cliente_id: string): Promise<Endereco[]>;
   createEndereco(endereco: InsertEndereco): Promise<Endereco>;
   updateEndereco(id: string, endereco: Partial<InsertEndereco>): Promise<Endereco>;
   deleteEndereco(id: string): Promise<boolean>;
-
-  // PEDIDOS
   getPedido(id: string): Promise<Pedido | undefined>;
   getPedidosByCliente(cliente_id: string): Promise<Pedido[]>;
   getAllPedidos(): Promise<Pedido[]>;
   createPedido(pedido: InsertPedido): Promise<Pedido>;
   updatePedidoStatus(id: string, status: OrderStatus): Promise<Pedido>;
   markPedidoAsViewed(id: string): Promise<void>;
-
-  // ITENS PEDIDO
   getItensPedido(pedido_id: string): Promise<ItemPedido[]>;
   createItemPedido(item: InsertItemPedido): Promise<ItemPedido>;
-
-  // HORÁRIOS
   getHorarios(): Promise<HorarioFuncionamento[]>;
   updateHorario(id: string, horario: Partial<InsertHorario>): Promise<HorarioFuncionamento>;
 }
 
-export class MemStorage implements IStorage {
-  private cardapios: Map<string, Cardapio> = new Map();
-  private clientes: Map<string, Cliente> = new Map();
-  private enderecos: Map<string, Endereco> = new Map();
-  private pedidos: Map<string, Pedido> = new Map();
-  private itens_pedido: Map<string, ItemPedido> = new Map();
-  private horarios: Map<string, HorarioFuncionamento> = new Map();
-  private nextNumeroPedido = 1;
-
+export class SupabaseStorage implements IStorage {
   async getCardapio(id: string): Promise<Cardapio | undefined> {
-    return this.cardapios.get(id);
+    const result = await db.select().from(cardapio).where(eq(cardapio.id, id));
+    return result[0];
   }
 
   async getAllCardapio(): Promise<Cardapio[]> {
-    return Array.from(this.cardapios.values());
+    return await db.select().from(cardapio).where(eq(cardapio.disponivel, true));
   }
 
   async getCardapioByCategoria(categoria: string): Promise<Cardapio[]> {
-    return Array.from(this.cardapios.values()).filter(c => c.categoria === categoria);
+    return await db
+      .select()
+      .from(cardapio)
+      .where(eq(cardapio.categoria, categoria));
   }
 
   async searchCardapio(termo: string): Promise<Cardapio[]> {
-    const lower = termo.toLowerCase();
-    return Array.from(this.cardapios.values()).filter(c =>
-      c.nome_item.toLowerCase().includes(lower) ||
-      c.descricao?.toLowerCase().includes(lower)
-    );
+    return await db
+      .select()
+      .from(cardapio)
+      .where(ilike(cardapio.nome_item, `%${termo}%`));
   }
 
   async getCliente(id: string): Promise<Cliente | undefined> {
-    return this.clientes.get(id);
+    const result = await db.select().from(clientes).where(eq(clientes.id, id));
+    return result[0];
   }
 
   async getClienteByTelefone(telefone: string): Promise<Cliente | undefined> {
-    return Array.from(this.clientes.values()).find(c => c.telefone === telefone);
+    const result = await db
+      .select()
+      .from(clientes)
+      .where(eq(clientes.telefone, telefone));
+    return result[0];
   }
 
   async createCliente(cliente: InsertCliente): Promise<Cliente> {
-    const id = crypto.randomUUID();
-    const now = new Date();
-    const newCliente: Cliente = {
-      ...cliente,
-      id,
-      created_at: now,
-      updated_at: now,
-    };
-    this.clientes.set(id, newCliente);
-    return newCliente;
+    const result = await db.insert(clientes).values(cliente).returning();
+    return result[0];
   }
 
-  async updateCliente(id: string, cliente: Partial<InsertCliente>): Promise<Cliente> {
-    const existing = this.clientes.get(id);
-    if (!existing) throw new Error("Cliente não encontrado");
-    const updated = { ...existing, ...cliente, updated_at: new Date() };
-    this.clientes.set(id, updated);
-    return updated;
+  async updateCliente(id: string, updates: Partial<InsertCliente>): Promise<Cliente> {
+    const result = await db
+      .update(clientes)
+      .set(updates)
+      .where(eq(clientes.id, id))
+      .returning();
+    if (!result.length) throw new Error("Cliente não encontrado");
+    return result[0];
   }
 
   async getEndereco(id: string): Promise<Endereco | undefined> {
-    return this.enderecos.get(id);
+    const result = await db.select().from(enderecos).where(eq(enderecos.id, id));
+    return result[0];
   }
 
   async getEnderecosByCliente(cliente_id: string): Promise<Endereco[]> {
-    return Array.from(this.enderecos.values()).filter(e => e.cliente_id === cliente_id);
+    return await db
+      .select()
+      .from(enderecos)
+      .where(eq(enderecos.cliente_id, cliente_id));
   }
 
   async createEndereco(endereco: InsertEndereco): Promise<Endereco> {
-    const id = crypto.randomUUID();
-    const newEndereco: Endereco = {
-      ...endereco,
-      id,
-      created_at: new Date(),
-    };
-    this.enderecos.set(id, newEndereco);
-    return newEndereco;
+    const result = await db.insert(enderecos).values(endereco).returning();
+    return result[0];
   }
 
-  async updateEndereco(id: string, endereco: Partial<InsertEndereco>): Promise<Endereco> {
-    const existing = this.enderecos.get(id);
-    if (!existing) throw new Error("Endereço não encontrado");
-    const updated = { ...existing, ...endereco };
-    this.enderecos.set(id, updated);
-    return updated;
+  async updateEndereco(id: string, updates: Partial<InsertEndereco>): Promise<Endereco> {
+    const result = await db
+      .update(enderecos)
+      .set(updates)
+      .where(eq(enderecos.id, id))
+      .returning();
+    if (!result.length) throw new Error("Endereço não encontrado");
+    return result[0];
   }
 
   async deleteEndereco(id: string): Promise<boolean> {
-    return this.enderecos.delete(id);
+    const result = await db.delete(enderecos).where(eq(enderecos.id, id));
+    return true;
   }
 
   async getPedido(id: string): Promise<Pedido | undefined> {
-    return this.pedidos.get(id);
+    const result = await db.select().from(pedidos).where(eq(pedidos.id, id));
+    return result[0];
   }
 
   async getPedidosByCliente(cliente_id: string): Promise<Pedido[]> {
-    return Array.from(this.pedidos.values()).filter(p => p.cliente_id === cliente_id);
+    return await db
+      .select()
+      .from(pedidos)
+      .where(eq(pedidos.cliente_id, cliente_id));
   }
 
   async getAllPedidos(): Promise<Pedido[]> {
-    return Array.from(this.pedidos.values());
+    return await db.select().from(pedidos);
   }
 
   async createPedido(pedido: InsertPedido): Promise<Pedido> {
-    const id = crypto.randomUUID();
-    const numero_pedido = this.nextNumeroPedido++;
-    const now = new Date();
-    const newPedido: Pedido = {
-      ...pedido,
-      id,
-      numero_pedido,
-      created_at: now,
-      updated_at: now,
-    } as Pedido;
-    this.pedidos.set(id, newPedido);
-    return newPedido;
+    const result = await db.insert(pedidos).values(pedido).returning();
+    return result[0];
   }
 
   async updatePedidoStatus(id: string, status: OrderStatus): Promise<Pedido> {
-    const existing = this.pedidos.get(id);
-    if (!existing) throw new Error("Pedido não encontrado");
-    const updated = { ...existing, status, updated_at: new Date() };
-    this.pedidos.set(id, updated);
-    return updated;
+    const result = await db
+      .update(pedidos)
+      .set({ status, updated_at: new Date() })
+      .where(eq(pedidos.id, id))
+      .returning();
+    if (!result.length) throw new Error("Pedido não encontrado");
+    return result[0];
   }
 
   async markPedidoAsViewed(id: string): Promise<void> {
-    const existing = this.pedidos.get(id);
-    if (existing) {
-      this.pedidos.set(id, { ...existing, viewed: true });
-    }
+    await db.update(pedidos).set({ viewed: true }).where(eq(pedidos.id, id));
   }
 
   async getItensPedido(pedido_id: string): Promise<ItemPedido[]> {
-    return Array.from(this.itens_pedido.values()).filter(i => i.pedido_id === pedido_id);
+    return await db
+      .select()
+      .from(itens_pedido)
+      .where(eq(itens_pedido.pedido_id, pedido_id));
   }
 
   async createItemPedido(item: InsertItemPedido): Promise<ItemPedido> {
-    const id = crypto.randomUUID();
-    const newItem: ItemPedido = {
-      ...item,
-      id,
-      created_at: new Date(),
-    };
-    this.itens_pedido.set(id, newItem);
-    return newItem;
+    const result = await db.insert(itens_pedido).values(item).returning();
+    return result[0];
   }
 
   async getHorarios(): Promise<HorarioFuncionamento[]> {
-    return Array.from(this.horarios.values());
+    return await db.select().from(horarios_funcionamento);
   }
 
-  async updateHorario(id: string, horario: Partial<InsertHorario>): Promise<HorarioFuncionamento> {
-    const existing = this.horarios.get(id);
-    if (!existing) throw new Error("Horário não encontrado");
-    const updated = { ...existing, ...horario };
-    this.horarios.set(id, updated);
-    return updated;
+  async updateHorario(id: string, updates: Partial<InsertHorario>): Promise<HorarioFuncionamento> {
+    const result = await db
+      .update(horarios_funcionamento)
+      .set(updates)
+      .where(eq(horarios_funcionamento.id, id))
+      .returning();
+    if (!result.length) throw new Error("Horário não encontrado");
+    return result[0];
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new SupabaseStorage();
