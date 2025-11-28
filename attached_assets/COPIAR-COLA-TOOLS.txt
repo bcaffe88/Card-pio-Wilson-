@@ -1,0 +1,203 @@
+========================================
+N8N TOOLS - VALORES PARA COPIAR E COLAR
+========================================
+
+IMPORTANTE: Substitua {{ $env.API_BASE_URL }} pelo seu valor:
+- Desenvolvimento: http://localhost:5000
+- Produção: https://seu-app.railway.app
+
+========================================
+TOOL 1: BuscarCliente
+========================================
+URL: {{ $env.API_BASE_URL }}/api/clientes/buscar/{{ $fromAI('telefone', '', 'string') }}
+Method: GET
+Send Body: OFF
+Send Query: OFF
+
+
+========================================
+TOOL 2: AdicionarCliente
+========================================
+URL: {{ $env.API_BASE_URL }}/api/clientes
+Method: POST
+Send Body: ON
+Body Params:
+  - nome: {{ $fromAI('nome', '', 'string') }}
+  - telefone: {{ $fromAI('telefone', '', 'string') }}
+  - email: {{ $fromAI('email', '', 'string') }}
+
+
+========================================
+TOOL 3: AtualizarCliente
+========================================
+URL: {{ $env.API_BASE_URL }}/api/clientes/{{ $fromAI('cliente_id', '', 'string') }}
+Method: PUT
+Send Body: ON
+Body Params:
+  - nome: {{ $fromAI('nome', '', 'string') }}
+  - email: {{ $fromAI('email', '', 'string') }}
+  - endereco_padrao: {{ $fromAI('endereco_padrao', '', 'string') }}
+
+
+========================================
+TOOL 4: ConsultarCardapio
+========================================
+URL: {{ $env.API_BASE_URL }}/api/cardapio
+Method: GET
+Send Body: OFF
+Send Query: OFF
+
+
+========================================
+TOOL 5: ConsultarCardapioPorCategoria
+========================================
+URL: {{ $env.API_BASE_URL }}/api/cardapio/categoria/{{ $fromAI('categoria', '', 'string') }}
+Method: GET
+Send Body: OFF
+Send Query: OFF
+
+
+========================================
+TOOL 6: BuscarCardapio
+========================================
+URL: {{ $env.API_BASE_URL }}/api/cardapio/buscar/{{ $fromAI('termo', '', 'string') }}
+Method: GET
+Send Body: OFF
+Send Query: OFF
+
+
+========================================
+TOOL 7: BuscarEndereço
+========================================
+URL: {{ $env.API_BASE_URL }}/api/enderecos/{{ $fromAI('cliente_id', '', 'string') }}
+Method: GET
+Send Body: OFF
+Send Query: OFF
+
+
+========================================
+TOOL 8: AdicionarEndereco
+========================================
+URL: {{ $env.API_BASE_URL }}/api/enderecos
+Method: POST
+Send Body: ON
+Body Params:
+  - cliente_id: {{ $fromAI('cliente_id', '', 'string') }}
+  - rua: {{ $fromAI('rua', '', 'string') }}
+  - numero: {{ $fromAI('numero', '', 'number') }}
+  - bairro: {{ $fromAI('bairro', '', 'string') }}
+  - cidade: {{ $fromAI('cidade', '', 'string') }}
+  - cep: {{ $fromAI('cep', '', 'string') }}
+  - complemento: {{ $fromAI('complemento', '', 'string') }}
+
+
+========================================
+TOOL 9: AtualizarEndereco
+========================================
+URL: {{ $env.API_BASE_URL }}/api/enderecos/{{ $fromAI('endereco_id', '', 'string') }}
+Method: PUT
+Send Body: ON
+Body Params:
+  - rua: {{ $fromAI('rua', '', 'string') }}
+  - numero: {{ $fromAI('numero', '', 'number') }}
+  - bairro: {{ $fromAI('bairro', '', 'string') }}
+  - cidade: {{ $fromAI('cidade', '', 'string') }}
+  - cep: {{ $fromAI('cep', '', 'string') }}
+  - complemento: {{ $fromAI('complemento', '', 'string') }}
+
+
+========================================
+TOOL 10: DeletarEndereco
+========================================
+URL: {{ $env.API_BASE_URL }}/api/enderecos/{{ $fromAI('endereco_id', '', 'string') }}
+Method: DELETE
+Send Body: OFF
+Send Query: OFF
+
+
+========================================
+TOOL 11: CriarPedido
+========================================
+URL: {{ $env.API_BASE_URL }}/api/pedidos
+Method: POST
+Send Body: ON
+Body Params:
+  - cliente_nome: {{ $fromAI('cliente_nome', '', 'string') }}
+  - cliente_telefone: {{ $fromAI('cliente_telefone', '', 'string') }}
+  - cliente_email: {{ $fromAI('cliente_email', '', 'string') }}
+  - itens: {{ $fromAI('itens', '', 'object') }}
+  - endereco: {{ $fromAI('endereco', '', 'object') }}
+  - forma_pagamento: {{ $fromAI('forma_pagamento', '', 'string') }}
+  - observacoes: {{ $fromAI('observacoes', '', 'string') }}
+
+
+========================================
+TOOL 12: ConsultarPedidoDetalhes
+========================================
+URL: {{ $env.API_BASE_URL }}/api/pedidos/{{ $fromAI('pedido_id', '', 'string') }}
+Method: GET
+Send Body: OFF
+Send Query: OFF
+
+
+========================================
+TOOL 13: ConsultarPedidosCliente
+========================================
+URL: {{ $env.API_BASE_URL }}/api/pedidos/cliente/{{ $fromAI('cliente_id', '', 'string') }}
+Method: GET
+Send Body: OFF
+Send Query: OFF
+
+
+========================================
+TOOL 14: AtualizarPedido
+========================================
+URL: {{ $env.API_BASE_URL }}/api/pedidos/{{ $fromAI('pedido_id', '', 'string') }}/status
+Method: PUT
+Send Body: ON
+Body Params:
+  - status: {{ $fromAI('status', '', 'string') }}
+
+
+========================================
+TOOL 15: DeletarPedido
+========================================
+URL: {{ $env.API_BASE_URL }}/api/pedidos/{{ $fromAI('pedido_id', '', 'string') }}
+Method: DELETE
+Send Body: OFF
+Send Query: OFF
+
+
+========================================
+TOOL 16: ConsultarPedidosAdmin
+========================================
+URL: {{ $env.API_BASE_URL }}/api/admin/pedidos
+Method: GET
+Send Body: OFF
+Send Query: OFF
+
+
+========================================
+TOOL 17: ConsultarHorario
+========================================
+URL: {{ $env.API_BASE_URL }}/api/horarios-funcionamento
+Method: GET
+Send Body: OFF
+Send Query: OFF
+
+
+========================================
+TOOL 18: AtualizarHorario
+========================================
+URL: {{ $env.API_BASE_URL }}/api/horarios-funcionamento/{{ $fromAI('horario_id', '', 'string') }}
+Method: PUT
+Send Body: ON
+Body Params:
+  - abertura: {{ $fromAI('abertura', '', 'string') }}
+  - fechamento: {{ $fromAI('fechamento', '', 'string') }}
+  - aberto: {{ $fromAI('aberto', '', 'boolean') }}
+
+
+========================================
+FIM DO ARQUIVO
+========================================
