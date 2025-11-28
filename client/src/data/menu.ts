@@ -527,7 +527,7 @@ export const MENU_ITEMS: PizzaFlavor[] = [
   {
     id: 'espaguete',
     name: 'Espaguete',
-    description: 'Serve 1 pessoa. Espaguete com molho da casa.',
+    description: 'Serve 1 pessoa. Monte sua massa escolhendo molho e até 6 ingredientes.',
     prices: { 'P': 26 },
     image: meatImg,
     category: 'Massas',
@@ -548,13 +548,15 @@ export const MENU_ITEMS: PizzaFlavor[] = [
       { id: 'ing-alho', name: 'Alho Frito', price: 3 },
       { id: 'ing-pimentao', name: 'Pimentão', price: 3 },
       { id: 'ing-azeitona', name: 'Azeitona', price: 3 },
-      { id: 'ing-mussarela', name: 'Mussarela Extra', price: 5 }
+      { id: 'ing-mussarela', name: 'Mussarela Extra', price: 5 },
+      { id: 'ing-palmito', name: 'Palmito', price: 4 },
+      { id: 'ing-presunto', name: 'Presunto', price: 5 }
     ]
   },
   {
     id: 'parafuso',
     name: 'Parafuso',
-    description: 'Serve 1 pessoa. Parafuso com molho da casa.',
+    description: 'Serve 1 pessoa. Monte sua massa escolhendo molho e até 6 ingredientes.',
     prices: { 'P': 26 },
     image: meatImg,
     category: 'Massas',
@@ -575,13 +577,15 @@ export const MENU_ITEMS: PizzaFlavor[] = [
       { id: 'ing-alho', name: 'Alho Frito', price: 3 },
       { id: 'ing-pimentao', name: 'Pimentão', price: 3 },
       { id: 'ing-azeitona', name: 'Azeitona', price: 3 },
-      { id: 'ing-mussarela', name: 'Mussarela Extra', price: 5 }
+      { id: 'ing-mussarela', name: 'Mussarela Extra', price: 5 },
+      { id: 'ing-palmito', name: 'Palmito', price: 4 },
+      { id: 'ing-presunto', name: 'Presunto', price: 5 }
     ]
   },
   {
     id: 'penne',
     name: 'Penne',
-    description: 'Serve 1 pessoa. Penne com molho da casa.',
+    description: 'Serve 1 pessoa. Monte sua massa escolhendo molho e até 6 ingredientes.',
     prices: { 'P': 26 },
     image: meatImg,
     category: 'Massas',
@@ -602,13 +606,15 @@ export const MENU_ITEMS: PizzaFlavor[] = [
       { id: 'ing-alho', name: 'Alho Frito', price: 3 },
       { id: 'ing-pimentao', name: 'Pimentão', price: 3 },
       { id: 'ing-azeitona', name: 'Azeitona', price: 3 },
-      { id: 'ing-mussarela', name: 'Mussarela Extra', price: 5 }
+      { id: 'ing-mussarela', name: 'Mussarela Extra', price: 5 },
+      { id: 'ing-palmito', name: 'Palmito', price: 4 },
+      { id: 'ing-presunto', name: 'Presunto', price: 5 }
     ]
   },
   {
     id: 'talharim',
     name: 'Talharim',
-    description: 'Serve 1 pessoa. Talharim com molho da casa.',
+    description: 'Serve 1 pessoa. Monte sua massa escolhendo molho e até 6 ingredientes.',
     prices: { 'P': 26 },
     image: meatImg,
     category: 'Massas',
@@ -629,7 +635,9 @@ export const MENU_ITEMS: PizzaFlavor[] = [
       { id: 'ing-alho', name: 'Alho Frito', price: 3 },
       { id: 'ing-pimentao', name: 'Pimentão', price: 3 },
       { id: 'ing-azeitona', name: 'Azeitona', price: 3 },
-      { id: 'ing-mussarela', name: 'Mussarela Extra', price: 5 }
+      { id: 'ing-mussarela', name: 'Mussarela Extra', price: 5 },
+      { id: 'ing-palmito', name: 'Palmito', price: 4 },
+      { id: 'ing-presunto', name: 'Presunto', price: 5 }
     ]
   },
 

@@ -33,11 +33,16 @@ export function MassasBuilder({ isOpen, item, onClose }: MassasBuilderProps) {
   const precoTotal = price + precoIngredientes;
 
   const handleIngredientToggle = (ingredienteId: string) => {
-    setSelectedIngredientes(prev =>
-      prev.includes(ingredienteId)
-        ? prev.filter(id => id !== ingredienteId)
-        : [...prev, ingredienteId]
-    );
+    setSelectedIngredientes(prev => {
+      if (prev.includes(ingredienteId)) {
+        return prev.filter(id => id !== ingredienteId);
+      }
+      // Máximo 6 ingredientes
+      if (prev.length >= 6) {
+        return prev;
+      }
+      return [...prev, ingredienteId];
+    });
   };
 
   const handleAddToCart = () => {
@@ -102,24 +107,42 @@ export function MassasBuilder({ isOpen, item, onClose }: MassasBuilderProps) {
 
             {/* Ingredientes Selection */}
             <section>
-              <h3 className="text-lg font-heading font-semibold mb-3 text-foreground">
-                2. Escolha Ingredientes (Opcional)
+              <h3 className="text-lg font-heading font-semibold mb-3 text-foreground flex items-center justify-between">
+                2. Escolha os Ingredientes
+                <span className="text-xs font-normal bg-accent/20 text-accent px-2 py-1 rounded-md">
+                  {selectedIngredientes.length}/6
+                </span>
               </h3>
-              <div className="space-y-2 max-h-48 overflow-y-auto">
+              <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
                 {ingredientes.map((ingrediente) => (
-                  <div key={ingrediente.id} className="flex items-center space-x-2 p-2 rounded-lg hover:bg-secondary/50 transition-colors">
+                  <div 
+                    key={ingrediente.id} 
+                    className={cn(
+                      "flex items-center space-x-2 p-3 rounded-lg transition-all",
+                      selectedIngredientes.includes(ingrediente.id)
+                        ? "bg-primary/10 border-2 border-primary"
+                        : "hover:bg-secondary/50 border-2 border-transparent",
+                      selectedIngredientes.length >= 6 && !selectedIngredientes.includes(ingrediente.id)
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
+                    )}
+                  >
                     <Checkbox 
                       id={ingrediente.id}
                       checked={selectedIngredientes.includes(ingrediente.id)}
                       onCheckedChange={() => handleIngredientToggle(ingrediente.id)}
+                      disabled={selectedIngredientes.length >= 6 && !selectedIngredientes.includes(ingrediente.id)}
                     />
-                    <Label htmlFor={ingrediente.id} className="cursor-pointer flex-1 flex justify-between">
-                      <span>{ingrediente.name}</span>
+                    <Label htmlFor={ingrediente.id} className="cursor-pointer flex-1 flex justify-between items-center">
+                      <span className="font-medium">{ingrediente.name}</span>
                       <span className="text-sm text-accent font-semibold">+R$ {ingrediente.price?.toFixed(2)}</span>
                     </Label>
                   </div>
                 ))}
               </div>
+              {selectedIngredientes.length >= 6 && (
+                <p className="text-xs text-accent mt-2 font-medium">Máximo de 6 ingredientes atingido</p>
+              )}
             </section>
 
             {/* Quantity Selection */}
