@@ -1,4 +1,5 @@
 import { useState } from "react";
+import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,7 +39,7 @@ export default function ProductEditModal({
   onDelete
 }: ProductEditModalProps) {
   const { toast } = useToast();
-  const [formData, setFormData] = useState<Product>(
+  const [formData, setFormData] = useState<Product>(() => 
     product || {
       id: '',
       name: '',
@@ -49,6 +50,13 @@ export default function ProductEditModal({
       active: true
     }
   );
+
+  // Update formData when product prop changes
+  React.useEffect(() => {
+    if (product) {
+      setFormData(product);
+    }
+  }, [product]);
 
   const handleSave = () => {
     // API call will be: POST /api/products/{id}
@@ -78,7 +86,7 @@ export default function ProductEditModal({
     }
   };
 
-  if (!isOpen || !product) return null;
+  if (!isOpen) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>

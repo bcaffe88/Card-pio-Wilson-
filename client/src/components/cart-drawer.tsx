@@ -38,25 +38,45 @@ export function CartDrawer() {
       const edgeName = EDGE_OPTIONS.find(e => e.id === item.edge)?.name || 'Sem Borda';
       const edgePrice = item.edgePrice > 0 ? `(+R$ ${item.edgePrice.toFixed(2)})` : '';
       
-      return `- ${item.quantity}x Pizza ${SIZES[item.size].label} (${flavors})\n  ${crustName} | ${edgeName} ${edgePrice}`;
+      // Se item.notes contém informações de massa (molho e ingredientes), exibe de forma formatada
+      let itemDetails = `- ${item.quantity}x Pizza ${SIZES[item.size].label} (${flavors})\n  ${crustName} | ${edgeName} ${edgePrice}`;
+      
+      // Se existem notas (para massas com molho/ingredientes), adiciona embaixo
+      if (item.notes && item.notes.trim()) {
+        itemDetails += `\n  _${item.notes}_`;
+      }
+      
+      return itemDetails;
     }).join('\n');
 
     const deliveryInfo = deliveryMethod === 'entrega' 
       ? `*ENTREGA:* ${address || 'Endereço não informado'}` 
       : `*RETIRADA:* Vou buscar no local`;
 
+    // Pagamento formatado
+    let paymentFormatted = '';
+    if (paymentMethod === 'pix') paymentFormatted = 'PIX';
+    else if (paymentMethod === 'cartao') paymentFormatted = 'CARTÃO';
+    else if (paymentMethod === 'dinheiro') paymentFormatted = 'DINHEIRO';
+
+    const changeInfo = paymentMethod === 'dinheiro' ? `\n*TROCO PARA:* R$ ${changeFor || '0,00'}` : '';
+
     const message = `
-*PEDIDO FOODFLOW DELIVERY*
---------------------------------
-*ITENS:*
+*🍕 NOVO PEDIDO WILSON PIZZAS*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+*📦 ITENS:*
 ${itemsList}
 
-*TOTAL: R$ ${total.toFixed(2)}*
---------------------------------
-*PAGAMENTO:* ${paymentMethod.toUpperCase()}
-${paymentMethod === 'dinheiro' ? `*TROCO PARA:* ${changeFor || 'Sem troco'}` : ''}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+*💰 TOTAL: R$ ${total.toFixed(2)}*
+
+*💳 PAGAMENTO:* ${paymentFormatted}${changeInfo}
+
 ${deliveryInfo}
-*OBS:* ${notes || 'Nenhuma'}
+
+${notes ? `*📝 OBSERVAÇÕES:* ${notes}` : ''}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
     `.trim();
 
     const encodedMessage = encodeURIComponent(message);
