@@ -1,0 +1,128 @@
+{
+  "cardapio": [
+    {
+      "id": "costela",
+      "nome": "Costela",
+      "descricao": "Costela desfiada, cebola, creme cheese, mussarela e barbecue.",
+      "categoria": "Salgadas",
+      "preco_p": 35.00,
+      "preco_m": 45.00,
+      "preco_g": 65.00,
+      "preco_gg": null,
+      "preco_super": 80.00,
+      "ativo": true
+    },
+    {
+      "id": "calabresa-especial",
+      "nome": "Calabresa Especial",
+      "descricao": "Molho de tomate, calabresa fatiada, mussarela, creme cheese, barbecue, orégano e azeitonas.",
+      "categoria": "Salgadas",
+      "preco_p": 32.00,
+      "preco_m": 42.00,
+      "preco_g": 53.00,
+      "preco_gg": null,
+      "preco_super": 73.00,
+      "ativo": true
+    },
+    {
+      "id": "espaguete",
+      "nome": "Espaguete",
+      "descricao": "Serve 1 pessoa. Monte sua massa escolhendo molho e até 6 ingredientes.",
+      "categoria": "Massas",
+      "preco_p": 26.00,
+      "preco_m": null,
+      "preco_g": null,
+      "preco_gg": null,
+      "preco_super": null,
+      "ativo": true,
+      "molhos": ["Vermelho", "Branco", "4 Queijos", "Bolonhesa"],
+      "ingredientes_max": 6
+    },
+    {
+      "id": "pastel-queijo",
+      "nome": "Pastel de Queijo",
+      "descricao": "Pastel crocante recheado com queijo derretido.",
+      "categoria": "Pastéis de Forno",
+      "preco_p": 15.00,
+      "preco_m": null,
+      "preco_g": null,
+      "preco_gg": null,
+      "preco_super": null,
+      "ativo": true
+    },
+    {
+      "id": "lasanha-bolonhesa",
+      "nome": "Lasanha à Bolonhesa",
+      "descricao": "Lasanha caseira com molho bolonhesa, mussarela e parmesão.",
+      "categoria": "Lasanhas",
+      "preco_p": null,
+      "preco_m": 32.00,
+      "preco_g": null,
+      "preco_gg": null,
+      "preco_super": null,
+      "ativo": true
+    },
+    {
+      "id": "calzone-calabresa",
+      "nome": "Calzone Calabresa",
+      "descricao": "Pizza fechada recheada com calabresa, mussarela e cebola.",
+      "categoria": "Calzones",
+      "preco_p": 32.00,
+      "preco_m": 42.00,
+      "preco_g": 52.00,
+      "preco_gg": null,
+      "preco_super": null,
+      "ativo": true
+    },
+    {
+      "id": "asinhas-frango",
+      "nome": "Asinhas de Frango",
+      "descricao": "Asinhas de frango temperadas e assadas na brasa.",
+      "categoria": "Petiscos",
+      "preco_p": null,
+      "preco_m": 28.00,
+      "preco_g": null,
+      "preco_gg": null,
+      "preco_super": null,
+      "ativo": true
+    },
+    {
+      "id": "refrigerante-2l",
+      "nome": "Refrigerante 2L",
+      "descricao": "Refrigerante gelado (Coca-Cola, Guaraná ou Fanta).",
+      "categoria": "Bebidas",
+      "preco_p": null,
+      "preco_m": 12.00,
+      "preco_g": null,
+      "preco_gg": null,
+      "preco_super": null,
+      "ativo": true
+    },
+    {
+      "id": "chocolate-com-morango",
+      "nome": "Chocolate com Morango",
+      "descricao": "Chocolate com morango.",
+      "categoria": "Doces",
+      "preco_p": 30.00,
+      "preco_m": 35.00,
+      "preco_g": 40.00,
+      "preco_gg": 54.00,
+      "preco_super": null,
+      "ativo": true
+    }
+  ],
+  "resumo": {
+    "total_produtos": 85,
+    "categorias": {
+      "Salgadas": 43,
+      "Doces": 5,
+      "Massas": 4,
+      "Pastéis de Forno": 8,
+      "Lasanhas": 4,
+      "Calzones": 6,
+      "Petiscos": 6,
+      "Bebidas": 5
+    },
+    "nota": "Amostra de 9 produtos. Para lista completa, veja SUPABASE-CARDAPIO-INSERT.sql"
+  }
+}
