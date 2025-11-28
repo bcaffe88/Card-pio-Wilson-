@@ -31,7 +31,7 @@ export default function AdminMenu() {
     item.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const categories = [...new Set(products.map(p => p.category))];
+  const categories = Array.from(new Set(products.map(p => p.category)));
 
   const handleEditProduct = (product: any) => {
     setEditingProduct(product);

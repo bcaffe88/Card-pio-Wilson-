@@ -80,7 +80,7 @@ const initialOrders: Order[] = [
 
 export const useAdminStore = create<AdminState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       isAuthenticated: false,
       login: () => set({ isAuthenticated: true }),
       logout: () => set({ isAuthenticated: false }),
@@ -88,7 +88,7 @@ export const useAdminStore = create<AdminState>()(
       restaurantName: 'Wilson Pizza',
       restaurantAddress: 'Rua Principal, 123, Centro',
       restaurantPhone: '5587999480699',
-      restaurantLogo: null,
+      restaurantLogo: null as string | null,
 
       supabaseUrl: '',
       supabaseKey: '',
@@ -105,9 +105,9 @@ export const useAdminStore = create<AdminState>()(
       markOrderAsViewed: (id) => set((state) => ({
         orders: state.orders.map(o => o.id === id ? { ...o, viewed: true } : o)
       })),
-      getUnviewedOrdersCount: () => {
-        const state = useAdminStore.getState();
-        return state.orders.filter(o => !o.viewed && o.status !== 'delivered' && o.status !== 'cancelled').length;
+      getUnviewedOrdersCount: (): number => {
+        const state = get();
+        return state.orders.filter((o: Order) => !o.viewed && o.status !== 'delivered' && o.status !== 'cancelled').length;
       },
     }),
     {

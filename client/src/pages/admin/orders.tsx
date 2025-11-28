@@ -70,7 +70,7 @@ export default function AdminOrders() {
     return order.status === activeTab;
   });
 
-  const OrderCard = ({ order }: { order: Order }) => (
+  const OrderCard = ({ order }: { order: Order }): JSX.Element => (
     <Card className={`border-l-4 ${!order.viewed ? 'border-l-red-500 bg-red-500/5' : 'border-l-primary'}`}>
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
@@ -168,10 +168,10 @@ export default function AdminOrders() {
           )}
         </div>
 
-        <Tabs defaultValue="active" className="w-full" onValueChange={(tab) => {
+        <Tabs defaultValue="active" className="w-full" onValueChange={(tab: string) => {
           setActiveTab(tab);
           // Mark visible orders as viewed when switching tabs
-          filteredOrders.forEach(order => {
+          filteredOrders.forEach((order: Order) => {
             if (!order.viewed) markOrderAsViewed(order.id);
           });
         }}>
