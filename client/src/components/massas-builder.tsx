@@ -3,6 +3,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useCartStore } from "@/lib/store";
 import { PizzaFlavor } from "@/data/menu";
@@ -18,23 +19,40 @@ interface MassasBuilderProps {
 export function MassasBuilder({ isOpen, item, onClose }: MassasBuilderProps) {
   const { addToCart } = useCartStore();
   const [selectedMolho, setSelectedMolho] = useState<string>('molho-tomate');
+  const [selectedIngredientes, setSelectedIngredientes] = useState<string[]>([]);
   const [quantity, setQuantity] = useState(1);
 
   if (!item) return null;
 
   const price = item.prices['P'] || 0;
   const molhos = item.molhos || [];
+  const ingredientes = item.ingredientes || [];
+
+  const ingredientesSelecionados = ingredientes.filter(ing => selectedIngredientes.includes(ing.id));
+  const precoIngredientes = ingredientesSelecionados.reduce((sum, ing) => sum + (ing.price || 0), 0);
+  const precoTotal = price + precoIngredientes;
+
+  const handleIngredientToggle = (ingredienteId: string) => {
+    setSelectedIngredientes(prev =>
+      prev.includes(ingredienteId)
+        ? prev.filter(id => id !== ingredienteId)
+        : [...prev, ingredienteId]
+    );
+  };
 
   const handleAddToCart = () => {
+    const ingredientesNomes = ingredientesSelecionados.map(ing => ing.name).join(', ');
+    const notasCompletas = `Molho: ${molhos.find(m => m.id === selectedMolho)?.name || 'Tomate'}${ingredientesNomes ? ` | Adicionais: ${ingredientesNomes}` : ''}`;
+    
     addToCart({
       size: 'P',
       flavors: [item],
       quantity,
-      price,
+      price: precoTotal,
       crust: 'normal',
       edge: 'sem-borda',
       edgePrice: 0,
-      notes: `Molho: ${molhos.find(m => m.id === selectedMolho)?.name || 'Tomate'}`
+      notes: notasCompletas
     });
     onClose();
   };
@@ -68,7 +86,7 @@ export function MassasBuilder({ isOpen, item, onClose }: MassasBuilderProps) {
             {/* Molho Selection */}
             <section>
               <h3 className="text-lg font-heading font-semibold mb-3 text-foreground">
-                Escolha o Molho
+                1. Escolha o Molho
               </h3>
               <RadioGroup value={selectedMolho} onValueChange={setSelectedMolho} className="space-y-2">
                 {molhos.map((molho) => (
@@ -82,10 +100,32 @@ export function MassasBuilder({ isOpen, item, onClose }: MassasBuilderProps) {
               </RadioGroup>
             </section>
 
+            {/* Ingredientes Selection */}
+            <section>
+              <h3 className="text-lg font-heading font-semibold mb-3 text-foreground">
+                2. Escolha Ingredientes (Opcional)
+              </h3>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {ingredientes.map((ingrediente) => (
+                  <div key={ingrediente.id} className="flex items-center space-x-2 p-2 rounded-lg hover:bg-secondary/50 transition-colors">
+                    <Checkbox 
+                      id={ingrediente.id}
+                      checked={selectedIngredientes.includes(ingrediente.id)}
+                      onCheckedChange={() => handleIngredientToggle(ingrediente.id)}
+                    />
+                    <Label htmlFor={ingrediente.id} className="cursor-pointer flex-1 flex justify-between">
+                      <span>{ingrediente.name}</span>
+                      <span className="text-sm text-accent font-semibold">+R$ {ingrediente.price?.toFixed(2)}</span>
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </section>
+
             {/* Quantity Selection */}
             <section>
               <h3 className="text-lg font-heading font-semibold mb-3 text-foreground">
-                Quantidade
+                3. Quantidade
               </h3>
               <div className="flex items-center gap-4">
                 <Button 
@@ -107,15 +147,27 @@ export function MassasBuilder({ isOpen, item, onClose }: MassasBuilderProps) {
             </section>
 
             {/* Price Summary */}
-            <div className="bg-secondary/50 rounded-xl p-4">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-muted-foreground">Preço unitário</span>
+            <div className="bg-secondary/50 rounded-xl p-4 space-y-2">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Base</span>
                 <span className="font-semibold">R$ {price.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between items-center text-lg font-bold">
-                <span>Total</span>
-                <span className="text-primary">R$ {(price * quantity).toFixed(2)}</span>
+              {precoIngredientes > 0 && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-muted-foreground">Adicionais</span>
+                  <span className="font-semibold">R$ {precoIngredientes.toFixed(2)}</span>
+                </div>
+              )}
+              <div className="border-t border-border/50 pt-2 flex justify-between items-center text-lg font-bold">
+                <span>Total por unidade</span>
+                <span className="text-primary">R$ {precoTotal.toFixed(2)}</span>
               </div>
+              {quantity > 1 && (
+                <div className="flex justify-between items-center text-sm text-muted-foreground">
+                  <span>{quantity}x</span>
+                  <span>R$ {(precoTotal * quantity).toFixed(2)}</span>
+                </div>
+              )}
             </div>
           </div>
         </ScrollArea>

@@ -537,6 +537,18 @@ export const MENU_ITEMS: PizzaFlavor[] = [
       { id: 'molho-branco', name: 'Molho Branco', price: 0 },
       { id: 'molho-bolonhesa', name: 'Molho Bolonhesa', price: 0 },
       { id: 'molho-rosa', name: 'Molho Rosa', price: 0 }
+    ],
+    ingredientes: [
+      { id: 'ing-frango', name: 'Frango Desfiado', price: 8 },
+      { id: 'ing-bacon', name: 'Bacon', price: 6 },
+      { id: 'ing-calabresa', name: 'Calabresa', price: 5 },
+      { id: 'ing-camarao', name: 'Camarão', price: 12 },
+      { id: 'ing-cogumelo', name: 'Cogumelo', price: 4 },
+      { id: 'ing-cebola', name: 'Cebola', price: 2 },
+      { id: 'ing-alho', name: 'Alho Frito', price: 3 },
+      { id: 'ing-pimentao', name: 'Pimentão', price: 3 },
+      { id: 'ing-azeitona', name: 'Azeitona', price: 3 },
+      { id: 'ing-mussarela', name: 'Mussarela Extra', price: 5 }
     ]
   },
   {
@@ -552,6 +564,18 @@ export const MENU_ITEMS: PizzaFlavor[] = [
       { id: 'molho-branco', name: 'Molho Branco', price: 0 },
       { id: 'molho-bolonhesa', name: 'Molho Bolonhesa', price: 0 },
       { id: 'molho-rosa', name: 'Molho Rosa', price: 0 }
+    ],
+    ingredientes: [
+      { id: 'ing-frango', name: 'Frango Desfiado', price: 8 },
+      { id: 'ing-bacon', name: 'Bacon', price: 6 },
+      { id: 'ing-calabresa', name: 'Calabresa', price: 5 },
+      { id: 'ing-camarao', name: 'Camarão', price: 12 },
+      { id: 'ing-cogumelo', name: 'Cogumelo', price: 4 },
+      { id: 'ing-cebola', name: 'Cebola', price: 2 },
+      { id: 'ing-alho', name: 'Alho Frito', price: 3 },
+      { id: 'ing-pimentao', name: 'Pimentão', price: 3 },
+      { id: 'ing-azeitona', name: 'Azeitona', price: 3 },
+      { id: 'ing-mussarela', name: 'Mussarela Extra', price: 5 }
     ]
   },
   {
@@ -567,6 +591,18 @@ export const MENU_ITEMS: PizzaFlavor[] = [
       { id: 'molho-branco', name: 'Molho Branco', price: 0 },
       { id: 'molho-bolonhesa', name: 'Molho Bolonhesa', price: 0 },
       { id: 'molho-rosa', name: 'Molho Rosa', price: 0 }
+    ],
+    ingredientes: [
+      { id: 'ing-frango', name: 'Frango Desfiado', price: 8 },
+      { id: 'ing-bacon', name: 'Bacon', price: 6 },
+      { id: 'ing-calabresa', name: 'Calabresa', price: 5 },
+      { id: 'ing-camarao', name: 'Camarão', price: 12 },
+      { id: 'ing-cogumelo', name: 'Cogumelo', price: 4 },
+      { id: 'ing-cebola', name: 'Cebola', price: 2 },
+      { id: 'ing-alho', name: 'Alho Frito', price: 3 },
+      { id: 'ing-pimentao', name: 'Pimentão', price: 3 },
+      { id: 'ing-azeitona', name: 'Azeitona', price: 3 },
+      { id: 'ing-mussarela', name: 'Mussarela Extra', price: 5 }
     ]
   },
   {
@@ -582,6 +618,18 @@ export const MENU_ITEMS: PizzaFlavor[] = [
       { id: 'molho-branco', name: 'Molho Branco', price: 0 },
       { id: 'molho-bolonhesa', name: 'Molho Bolonhesa', price: 0 },
       { id: 'molho-rosa', name: 'Molho Rosa', price: 0 }
+    ],
+    ingredientes: [
+      { id: 'ing-frango', name: 'Frango Desfiado', price: 8 },
+      { id: 'ing-bacon', name: 'Bacon', price: 6 },
+      { id: 'ing-calabresa', name: 'Calabresa', price: 5 },
+      { id: 'ing-camarao', name: 'Camarão', price: 12 },
+      { id: 'ing-cogumelo', name: 'Cogumelo', price: 4 },
+      { id: 'ing-cebola', name: 'Cebola', price: 2 },
+      { id: 'ing-alho', name: 'Alho Frito', price: 3 },
+      { id: 'ing-pimentao', name: 'Pimentão', price: 3 },
+      { id: 'ing-azeitona', name: 'Azeitona', price: 3 },
+      { id: 'ing-mussarela', name: 'Mussarela Extra', price: 5 }
     ]
   },
 

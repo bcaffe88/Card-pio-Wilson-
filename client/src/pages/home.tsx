@@ -14,7 +14,7 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState<Category | 'Todos'>('Todos');
   const [searchQuery, setSearchQuery] = useState('');
   const [isMassasBuilderOpen, setIsMassasBuilderOpen] = useState(false);
-  const [selectedMassa, setSelectedMassa] = useState(null);
+  const [selectedMassa, setSelectedMassa] = useState<any>(null);
   const { openBuilder, toggleCart, items } = useCartStore();
 
   // Derived state for cart count
