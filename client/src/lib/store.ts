@@ -11,6 +11,7 @@ export interface CartItem {
   crust: string; // Crust ID
   edge: string; // Edge ID
   edgePrice: number;
+  selectedMolho?: string; // Para massas
 }
 
 interface CartState {

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { MENU_ITEMS, Category } from "@/data/menu";
 import { useCartStore } from "@/lib/store";
 import { PizzaBuilder } from "@/components/pizza-builder";
+import { MassasBuilder } from "@/components/massas-builder";
 import { CartDrawer } from "@/components/cart-drawer";
 import { Button } from "@/components/ui/button";
 import { ShoppingBag, Search, UtensilsCrossed, Plus } from "lucide-react";
@@ -12,6 +13,8 @@ import { cn } from "@/lib/utils";
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState<Category | 'Todos'>('Todos');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMassasBuilderOpen, setIsMassasBuilderOpen] = useState(false);
+  const [selectedMassa, setSelectedMassa] = useState(null);
   const { openBuilder, toggleCart, items } = useCartStore();
 
   // Derived state for cart count
@@ -96,7 +99,7 @@ export default function Home() {
 
           {/* Category Tabs */}
           <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
-            {(['Todos', 'Salgadas', 'Doces'] as const).map((cat) => (
+            {(['Todos', 'Salgadas', 'Doces', 'Massas', 'Pastéis de Forno', 'Lasanhas', 'Petiscos', 'Calzones', 'Bebidas'] as const).map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
@@ -159,7 +162,14 @@ export default function Home() {
                     </div>
                     
                     <Button 
-                      onClick={() => openBuilder(item)}
+                      onClick={() => {
+                        if (item.isMassa) {
+                          setSelectedMassa(item);
+                          setIsMassasBuilderOpen(true);
+                        } else {
+                          openBuilder(item);
+                        }
+                      }}
                       size="sm" 
                       className="rounded-full font-semibold bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-lg active:scale-95 transition-all"
                     >
@@ -176,6 +186,11 @@ export default function Home() {
 
       {/* Modals */}
       <PizzaBuilder />
+      <MassasBuilder 
+        isOpen={isMassasBuilderOpen}
+        item={selectedMassa}
+        onClose={() => setIsMassasBuilderOpen(false)}
+      />
       <CartDrawer />
 
       {/* Mobile Floating Cart Button (if cart has items) */}

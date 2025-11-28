@@ -4,7 +4,20 @@ import meatImg from '@assets/stock_images/pizza_calabresa_onio_8ea1076f.jpg';
 import sweetImg from '@assets/stock_images/sweet_pizza_chocolat_b4c83fb7.jpg';
 
 export type Size = 'P' | 'M' | 'G' | 'GG' | 'Super';
-export type Category = 'Salgadas' | 'Doces';
+export type Category = 'Salgadas' | 'Doces' | 'Massas' | 'Pastéis de Forno' | 'Lasanhas' | 'Petiscos' | 'Calzones' | 'Bebidas';
+
+// Tipos para Massas com molho e ingredientes
+export interface MolhoOption {
+  id: string;
+  name: string;
+  price?: number;
+}
+
+export interface IngredienteOption {
+  id: string;
+  name: string;
+  price?: number;
+}
 
 export interface PizzaFlavor {
   id: string;
@@ -13,6 +26,9 @@ export interface PizzaFlavor {
   prices: Partial<Record<Size, number>>;
   image: string;
   category: Category;
+  isMassa?: boolean; // Para diferenciar massas que precisam de molho
+  molhos?: MolhoOption[]; // Opções de molho para massas
+  ingredientes?: IngredienteOption[]; // Opções de ingredientes adicionais
 }
 
 export interface CrustOption {
@@ -505,5 +521,341 @@ export const MENU_ITEMS: PizzaFlavor[] = [
     prices: { 'GG': 54, 'G': 40, 'M': 35, 'P': 30 },
     image: sweetImg,
     category: 'Doces'
+  },
+
+  // MASSAS TRADICIONAIS
+  {
+    id: 'espaguete',
+    name: 'Espaguete',
+    description: 'Serve 1 pessoa. Espaguete com molho da casa.',
+    prices: { 'P': 26 },
+    image: meatImg,
+    category: 'Massas',
+    isMassa: true,
+    molhos: [
+      { id: 'molho-tomate', name: 'Molho de Tomate', price: 0 },
+      { id: 'molho-branco', name: 'Molho Branco', price: 0 },
+      { id: 'molho-bolonhesa', name: 'Molho Bolonhesa', price: 0 },
+      { id: 'molho-rosa', name: 'Molho Rosa', price: 0 }
+    ]
+  },
+  {
+    id: 'parafuso',
+    name: 'Parafuso',
+    description: 'Serve 1 pessoa. Parafuso com molho da casa.',
+    prices: { 'P': 26 },
+    image: meatImg,
+    category: 'Massas',
+    isMassa: true,
+    molhos: [
+      { id: 'molho-tomate', name: 'Molho de Tomate', price: 0 },
+      { id: 'molho-branco', name: 'Molho Branco', price: 0 },
+      { id: 'molho-bolonhesa', name: 'Molho Bolonhesa', price: 0 },
+      { id: 'molho-rosa', name: 'Molho Rosa', price: 0 }
+    ]
+  },
+  {
+    id: 'penne',
+    name: 'Penne',
+    description: 'Serve 1 pessoa. Penne com molho da casa.',
+    prices: { 'P': 26 },
+    image: meatImg,
+    category: 'Massas',
+    isMassa: true,
+    molhos: [
+      { id: 'molho-tomate', name: 'Molho de Tomate', price: 0 },
+      { id: 'molho-branco', name: 'Molho Branco', price: 0 },
+      { id: 'molho-bolonhesa', name: 'Molho Bolonhesa', price: 0 },
+      { id: 'molho-rosa', name: 'Molho Rosa', price: 0 }
+    ]
+  },
+  {
+    id: 'talharim',
+    name: 'Talharim',
+    description: 'Serve 1 pessoa. Talharim com molho da casa.',
+    prices: { 'P': 26 },
+    image: meatImg,
+    category: 'Massas',
+    isMassa: true,
+    molhos: [
+      { id: 'molho-tomate', name: 'Molho de Tomate', price: 0 },
+      { id: 'molho-branco', name: 'Molho Branco', price: 0 },
+      { id: 'molho-bolonhesa', name: 'Molho Bolonhesa', price: 0 },
+      { id: 'molho-rosa', name: 'Molho Rosa', price: 0 }
+    ]
+  },
+
+  // PASTÉIS DE FORNO
+  {
+    id: 'pastel-4queijos',
+    name: 'Pastel de Forno 4 Queijos',
+    description: 'Pastel de forno orgânico com 4 queijos.',
+    prices: { 'P': 14 },
+    image: meatImg,
+    category: 'Pastéis de Forno'
+  },
+  {
+    id: 'pastel-bauru',
+    name: 'Pastel de Forno Bauru',
+    description: 'Pastel de forno orgânico com presunto, mussarela e tomate.',
+    prices: { 'P': 14 },
+    image: meatImg,
+    category: 'Pastéis de Forno'
+  },
+  {
+    id: 'pastel-carnesol-cream',
+    name: 'Pastel de Forno Carne de Sol com Cream Cheese',
+    description: 'Pastel de forno orgânico com carne de sol e cream cheese.',
+    prices: { 'P': 17 },
+    image: meatImg,
+    category: 'Pastéis de Forno'
+  },
+  {
+    id: 'pastel-charque',
+    name: 'Pastel de Forno Charque',
+    description: 'Pastel de forno orgânico com carne de charque.',
+    prices: { 'P': 14 },
+    image: meatImg,
+    category: 'Pastéis de Forno'
+  },
+  {
+    id: 'pastel-frango-catupiry',
+    name: 'Pastel de Forno Frango com Catupiry',
+    description: 'Pastel de forno orgânico com frango desfiado e catupiry.',
+    prices: { 'P': 12 },
+    image: meatImg,
+    category: 'Pastéis de Forno'
+  },
+  {
+    id: 'pastel-frango-cream',
+    name: 'Pastel de Forno Frango com Cream Cheese',
+    description: 'Pastel de forno orgânico com frango e cream cheese.',
+    prices: { 'P': 17 },
+    image: meatImg,
+    category: 'Pastéis de Forno'
+  },
+  {
+    id: 'pastel-moda-cliente',
+    name: 'Pastel de Forno Moda do Cliente',
+    description: 'Pastel de forno orgânico personalizado.',
+    prices: { 'P': 18 },
+    image: meatImg,
+    category: 'Pastéis de Forno'
+  },
+  {
+    id: 'pastel-mussarela-tomate',
+    name: 'Pastel de Forno Mussarela com Tomate',
+    description: 'Pastel de forno orgânico com mussarela e tomate.',
+    prices: { 'P': 13 },
+    image: meatImg,
+    category: 'Pastéis de Forno'
+  },
+  {
+    id: 'pastel-portuguesa',
+    name: 'Pastel de Forno Portuguesa',
+    description: 'Pastel de forno orgânico com presunto, ovos e cebola.',
+    prices: { 'P': 14 },
+    image: meatImg,
+    category: 'Pastéis de Forno'
+  },
+  {
+    id: 'pastel-moda-casa',
+    name: 'Pastel de Forno À Moda da Casa',
+    description: 'Pastel de forno orgânico com receita especial da casa.',
+    prices: { 'P': 15 },
+    image: meatImg,
+    category: 'Pastéis de Forno'
+  },
+  {
+    id: 'pastel-calabresa-queijo',
+    name: 'Pastel de Forno Calabresa com Queijo',
+    description: 'Pastel de forno orgânico com calabresa e queijo.',
+    prices: { 'P': 14 },
+    image: meatImg,
+    category: 'Pastéis de Forno'
+  },
+
+  // LASANHAS
+  {
+    id: 'lasanha-bolonhesa',
+    name: 'Lasanha Bolonhesa',
+    description: 'Massa caseira. Serve uma pessoa. Lasanha com molho bolonhesa artesanal.',
+    prices: { 'P': 35 },
+    image: meatImg,
+    category: 'Lasanhas'
+  },
+  {
+    id: 'lasanha-presunto-queijo',
+    name: 'Lasanha Presunto e Queijo',
+    description: 'Massa caseira. Serve uma pessoa. Lasanha com presunto e queijo.',
+    prices: { 'P': 35 },
+    image: meatImg,
+    category: 'Lasanhas'
+  },
+  {
+    id: 'lasanha-4queijos',
+    name: 'Lasanha 4 Queijos',
+    description: 'Massa caseira. Serve uma pessoa. Lasanha com 4 tipos de queijo.',
+    prices: { 'P': 35 },
+    image: meatImg,
+    category: 'Lasanhas'
+  },
+  {
+    id: 'lasanha-frango-branco',
+    name: 'Lasanha de Frango com Molho Branco',
+    description: 'Massa caseira. Serve uma pessoa. Lasanha de frango com molho branco cremoso.',
+    prices: { 'P': 35 },
+    image: meatImg,
+    category: 'Lasanhas'
+  },
+  {
+    id: 'lasanha-carnesol',
+    name: 'Lasanha de Carne de Sol',
+    description: 'Massa caseira. Serve uma pessoa. Lasanha com carne de sol desfiada.',
+    prices: { 'P': 35 },
+    image: meatImg,
+    category: 'Lasanhas'
+  },
+
+  // PETISCOS
+  {
+    id: 'file-parmegiana',
+    name: 'Filé à Parmegiana',
+    description: 'Filé coberto com molho tomate, mussarela e parmesão. Executivo e completo.',
+    prices: { 'P': 48 },
+    image: meatImg,
+    category: 'Petiscos'
+  },
+  {
+    id: 'file-4queijos',
+    name: 'Filé 4 Queijos',
+    description: 'Filé coberto com 4 tipos de queijo. Serve 2 pessoas.',
+    prices: { 'P': 70 },
+    image: meatImg,
+    category: 'Petiscos'
+  },
+  {
+    id: 'arroz',
+    name: 'Arroz',
+    description: 'Arroz branco cozido no vapor. Serve 1 pessoa.',
+    prices: { 'P': 7 },
+    image: meatImg,
+    category: 'Petiscos'
+  },
+  {
+    id: 'frango-passarinho',
+    name: 'Frango à Passarinho',
+    description: 'Frango crocante. Acompanha fritas e salada. Serve 1 pessoa.',
+    prices: { 'P': 35 },
+    image: chickenImg,
+    category: 'Petiscos'
+  },
+  {
+    id: 'batata-bacon-cheddar',
+    name: 'Batata Frita com Bacon e Cheddar',
+    description: 'Batata frita sequinha com bacon crocante e cobertura de cheddar.',
+    prices: { 'P': 30 },
+    image: meatImg,
+    category: 'Petiscos'
+  },
+  {
+    id: 'file-fritas',
+    name: 'Filé com Fritas',
+    description: 'Filé grelhado acompanhado com batata frita. Serve 1 pessoa.',
+    prices: { 'P': 40 },
+    image: meatImg,
+    category: 'Petiscos'
+  },
+  {
+    id: 'carnesol-fritas',
+    name: 'Carne de Sol com Fritas',
+    description: 'Carne de sol desfiada com batata frita. Serve 1 pessoa.',
+    prices: { 'P': 38 },
+    image: meatImg,
+    category: 'Petiscos'
+  },
+  {
+    id: 'batata-frita',
+    name: 'Batata Frita',
+    description: 'Batata frita sequinha com sal. Serve 1 pessoa.',
+    prices: { 'P': 18 },
+    image: meatImg,
+    category: 'Petiscos'
+  },
+  {
+    id: 'batata-calabresa',
+    name: 'Batata Frita com Calabresa',
+    description: 'Batata frita com calabresa crocante. Serve 1 pessoa.',
+    prices: { 'P': 24 },
+    image: meatImg,
+    category: 'Petiscos'
+  },
+  {
+    id: 'camarao-alho-oleo',
+    name: 'Camarão Alho e Óleo 400g',
+    description: 'Camarão fresco ao alho e óleo. Serve 2 pessoas.',
+    prices: { 'P': 47 },
+    image: chickenImg,
+    category: 'Petiscos'
+  },
+
+  // CALZONES
+  {
+    id: 'mini-calzone-camarao',
+    name: 'Mini Calzone de Camarão',
+    description: 'Mini calzone crocante recheado com camarão.',
+    prices: { 'P': 17 },
+    image: meatImg,
+    category: 'Calzones'
+  },
+  {
+    id: 'mini-calzone-carnesol',
+    name: 'Mini Calzone de Carne de Sol',
+    description: 'Mini calzone crocante recheado com carne de sol desfiada.',
+    prices: { 'P': 15 },
+    image: meatImg,
+    category: 'Calzones'
+  },
+  {
+    id: 'mini-calzone-bacon-queijo',
+    name: 'Mini Calzone de Bacon com Queijo',
+    description: 'Mini calzone crocante recheado com bacon e queijo derretido.',
+    prices: { 'P': 14 },
+    image: meatImg,
+    category: 'Calzones'
+  },
+
+  // BEBIDAS
+  {
+    id: 'refrigerante-2l',
+    name: 'Refrigerante 2L',
+    description: 'Escolha o seu sabor favorito em garrafa de 2 litros.',
+    prices: { 'P': 12 },
+    image: meatImg,
+    category: 'Bebidas'
+  },
+  {
+    id: 'refrigerante-350ml',
+    name: 'Refrigerante 350ml',
+    description: 'Refrigerante gelado em lata de 350ml.',
+    prices: { 'P': 5 },
+    image: meatImg,
+    category: 'Bebidas'
+  },
+  {
+    id: 'suco-natural',
+    name: 'Suco Natural 500ml',
+    description: 'Suco natural fresco preparado na hora. Sabores variados.',
+    prices: { 'P': 10 },
+    image: meatImg,
+    category: 'Bebidas'
+  },
+  {
+    id: 'agua',
+    name: 'Água 500ml',
+    description: 'Água mineral gelada.',
+    prices: { 'P': 3 },
+    image: meatImg,
+    category: 'Bebidas'
   }
 ];
