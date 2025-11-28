@@ -3,7 +3,7 @@
     {
       "parameters": {
         "descriptionType": "manual",
-        "toolDescription": "Buscar cliente por telefone, nome ou ID",
+        "toolDescription": "Buscar cliente por telefone (requerido: telefone)",
         "operation": "getAll",
         "tableId": "clientes",
         "returnAll": true,
@@ -11,19 +11,9 @@
         "filters": {
           "conditions": [
             {
-              "keyName": "id",
-              "condition": "eq",
-              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('cliente_id', ``, 'string') }}"
-            },
-            {
-              "keyName": "nome",
-              "condition": "eq",
-              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('nome', ``, 'string') }}"
-            },
-            {
               "keyName": "telefone",
               "condition": "eq",
-              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('telefone', ``, 'string') }}"
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('telefone', '', 'string') }}"
             }
           ]
         }
@@ -46,7 +36,7 @@
     {
       "parameters": {
         "descriptionType": "manual",
-        "toolDescription": "Criar novo cliente na base de dados",
+        "toolDescription": "Criar novo cliente na base de dados (requerido: nome, telefone; opcional: email, endereco_padrao)",
         "tableId": "clientes",
         "dataToSend": "autoMapInputData",
         "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
@@ -69,10 +59,19 @@
     {
       "parameters": {
         "descriptionType": "manual",
-        "toolDescription": "Atualizar dados do cliente",
+        "toolDescription": "Atualizar dados do cliente (requerido: id e pelo menos um campo para atualizar)",
         "operation": "update",
         "tableId": "clientes",
         "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('id', '', 'string') }}"
+            }
+          ]
+        },
         "dataToSend": "autoMapInputData",
         "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
       },
@@ -94,7 +93,7 @@
     {
       "parameters": {
         "descriptionType": "manual",
-        "toolDescription": "Consultar todos os produtos do cardápio",
+        "toolDescription": "Consultar todos os produtos do cardápio disponíveis",
         "operation": "getAll",
         "tableId": "cardapio",
         "returnAll": true,
@@ -118,11 +117,20 @@
     {
       "parameters": {
         "descriptionType": "manual",
-        "toolDescription": "Buscar endereços de um cliente",
+        "toolDescription": "Buscar endereços de um cliente (requerido: cliente_id)",
         "operation": "getAll",
         "tableId": "enderecos",
         "returnAll": true,
-        "matchType": "allFilters"
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "cliente_id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('cliente_id', '', 'string') }}"
+            }
+          ]
+        }
       },
       "type": "n8n-nodes-base.supabaseTool",
       "typeVersion": 1,
@@ -142,7 +150,7 @@
     {
       "parameters": {
         "descriptionType": "manual",
-        "toolDescription": "Criar novo endereço para cliente",
+        "toolDescription": "Criar novo endereço para cliente (requerido: cliente_id, rua, numero, bairro, cidade; opcional: cep, complemento)",
         "tableId": "enderecos",
         "dataToSend": "autoMapInputData"
       },
@@ -164,20 +172,16 @@
     {
       "parameters": {
         "descriptionType": "manual",
-        "toolDescription": "Atualizar endereço existente",
+        "toolDescription": "Atualizar endereço existente (requerido: id e pelo menos um campo para atualizar)",
         "operation": "update",
         "tableId": "enderecos",
+        "matchType": "allFilters",
         "filters": {
           "conditions": [
             {
               "keyName": "id",
               "condition": "eq",
-              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('endereco_id', ``, 'string') }}"
-            },
-            {
-              "keyName": "cliente_id",
-              "condition": "eq",
-              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('cliente_id', ``, 'string') }}"
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('id', '', 'string') }}"
             }
           ]
         },
@@ -202,7 +206,7 @@
     {
       "parameters": {
         "descriptionType": "manual",
-        "toolDescription": "Consultar pedidos (items do pedido)",
+        "toolDescription": "Consultar items dos pedidos",
         "operation": "getAll",
         "tableId": "itens_pedido",
         "returnAll": true,
@@ -226,7 +230,7 @@
     {
       "parameters": {
         "descriptionType": "manual",
-        "toolDescription": "Criar novo pedido",
+        "toolDescription": "Criar novo pedido (requerido: cliente_nome, cliente_telefone, forma_pagamento, total; opcional: cliente_email, cliente_id, observacoes, endereco_entrega)",
         "tableId": "pedidos",
         "dataToSend": "autoMapInputData",
         "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
@@ -249,10 +253,19 @@
     {
       "parameters": {
         "descriptionType": "manual",
-        "toolDescription": "Atualizar status ou dados do pedido",
+        "toolDescription": "Atualizar status ou dados do pedido (requerido: id e pelo menos um campo para atualizar)",
         "operation": "update",
         "tableId": "pedidos",
         "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('id', '', 'string') }}"
+            }
+          ]
+        },
         "dataToSend": "autoMapInputData",
         "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
       },
@@ -274,10 +287,19 @@
     {
       "parameters": {
         "descriptionType": "manual",
-        "toolDescription": "Remover pedido da base de dados",
+        "toolDescription": "Remover pedido da base de dados (requerido: id)",
         "operation": "delete",
         "tableId": "pedidos",
-        "matchType": "allFilters"
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('id', '', 'string') }}"
+            }
+          ]
+        }
       },
       "type": "n8n-nodes-base.supabaseTool",
       "typeVersion": 1,
@@ -297,20 +319,11 @@
     {
       "parameters": {
         "descriptionType": "manual",
-        "toolDescription": "Consultar horários de funcionamento",
+        "toolDescription": "Consultar horários de funcionamento (opcional: dia_semana para filtrar um dia específico)",
         "operation": "getAll",
         "tableId": "horarios_funcionamento",
         "returnAll": true,
-        "matchType": "allFilters",
-        "filters": {
-          "conditions": [
-            {
-              "keyName": "dia_semana",
-              "condition": "eq",
-              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('dia_semana', ``, 'string') }}"
-            }
-          ]
-        }
+        "matchType": "allFilters"
       },
       "type": "n8n-nodes-base.supabaseTool",
       "typeVersion": 1,
