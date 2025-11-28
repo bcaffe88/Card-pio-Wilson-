@@ -533,24 +533,27 @@ export const MENU_ITEMS: PizzaFlavor[] = [
     category: 'Massas',
     isMassa: true,
     molhos: [
-      { id: 'molho-tomate', name: 'Molho de Tomate', price: 0 },
-      { id: 'molho-branco', name: 'Molho Branco', price: 0 },
-      { id: 'molho-bolonhesa', name: 'Molho Bolonhesa', price: 0 },
-      { id: 'molho-rosa', name: 'Molho Rosa', price: 0 }
+      { id: 'molho-vermelho', name: 'Vermelho', price: 0 },
+      { id: 'molho-branco', name: 'Branco', price: 0 },
+      { id: 'molho-4queijos', name: '4 Queijos', price: 0 },
+      { id: 'molho-bolonhesa', name: 'Bolonhesa', price: 0 }
     ],
     ingredientes: [
-      { id: 'ing-frango', name: 'Frango Desfiado', price: 8 },
-      { id: 'ing-bacon', name: 'Bacon', price: 6 },
-      { id: 'ing-calabresa', name: 'Calabresa', price: 5 },
-      { id: 'ing-camarao', name: 'Camarão', price: 12 },
-      { id: 'ing-cogumelo', name: 'Cogumelo', price: 4 },
-      { id: 'ing-cebola', name: 'Cebola', price: 2 },
-      { id: 'ing-alho', name: 'Alho Frito', price: 3 },
-      { id: 'ing-pimentao', name: 'Pimentão', price: 3 },
-      { id: 'ing-azeitona', name: 'Azeitona', price: 3 },
-      { id: 'ing-mussarela', name: 'Mussarela Extra', price: 5 },
-      { id: 'ing-palmito', name: 'Palmito', price: 4 },
-      { id: 'ing-presunto', name: 'Presunto', price: 5 }
+      { id: 'ing-bacon', name: 'Bacon', price: 0 },
+      { id: 'ing-frango', name: 'Frango', price: 0 },
+      { id: 'ing-calabresa', name: 'Calabresa', price: 0 },
+      { id: 'ing-presunto', name: 'Presunto', price: 0 },
+      { id: 'ing-alho-frito', name: 'Alho Frito', price: 0 },
+      { id: 'ing-azeitona-fatiada', name: 'Azeitona fatiada', price: 0 },
+      { id: 'ing-milho-verde', name: 'Milho verde', price: 0 },
+      { id: 'ing-ervilha', name: 'Ervilha', price: 0 },
+      { id: 'ing-salsicha', name: 'Salsicha', price: 0 },
+      { id: 'ing-pimenta-calabresa', name: 'Pimenta calabresa', price: 0 },
+      { id: 'ing-ovo-codorna', name: 'Ovo de codorna', price: 0 },
+      { id: 'ing-tomate', name: 'Tomate', price: 0 },
+      { id: 'ing-uva-passas', name: 'Uva Passas', price: 0 },
+      { id: 'ing-oregano', name: 'Orégano', price: 0 },
+      { id: 'ing-cebinha', name: 'Cebinha', price: 0 }
     ]
   },
   {
@@ -562,24 +565,27 @@ export const MENU_ITEMS: PizzaFlavor[] = [
     category: 'Massas',
     isMassa: true,
     molhos: [
-      { id: 'molho-tomate', name: 'Molho de Tomate', price: 0 },
-      { id: 'molho-branco', name: 'Molho Branco', price: 0 },
-      { id: 'molho-bolonhesa', name: 'Molho Bolonhesa', price: 0 },
-      { id: 'molho-rosa', name: 'Molho Rosa', price: 0 }
+      { id: 'molho-vermelho', name: 'Vermelho', price: 0 },
+      { id: 'molho-branco', name: 'Branco', price: 0 },
+      { id: 'molho-4queijos', name: '4 Queijos', price: 0 },
+      { id: 'molho-bolonhesa', name: 'Bolonhesa', price: 0 }
     ],
     ingredientes: [
-      { id: 'ing-frango', name: 'Frango Desfiado', price: 8 },
-      { id: 'ing-bacon', name: 'Bacon', price: 6 },
-      { id: 'ing-calabresa', name: 'Calabresa', price: 5 },
-      { id: 'ing-camarao', name: 'Camarão', price: 12 },
-      { id: 'ing-cogumelo', name: 'Cogumelo', price: 4 },
-      { id: 'ing-cebola', name: 'Cebola', price: 2 },
-      { id: 'ing-alho', name: 'Alho Frito', price: 3 },
-      { id: 'ing-pimentao', name: 'Pimentão', price: 3 },
-      { id: 'ing-azeitona', name: 'Azeitona', price: 3 },
-      { id: 'ing-mussarela', name: 'Mussarela Extra', price: 5 },
-      { id: 'ing-palmito', name: 'Palmito', price: 4 },
-      { id: 'ing-presunto', name: 'Presunto', price: 5 }
+      { id: 'ing-bacon', name: 'Bacon', price: 0 },
+      { id: 'ing-frango', name: 'Frango', price: 0 },
+      { id: 'ing-calabresa', name: 'Calabresa', price: 0 },
+      { id: 'ing-presunto', name: 'Presunto', price: 0 },
+      { id: 'ing-alho-frito', name: 'Alho Frito', price: 0 },
+      { id: 'ing-azeitona-fatiada', name: 'Azeitona fatiada', price: 0 },
+      { id: 'ing-milho-verde', name: 'Milho verde', price: 0 },
+      { id: 'ing-ervilha', name: 'Ervilha', price: 0 },
+      { id: 'ing-salsicha', name: 'Salsicha', price: 0 },
+      { id: 'ing-pimenta-calabresa', name: 'Pimenta calabresa', price: 0 },
+      { id: 'ing-ovo-codorna', name: 'Ovo de codorna', price: 0 },
+      { id: 'ing-tomate', name: 'Tomate', price: 0 },
+      { id: 'ing-uva-passas', name: 'Uva Passas', price: 0 },
+      { id: 'ing-oregano', name: 'Orégano', price: 0 },
+      { id: 'ing-cebinha', name: 'Cebinha', price: 0 }
     ]
   },
   {
@@ -591,24 +597,27 @@ export const MENU_ITEMS: PizzaFlavor[] = [
     category: 'Massas',
     isMassa: true,
     molhos: [
-      { id: 'molho-tomate', name: 'Molho de Tomate', price: 0 },
-      { id: 'molho-branco', name: 'Molho Branco', price: 0 },
-      { id: 'molho-bolonhesa', name: 'Molho Bolonhesa', price: 0 },
-      { id: 'molho-rosa', name: 'Molho Rosa', price: 0 }
+      { id: 'molho-vermelho', name: 'Vermelho', price: 0 },
+      { id: 'molho-branco', name: 'Branco', price: 0 },
+      { id: 'molho-4queijos', name: '4 Queijos', price: 0 },
+      { id: 'molho-bolonhesa', name: 'Bolonhesa', price: 0 }
     ],
     ingredientes: [
-      { id: 'ing-frango', name: 'Frango Desfiado', price: 8 },
-      { id: 'ing-bacon', name: 'Bacon', price: 6 },
-      { id: 'ing-calabresa', name: 'Calabresa', price: 5 },
-      { id: 'ing-camarao', name: 'Camarão', price: 12 },
-      { id: 'ing-cogumelo', name: 'Cogumelo', price: 4 },
-      { id: 'ing-cebola', name: 'Cebola', price: 2 },
-      { id: 'ing-alho', name: 'Alho Frito', price: 3 },
-      { id: 'ing-pimentao', name: 'Pimentão', price: 3 },
-      { id: 'ing-azeitona', name: 'Azeitona', price: 3 },
-      { id: 'ing-mussarela', name: 'Mussarela Extra', price: 5 },
-      { id: 'ing-palmito', name: 'Palmito', price: 4 },
-      { id: 'ing-presunto', name: 'Presunto', price: 5 }
+      { id: 'ing-bacon', name: 'Bacon', price: 0 },
+      { id: 'ing-frango', name: 'Frango', price: 0 },
+      { id: 'ing-calabresa', name: 'Calabresa', price: 0 },
+      { id: 'ing-presunto', name: 'Presunto', price: 0 },
+      { id: 'ing-alho-frito', name: 'Alho Frito', price: 0 },
+      { id: 'ing-azeitona-fatiada', name: 'Azeitona fatiada', price: 0 },
+      { id: 'ing-milho-verde', name: 'Milho verde', price: 0 },
+      { id: 'ing-ervilha', name: 'Ervilha', price: 0 },
+      { id: 'ing-salsicha', name: 'Salsicha', price: 0 },
+      { id: 'ing-pimenta-calabresa', name: 'Pimenta calabresa', price: 0 },
+      { id: 'ing-ovo-codorna', name: 'Ovo de codorna', price: 0 },
+      { id: 'ing-tomate', name: 'Tomate', price: 0 },
+      { id: 'ing-uva-passas', name: 'Uva Passas', price: 0 },
+      { id: 'ing-oregano', name: 'Orégano', price: 0 },
+      { id: 'ing-cebinha', name: 'Cebinha', price: 0 }
     ]
   },
   {
@@ -620,24 +629,27 @@ export const MENU_ITEMS: PizzaFlavor[] = [
     category: 'Massas',
     isMassa: true,
     molhos: [
-      { id: 'molho-tomate', name: 'Molho de Tomate', price: 0 },
-      { id: 'molho-branco', name: 'Molho Branco', price: 0 },
-      { id: 'molho-bolonhesa', name: 'Molho Bolonhesa', price: 0 },
-      { id: 'molho-rosa', name: 'Molho Rosa', price: 0 }
+      { id: 'molho-vermelho', name: 'Vermelho', price: 0 },
+      { id: 'molho-branco', name: 'Branco', price: 0 },
+      { id: 'molho-4queijos', name: '4 Queijos', price: 0 },
+      { id: 'molho-bolonhesa', name: 'Bolonhesa', price: 0 }
     ],
     ingredientes: [
-      { id: 'ing-frango', name: 'Frango Desfiado', price: 8 },
-      { id: 'ing-bacon', name: 'Bacon', price: 6 },
-      { id: 'ing-calabresa', name: 'Calabresa', price: 5 },
-      { id: 'ing-camarao', name: 'Camarão', price: 12 },
-      { id: 'ing-cogumelo', name: 'Cogumelo', price: 4 },
-      { id: 'ing-cebola', name: 'Cebola', price: 2 },
-      { id: 'ing-alho', name: 'Alho Frito', price: 3 },
-      { id: 'ing-pimentao', name: 'Pimentão', price: 3 },
-      { id: 'ing-azeitona', name: 'Azeitona', price: 3 },
-      { id: 'ing-mussarela', name: 'Mussarela Extra', price: 5 },
-      { id: 'ing-palmito', name: 'Palmito', price: 4 },
-      { id: 'ing-presunto', name: 'Presunto', price: 5 }
+      { id: 'ing-bacon', name: 'Bacon', price: 0 },
+      { id: 'ing-frango', name: 'Frango', price: 0 },
+      { id: 'ing-calabresa', name: 'Calabresa', price: 0 },
+      { id: 'ing-presunto', name: 'Presunto', price: 0 },
+      { id: 'ing-alho-frito', name: 'Alho Frito', price: 0 },
+      { id: 'ing-azeitona-fatiada', name: 'Azeitona fatiada', price: 0 },
+      { id: 'ing-milho-verde', name: 'Milho verde', price: 0 },
+      { id: 'ing-ervilha', name: 'Ervilha', price: 0 },
+      { id: 'ing-salsicha', name: 'Salsicha', price: 0 },
+      { id: 'ing-pimenta-calabresa', name: 'Pimenta calabresa', price: 0 },
+      { id: 'ing-ovo-codorna', name: 'Ovo de codorna', price: 0 },
+      { id: 'ing-tomate', name: 'Tomate', price: 0 },
+      { id: 'ing-uva-passas', name: 'Uva Passas', price: 0 },
+      { id: 'ing-oregano', name: 'Orégano', price: 0 },
+      { id: 'ing-cebinha', name: 'Cebinha', price: 0 }
     ]
   },
 

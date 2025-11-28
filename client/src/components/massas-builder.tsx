@@ -46,8 +46,9 @@ export function MassasBuilder({ isOpen, item, onClose }: MassasBuilderProps) {
   };
 
   const handleAddToCart = () => {
+    const molhoNome = molhos.find(m => m.id === selectedMolho)?.name || 'Vermelho';
     const ingredientesNomes = ingredientesSelecionados.map(ing => ing.name).join(', ');
-    const notasCompletas = `Molho: ${molhos.find(m => m.id === selectedMolho)?.name || 'Tomate'}${ingredientesNomes ? ` | Adicionais: ${ingredientesNomes}` : ''}`;
+    const notasCompletas = `🍝 Molho: ${molhoNome} | Ingredientes: ${ingredientesNomes || 'Nenhum'}`;
     
     addToCart({
       size: 'P',
