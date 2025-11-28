@@ -1,0 +1,613 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Search for a client by phone number in the database",
+        "url": "={{ $env.API_BASE_URL }}/api/clientes/buscar/{{ $fromAI('telefone', '', 'string') }}",
+        "method": "GET",
+        "authentication": "none",
+        "sendQuery": false,
+        "sendBody": false,
+        "responseFormat": "json"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1168,
+        32
+      ],
+      "id": "119b064a-237d-4f91-b5f7-5896afc2fba9",
+      "name": "BuscarCliente"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create a new client in the database",
+        "url": "={{ $env.API_BASE_URL }}/api/clientes",
+        "method": "POST",
+        "authentication": "none",
+        "sendQuery": false,
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "nome",
+              "value": "={{ $fromAI('nome', '', 'string') }}"
+            },
+            {
+              "name": "telefone",
+              "value": "={{ $fromAI('telefone', '', 'string') }}"
+            },
+            {
+              "name": "email",
+              "value": "={{ $fromAI('email', '', 'string') }}"
+            }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1312,
+        32
+      ],
+      "id": "334bd952-056d-457e-8a74-ebae62ed32fe",
+      "name": "AdicionarCliente"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Update client information in the database",
+        "url": "={{ $env.API_BASE_URL }}/api/clientes/{{ $fromAI('cliente_id', '', 'string') }}",
+        "method": "PUT",
+        "authentication": "none",
+        "sendQuery": false,
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "nome",
+              "value": "={{ $fromAI('nome', '', 'string') }}"
+            },
+            {
+              "name": "email",
+              "value": "={{ $fromAI('email', '', 'string') }}"
+            },
+            {
+              "name": "endereco_padrao",
+              "value": "={{ $fromAI('endereco_padrao', '', 'string') }}"
+            }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1232,
+        192
+      ],
+      "id": "1d609a52-4b2a-491a-850c-40773d4b661e",
+      "name": "AtualizarCliente"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get all menu items from the database",
+        "url": "={{ $env.API_BASE_URL }}/api/cardapio",
+        "method": "GET",
+        "authentication": "none",
+        "sendQuery": false,
+        "sendBody": false,
+        "responseFormat": "json"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1456,
+        32
+      ],
+      "id": "9bae4770-6a09-4b48-b9d2-ac0c6e21b710",
+      "name": "ConsultarCardapio"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Search menu items by category",
+        "url": "={{ $env.API_BASE_URL }}/api/cardapio/categoria/{{ $fromAI('categoria', '', 'string') }}",
+        "method": "GET",
+        "authentication": "none",
+        "sendQuery": false,
+        "sendBody": false,
+        "responseFormat": "json"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1520,
+        32
+      ],
+      "id": "9c9e5881-7g5h-4i49-c3e3-bd1d7f22c811",
+      "name": "ConsultarCardapioPorCategoria"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Search menu items by name",
+        "url": "={{ $env.API_BASE_URL }}/api/cardapio/buscar/{{ $fromAI('termo', '', 'string') }}",
+        "method": "GET",
+        "authentication": "none",
+        "sendQuery": false,
+        "sendBody": false,
+        "responseFormat": "json"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1584,
+        32
+      ],
+      "id": "9d9f5992-8h6i-5j50-d4f4-ce2e8g33d922",
+      "name": "BuscarCardapio"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get all addresses for a client",
+        "url": "={{ $env.API_BASE_URL }}/api/enderecos/{{ $fromAI('cliente_id', '', 'string') }}",
+        "method": "GET",
+        "authentication": "none",
+        "sendQuery": false,
+        "sendBody": false,
+        "responseFormat": "json"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1376,
+        192
+      ],
+      "id": "a49ca410-7391-4dc7-9348-bc2ff1fbae3e",
+      "name": "BuscarEndereço"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create a new address for a client",
+        "url": "={{ $env.API_BASE_URL }}/api/enderecos",
+        "method": "POST",
+        "authentication": "none",
+        "sendQuery": false,
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "cliente_id",
+              "value": "={{ $fromAI('cliente_id', '', 'string') }}"
+            },
+            {
+              "name": "rua",
+              "value": "={{ $fromAI('rua', '', 'string') }}"
+            },
+            {
+              "name": "numero",
+              "value": "={{ $fromAI('numero', '', 'number') }}"
+            },
+            {
+              "name": "bairro",
+              "value": "={{ $fromAI('bairro', '', 'string') }}"
+            },
+            {
+              "name": "cidade",
+              "value": "={{ $fromAI('cidade', '', 'string') }}"
+            },
+            {
+              "name": "cep",
+              "value": "={{ $fromAI('cep', '', 'string') }}"
+            },
+            {
+              "name": "complemento",
+              "value": "={{ $fromAI('complemento', '', 'string') }}"
+            }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1520,
+        192
+      ],
+      "id": "f8c048dd-d33b-45ac-8230-4e78fccd327d",
+      "name": "AdicionarEndereco"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Update an existing address",
+        "url": "={{ $env.API_BASE_URL }}/api/enderecos/{{ $fromAI('endereco_id', '', 'string') }}",
+        "method": "PUT",
+        "authentication": "none",
+        "sendQuery": false,
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "rua",
+              "value": "={{ $fromAI('rua', '', 'string') }}"
+            },
+            {
+              "name": "numero",
+              "value": "={{ $fromAI('numero', '', 'number') }}"
+            },
+            {
+              "name": "bairro",
+              "value": "={{ $fromAI('bairro', '', 'string') }}"
+            },
+            {
+              "name": "cidade",
+              "value": "={{ $fromAI('cidade', '', 'string') }}"
+            },
+            {
+              "name": "cep",
+              "value": "={{ $fromAI('cep', '', 'string') }}"
+            },
+            {
+              "name": "complemento",
+              "value": "={{ $fromAI('complemento', '', 'string') }}"
+            }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1440,
+        352
+      ],
+      "id": "5207db30-d18d-47f4-a3ce-b5389bedc51a",
+      "name": "AtualizarEndereco"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Delete an address",
+        "url": "={{ $env.API_BASE_URL }}/api/enderecos/{{ $fromAI('endereco_id', '', 'string') }}",
+        "method": "DELETE",
+        "authentication": "none",
+        "sendQuery": false,
+        "sendBody": false,
+        "responseFormat": "json"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1504,
+        352
+      ],
+      "id": "6318ec41-e29e-55fd-b4df-62400cgf99b",
+      "name": "DeletarEndereco"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create a complete order with items in the database",
+        "url": "={{ $env.API_BASE_URL }}/api/pedidos",
+        "method": "POST",
+        "authentication": "none",
+        "sendQuery": false,
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "cliente_nome",
+              "value": "={{ $fromAI('cliente_nome', '', 'string') }}"
+            },
+            {
+              "name": "cliente_telefone",
+              "value": "={{ $fromAI('cliente_telefone', '', 'string') }}"
+            },
+            {
+              "name": "cliente_email",
+              "value": "={{ $fromAI('cliente_email', '', 'string') }}"
+            },
+            {
+              "name": "itens",
+              "value": "={{ $fromAI('itens', '', 'object') }}"
+            },
+            {
+              "name": "endereco",
+              "value": "={{ $fromAI('endereco', '', 'object') }}"
+            },
+            {
+              "name": "forma_pagamento",
+              "value": "={{ $fromAI('forma_pagamento', '', 'string') }}"
+            },
+            {
+              "name": "observacoes",
+              "value": "={{ $fromAI('observacoes', '', 'string') }}"
+            }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1600,
+        32
+      ],
+      "id": "ba205292-2dc2-40d0-a379-a6a31585ba02",
+      "name": "CriarPedido"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get order details including all items",
+        "url": "={{ $env.API_BASE_URL }}/api/pedidos/{{ $fromAI('pedido_id', '', 'string') }}",
+        "method": "GET",
+        "authentication": "none",
+        "sendQuery": false,
+        "sendBody": false,
+        "responseFormat": "json"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1664,
+        176
+      ],
+      "id": "cc9f6673-d2e3-56ge-c5f5-ef3f2h44e033",
+      "name": "ConsultarPedidoDetalhes"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get all orders for a client",
+        "url": "={{ $env.API_BASE_URL }}/api/pedidos/cliente/{{ $fromAI('cliente_id', '', 'string') }}",
+        "method": "GET",
+        "authentication": "none",
+        "sendQuery": false,
+        "sendBody": false,
+        "responseFormat": "json"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1728,
+        176
+      ],
+      "id": "dd9g6784-e3f4-67hf-d6g6-fg4g3i55f144",
+      "name": "ConsultarPedidosCliente"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Update order status",
+        "url": "={{ $env.API_BASE_URL }}/api/pedidos/{{ $fromAI('pedido_id', '', 'string') }}/status",
+        "method": "PUT",
+        "authentication": "none",
+        "sendQuery": false,
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', '', 'string') }}"
+            }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1840,
+        176
+      ],
+      "id": "5e660f89-02df-48af-98b0-baede0381912",
+      "name": "AtualizarPedido"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Delete an order",
+        "url": "={{ $env.API_BASE_URL }}/api/pedidos/{{ $fromAI('pedido_id', '', 'string') }}",
+        "method": "DELETE",
+        "authentication": "none",
+        "sendQuery": false,
+        "sendBody": false,
+        "responseFormat": "json"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1776,
+        48
+      ],
+      "id": "ef46ea4a-1ee4-411f-9a02-a51b1d707ea4",
+      "name": "DeletarPedido"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get all orders (admin panel)",
+        "url": "={{ $env.API_BASE_URL }}/api/admin/pedidos",
+        "method": "GET",
+        "authentication": "none",
+        "sendQuery": false,
+        "sendBody": false,
+        "responseFormat": "json"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1904,
+        48
+      ],
+      "id": "eg5h7895-f4g5-78ij-e7h7-gh5h4j66g255",
+      "name": "ConsultarPedidosAdmin"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get restaurant operating hours",
+        "url": "={{ $env.API_BASE_URL }}/api/horarios-funcionamento",
+        "method": "GET",
+        "authentication": "none",
+        "sendQuery": false,
+        "sendBody": false,
+        "responseFormat": "json"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1952,
+        48
+      ],
+      "id": "c4ac2524-460d-4ca8-bb6f-60a508574aef",
+      "name": "ConsultarHorario"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Update restaurant operating hours for a specific day",
+        "url": "={{ $env.API_BASE_URL }}/api/horarios-funcionamento/{{ $fromAI('horario_id', '', 'string') }}",
+        "method": "PUT",
+        "authentication": "none",
+        "sendQuery": false,
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "abertura",
+              "value": "={{ $fromAI('abertura', '', 'string') }}"
+            },
+            {
+              "name": "fechamento",
+              "value": "={{ $fromAI('fechamento', '', 'string') }}"
+            },
+            {
+              "name": "aberto",
+              "value": "={{ $fromAI('aberto', '', 'boolean') }}"
+            }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2016,
+        48
+      ],
+      "id": "fh5i8906-g5h6-89jk-f8i8-hi6i5k77h366",
+      "name": "AtualizarHorario"
+    }
+  ],
+  "connections": {
+    "BuscarCliente": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "AdicionarCliente": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "AtualizarCliente": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "ConsultarCardapio": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "ConsultarCardapioPorCategoria": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "BuscarCardapio": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "BuscarEndereço": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "AdicionarEndereco": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "AtualizarEndereco": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "DeletarEndereco": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "CriarPedido": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "ConsultarPedidoDetalhes": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "ConsultarPedidosCliente": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "AtualizarPedido": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "DeletarPedido": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "ConsultarPedidosAdmin": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "ConsultarHorario": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "AtualizarHorario": {
+      "ai_tool": [
+        []
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "020e0ae71dbc9efa09c74c5ef0974b54c96a970aa70d2e33253a5882fd59a1c8"
+  },
+  "notes": {
+    "setup": "Adicione a variável de ambiente API_BASE_URL no seu n8n com o valor da sua API (ex: http://localhost:5000 para dev, https://seu-dominio.railway.app para produção)",
+    "tools": "18 ferramentas HTTP mapeadas para os endpoints Express da pizzaria",
+    "format": "Cada tool usa $fromAI() para receber parâmetros do agente e HTTP Request para chamar a API"
+  }
+}

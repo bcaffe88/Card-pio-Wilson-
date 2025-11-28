@@ -1,0 +1,385 @@
+{
+  "titulo": "N8N API Payloads - Wilson Pizza",
+  "descricao": "Exemplos de requisições para cada ferramenta do workflow",
+  "base_url": "{{ $env.API_BASE_URL }}",
+  "endpoints": {
+    "clientes": {
+      "buscar_por_telefone": {
+        "metodo": "GET",
+        "url": "/api/clientes/buscar/11987654321",
+        "descricao": "Buscar cliente por telefone",
+        "parametros": {
+          "telefone": "string (obrigatório)"
+        },
+        "resposta_sucesso": {
+          "found": true,
+          "cliente": {
+            "id": "550e8400-e29b-41d4-a716-446655440000",
+            "nome": "João Silva",
+            "telefone": "11987654321",
+            "email": "joao@email.com",
+            "endereco_padrao": "Rua das Flores, 123",
+            "created_at": "2025-11-28T20:00:00Z",
+            "updated_at": "2025-11-28T20:00:00Z"
+          }
+        },
+        "resposta_nao_encontrado": {
+          "found": false,
+          "message": "Cliente não encontrado"
+        }
+      },
+      "criar_cliente": {
+        "metodo": "POST",
+        "url": "/api/clientes",
+        "descricao": "Criar novo cliente",
+        "payload": {
+          "nome": "João Silva",
+          "telefone": "11987654321",
+          "email": "joao@email.com"
+        },
+        "resposta": {
+          "id": "550e8400-e29b-41d4-a716-446655440000",
+          "nome": "João Silva",
+          "telefone": "11987654321",
+          "email": "joao@email.com",
+          "created_at": "2025-11-28T20:00:00Z"
+        }
+      },
+      "atualizar_cliente": {
+        "metodo": "PUT",
+        "url": "/api/clientes/550e8400-e29b-41d4-a716-446655440000",
+        "descricao": "Atualizar dados do cliente",
+        "payload": {
+          "nome": "João Silva Santos",
+          "email": "joao.silva@email.com",
+          "endereco_padrao": "Av. Paulista, 1000"
+        },
+        "resposta": {
+          "id": "550e8400-e29b-41d4-a716-446655440000",
+          "nome": "João Silva Santos",
+          "telefone": "11987654321",
+          "email": "joao.silva@email.com",
+          "endereco_padrao": "Av. Paulista, 1000",
+          "updated_at": "2025-11-28T20:05:00Z"
+        }
+      }
+    },
+    "cardapio": {
+      "listar_todos": {
+        "metodo": "GET",
+        "url": "/api/cardapio",
+        "descricao": "Listar todos os produtos do cardápio",
+        "resposta": [
+          {
+            "id": "660f8500-f40c-52e5-b827-557766551111",
+            "nome_item": "Pizza Calabresa",
+            "categoria": "Pizzas",
+            "descricao": "Pizza clássica com calabresa, cebola e mozzarela",
+            "precos": {
+              "p": 28.90,
+              "m": 35.90,
+              "g": 42.90,
+              "gg": 49.90
+            },
+            "imagem_url": "https://...",
+            "disponivel": true,
+            "created_at": "2025-11-28T15:00:00Z"
+          }
+        ]
+      },
+      "por_categoria": {
+        "metodo": "GET",
+        "url": "/api/cardapio/categoria/Pizzas",
+        "descricao": "Filtrar produtos por categoria",
+        "parametros": {
+          "categoria": "string (Pizzas, Massas, Bebidas, etc)"
+        },
+        "resposta": "[array de produtos]"
+      },
+      "buscar": {
+        "metodo": "GET",
+        "url": "/api/cardapio/buscar/calabresa",
+        "descricao": "Buscar produtos por nome",
+        "parametros": {
+          "termo": "string (nome do produto)"
+        },
+        "resposta": "[array de produtos encontrados]"
+      }
+    },
+    "enderecos": {
+      "listar_cliente": {
+        "metodo": "GET",
+        "url": "/api/enderecos/550e8400-e29b-41d4-a716-446655440000",
+        "descricao": "Listar todos os endereços de um cliente",
+        "resposta": [
+          {
+            "id": "770g9601-g51d-63f6-c938-668877662222",
+            "cliente_id": "550e8400-e29b-41d4-a716-446655440000",
+            "rua": "Rua das Flores",
+            "numero": 123,
+            "bairro": "Centro",
+            "cidade": "São Paulo",
+            "cep": "01000-000",
+            "complemento": "Apto 101",
+            "created_at": "2025-11-28T20:00:00Z"
+          }
+        ]
+      },
+      "criar": {
+        "metodo": "POST",
+        "url": "/api/enderecos",
+        "descricao": "Criar novo endereço",
+        "payload": {
+          "cliente_id": "550e8400-e29b-41d4-a716-446655440000",
+          "rua": "Rua das Flores",
+          "numero": 123,
+          "bairro": "Centro",
+          "cidade": "São Paulo",
+          "cep": "01000-000",
+          "complemento": "Apto 101"
+        },
+        "resposta": {
+          "id": "770g9601-g51d-63f6-c938-668877662222",
+          "cliente_id": "550e8400-e29b-41d4-a716-446655440000",
+          "rua": "Rua das Flores",
+          "numero": 123,
+          "bairro": "Centro",
+          "cidade": "São Paulo",
+          "cep": "01000-000",
+          "complemento": "Apto 101",
+          "created_at": "2025-11-28T20:00:00Z"
+        }
+      },
+      "atualizar": {
+        "metodo": "PUT",
+        "url": "/api/enderecos/770g9601-g51d-63f6-c938-668877662222",
+        "descricao": "Atualizar endereço existente",
+        "payload": {
+          "rua": "Av. Paulista",
+          "numero": 1000,
+          "bairro": "Bela Vista",
+          "complemento": "Apto 201"
+        },
+        "resposta": {
+          "id": "770g9601-g51d-63f6-c938-668877662222",
+          "cliente_id": "550e8400-e29b-41d4-a716-446655440000",
+          "rua": "Av. Paulista",
+          "numero": 1000,
+          "bairro": "Bela Vista",
+          "cidade": "São Paulo",
+          "cep": "01000-000",
+          "complemento": "Apto 201"
+        }
+      },
+      "deletar": {
+        "metodo": "DELETE",
+        "url": "/api/enderecos/770g9601-g51d-63f6-c938-668877662222",
+        "descricao": "Remover um endereço",
+        "resposta": {
+          "success": true
+        }
+      }
+    },
+    "pedidos": {
+      "criar_pedido_completo": {
+        "metodo": "POST",
+        "url": "/api/pedidos",
+        "descricao": "Criar pedido com itens",
+        "payload": {
+          "cliente_nome": "João Silva",
+          "cliente_telefone": "11987654321",
+          "cliente_email": "joao@email.com",
+          "itens": [
+            {
+              "produto_nome": "Pizza Calabresa",
+              "categoria": "Pizzas",
+              "tamanho": "M",
+              "sabores": null,
+              "quantidade": 1,
+              "preco_unitario": "35.90",
+              "observacoes": "Sem cebola"
+            },
+            {
+              "produto_nome": "Refrigerante 2L",
+              "categoria": "Bebidas",
+              "tamanho": null,
+              "sabores": null,
+              "quantidade": 1,
+              "preco_unitario": "8.90",
+              "observacoes": null
+            }
+          ],
+          "endereco": {
+            "rua": "Rua das Flores",
+            "numero": 123,
+            "bairro": "Centro",
+            "cidade": "São Paulo",
+            "cep": "01000-000",
+            "complemento": "Apto 101"
+          },
+          "forma_pagamento": "cartao",
+          "observacoes": "Entregar após 19h"
+        },
+        "resposta": {
+          "id": "880h0702-h62e-74g7-d949-779988773333",
+          "numero_pedido": 1001,
+          "cliente_id": "550e8400-e29b-41d4-a716-446655440000",
+          "cliente_nome": "João Silva",
+          "status": "pending",
+          "total": "44.80",
+          "itens_count": 2,
+          "forma_pagamento": "cartao",
+          "created_at": "2025-11-28T20:10:00Z"
+        }
+      },
+      "consultar_detalhes": {
+        "metodo": "GET",
+        "url": "/api/pedidos/880h0702-h62e-74g7-d949-779988773333",
+        "descricao": "Ver detalhes completos de um pedido",
+        "resposta": {
+          "id": "880h0702-h62e-74g7-d949-779988773333",
+          "numero_pedido": 1001,
+          "cliente_id": "550e8400-e29b-41d4-a716-446655440000",
+          "cliente_nome": "João Silva",
+          "cliente_telefone": "11987654321",
+          "status": "confirmed",
+          "total": "44.80",
+          "endereco_entrega": {
+            "rua": "Rua das Flores",
+            "numero": 123,
+            "bairro": "Centro",
+            "cidade": "São Paulo",
+            "cep": "01000-000"
+          },
+          "forma_pagamento": "cartao",
+          "observacoes": "Entregar após 19h",
+          "viewed": true,
+          "created_at": "2025-11-28T20:10:00Z",
+          "updated_at": "2025-11-28T20:12:00Z",
+          "itens": [
+            {
+              "id": "990i1813-i73f-85h8-ea50-8800aa884444",
+              "pedido_id": "880h0702-h62e-74g7-d949-779988773333",
+              "produto_nome": "Pizza Calabresa",
+              "categoria": "Pizzas",
+              "tamanho": "M",
+              "quantidade": 1,
+              "preco_unitario": "35.90",
+              "observacoes": "Sem cebola"
+            }
+          ]
+        }
+      },
+      "pedidos_cliente": {
+        "metodo": "GET",
+        "url": "/api/pedidos/cliente/550e8400-e29b-41d4-a716-446655440000",
+        "descricao": "Listar todos os pedidos de um cliente",
+        "resposta": "[array de pedidos]"
+      },
+      "atualizar_status": {
+        "metodo": "PUT",
+        "url": "/api/pedidos/880h0702-h62e-74g7-d949-779988773333/status",
+        "descricao": "Mudar status do pedido",
+        "payload": {
+          "status": "production"
+        },
+        "status_validos": [
+          "pending",
+          "confirmed",
+          "production",
+          "ready",
+          "sent",
+          "delivered",
+          "cancelled"
+        ],
+        "resposta": {
+          "id": "880h0702-h62e-74g7-d949-779988773333",
+          "status": "production",
+          "updated_at": "2025-11-28T20:15:00Z"
+        }
+      },
+      "admin_todos_pedidos": {
+        "metodo": "GET",
+        "url": "/api/admin/pedidos",
+        "descricao": "Listar TODOS os pedidos (admin)",
+        "resposta": "[array com todos os pedidos + items]"
+      },
+      "deletar_pedido": {
+        "metodo": "DELETE",
+        "url": "/api/pedidos/880h0702-h62e-74g7-d949-779988773333",
+        "descricao": "Remover um pedido",
+        "resposta": {
+          "success": true
+        }
+      }
+    },
+    "horarios": {
+      "consultar_horarios": {
+        "metodo": "GET",
+        "url": "/api/horarios-funcionamento",
+        "descricao": "Ver horário de funcionamento",
+        "resposta": [
+          {
+            "id": "aa0j2914-j84g-96i9-fb61-99115bb995555",
+            "dia_semana": "Segunda",
+            "abertura": "18:00",
+            "fechamento": "00:00",
+            "aberto": true,
+            "created_at": "2025-11-28T00:00:00Z"
+          },
+          {
+            "id": "bb1k3025-k95h-07j0-gc72-00226cc006666",
+            "dia_semana": "Terça",
+            "abertura": "18:00",
+            "fechamento": "00:00",
+            "aberto": true,
+            "created_at": "2025-11-28T00:00:00Z"
+          }
+        ]
+      },
+      "atualizar_horario": {
+        "metodo": "PUT",
+        "url": "/api/horarios-funcionamento/aa0j2914-j84g-96i9-fb61-99115bb995555",
+        "descricao": "Editar horário de um dia",
+        "payload": {
+          "abertura": "17:00",
+          "fechamento": "23:00",
+          "aberto": true
+        },
+        "resposta": {
+          "id": "aa0j2914-j84g-96i9-fb61-99115bb995555",
+          "dia_semana": "Segunda",
+          "abertura": "17:00",
+          "fechamento": "23:00",
+          "aberto": true
+        }
+      }
+    }
+  },
+  "codigos_http": {
+    "200": "OK - Requisição bem-sucedida",
+    "201": "Created - Recurso criado com sucesso",
+    "400": "Bad Request - Dados inválidos",
+    "404": "Not Found - Recurso não encontrado",
+    "500": "Internal Server Error - Erro no servidor"
+  },
+  "formas_pagamento": [
+    "pix",
+    "cartao",
+    "dinheiro"
+  ],
+  "tamanhos_pizza": [
+    "p",
+    "m",
+    "g",
+    "gg",
+    "super"
+  ],
+  "categorias": [
+    "Pizzas",
+    "Massas",
+    "Bebidas",
+    "Sobremesas",
+    "Combos"
+  ]
+}

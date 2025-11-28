@@ -1,0 +1,397 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Delete a row in Supabase",
+        "operation": "delete",
+        "tableId": "pedidos",
+        "matchType": "allFilters"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1776,
+        48
+      ],
+      "id": "ef46ea4a-1ee4-411f-9a02-a51b1d707ea4",
+      "name": "removerPedido",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create a row in Supabase",
+        "tableId": "clientes",
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1312,
+        32
+      ],
+      "id": "334bd952-056d-457e-8a74-ebae62ed32fe",
+      "name": "AdicionarCliente",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get many rows in Supabase",
+        "operation": "getAll",
+        "tableId": "clientes",
+        "returnAll": true,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions0_Field_Value', ``, 'string') }}"
+            },
+            {
+              "keyName": "nome",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions1_Field_Value', ``, 'string') }}"
+            },
+            {
+              "keyName": "telefone",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions2_Field_Value', ``, 'string') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1168,
+        32
+      ],
+      "id": "119b064a-237d-4f91-b5f7-5896afc2fba9",
+      "name": "BusarCliente",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get many rows in Supabase",
+        "operation": "getAll",
+        "tableId": "cardapio",
+        "returnAll": true,
+        "matchType": "allFilters"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1456,
+        32
+      ],
+      "id": "9bae4770-6a09-4b48-b9d2-ac0c6e21b710",
+      "name": "ConsultarCardapio",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get many rows in Supabase",
+        "operation": "getAll",
+        "tableId": "itens_pedido",
+        "returnAll": true,
+        "matchType": "allFilters"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        176
+      ],
+      "id": "f73e7608-c1e3-455c-a4a8-0766a5c8e361",
+      "name": "ConsultarPedido",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create a row in Supabase",
+        "tableId": "pedidos",
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        32
+      ],
+      "id": "ba205292-2dc2-40d0-a379-a6a31585ba02",
+      "name": "CriarPedido",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Update a row in Supabase",
+        "operation": "update",
+        "tableId": "pedidos",
+        "matchType": "allFilters",
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1840,
+        176
+      ],
+      "id": "5e660f89-02df-48af-98b0-baede0381912",
+      "name": "AtualizarPedido",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Update a row in Supabase",
+        "operation": "update",
+        "tableId": "clientes",
+        "matchType": "allFilters",
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        192
+      ],
+      "id": "1d609a52-4b2a-491a-850c-40773d4b661e",
+      "name": "AtualizarCliente",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get many rows in Supabase",
+        "operation": "getAll",
+        "tableId": "enderecos",
+        "returnAll": true,
+        "matchType": "allFilters"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        192
+      ],
+      "id": "a49ca410-7391-4dc7-9348-bc2ff1fbae3e",
+      "name": "BusarEndereço",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create a row in Supabase",
+        "tableId": "enderecos",
+        "dataToSend": "autoMapInputData"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        192
+      ],
+      "id": "f8c048dd-d33b-45ac-8230-4e78fccd327d",
+      "name": "AdicionarEndereco",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Update a row in Supabase",
+        "operation": "update",
+        "tableId": "enderecos",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions0_Field_Value', ``, 'string') }}"
+            },
+            {
+              "keyName": "cliente_id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions1_Field_Value', ``, 'string') }}"
+            }
+          ]
+        },
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        352
+      ],
+      "id": "5207db30-d18d-47f4-a3ce-b5389bedc51a",
+      "name": "AtualizarEndereco",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get many rows in Supabase",
+        "operation": "getAll",
+        "tableId": "horarios_funcionamento",
+        "returnAll": true,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "dia_semana",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions0_Field_Value', ``, 'string') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1952,
+        48
+      ],
+      "id": "c4ac2524-460d-4ca8-bb6f-60a508574aef",
+      "name": "ConsultarHorario",
+      "credentials": {
+        "supabaseApi": {
+          "id": "q00udc5ywtGaQxOc",
+          "name": "pizzaria"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "removerPedido": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "AdicionarCliente": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "BusarCliente": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "ConsultarCardapio": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "ConsultarPedido": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "CriarPedido": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "AtualizarPedido": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "AtualizarCliente": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "BusarEndereço": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "AdicionarEndereco": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "AtualizarEndereco": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "ConsultarHorario": {
+      "ai_tool": [
+        []
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "020e0ae71dbc9efa09c74c5ef0974b54c96a970aa70d2e33253a5882fd59a1c8"
+  }
+}

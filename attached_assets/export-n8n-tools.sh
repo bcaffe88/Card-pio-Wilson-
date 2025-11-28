@@ -1,0 +1,23 @@
+#!/bin/bash
+# Script para exportar as tools do n8n
+
+echo "🍕 N8N Wilson Pizza Tools Export"
+echo "================================"
+echo ""
+echo "Para importar as ferramentas no n8n:"
+echo ""
+echo "1. Abra seu dashboard n8n"
+echo "2. Vá para: Workflows > + New"
+echo "3. Clique no Menu (≡) > Import from file"
+echo "4. Selecione: n8n-workflow-tools-corrected.json"
+echo "5. Clique em 'Import'"
+echo ""
+echo "6. Configure a variável de ambiente:"
+echo "   Settings > Variables"
+echo "   Nome: API_BASE_URL"
+echo "   Valor (dev): http://localhost:5000"
+echo "   Valor (prod): https://sua-app.railway.app"
+echo ""
+echo "7. Salve e pronto!"
+echo ""
+echo "📚 Documentação: consulte n8n-setup-guide.md"
