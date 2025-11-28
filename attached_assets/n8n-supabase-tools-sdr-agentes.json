@@ -1,0 +1,360 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Validar se pizzaria está aberta agora",
+        "operation": "getAll",
+        "tableId": "horarios_funcionamento",
+        "returnAll": true,
+        "matchType": "allFilters"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        200,
+        100
+      ],
+      "id": "validar-abertura",
+      "name": "validar_abertura",
+      "credentials": {
+        "supabaseApi": {
+          "id": "{{ SELECIONE_SUA_API_SUPABASE }}",
+          "name": "supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Validar e buscar cliente por telefone (requerido: telefone normalizado com +55)",
+        "operation": "getAll",
+        "tableId": "clientes",
+        "returnAll": false,
+        "matchType": "allFilters",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "telefone",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('telefone', '', 'string') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        400,
+        100
+      ],
+      "id": "validar-cliente",
+      "name": "validar_cliente",
+      "credentials": {
+        "supabaseApi": {
+          "id": "{{ SELECIONE_SUA_API_SUPABASE }}",
+          "name": "supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Buscar produto no cardápio por nome (requerido: nome_item)",
+        "operation": "getAll",
+        "tableId": "cardapio",
+        "returnAll": false,
+        "matchType": "allFilters",
+        "limit": 1
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        600,
+        100
+      ],
+      "id": "buscar-produto",
+      "name": "buscar_produto",
+      "credentials": {
+        "supabaseApi": {
+          "id": "{{ SELECIONE_SUA_API_SUPABASE }}",
+          "name": "supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Processar pedido completo - Criar cliente, pedido e items (requerido: cliente_nome, cliente_telefone, forma_pagamento, total, itens array)",
+        "tableId": "pedidos",
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        800,
+        100
+      ],
+      "id": "processar-pedido",
+      "name": "processar_pedido",
+      "credentials": {
+        "supabaseApi": {
+          "id": "{{ SELECIONE_SUA_API_SUPABASE }}",
+          "name": "supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Processar pedido formatado de mensagem WhatsApp/App (requerido: mensagem_texto com items, total, endereco)",
+        "tableId": "pedidos",
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        100
+      ],
+      "id": "processar-pedido-formatado",
+      "name": "processar_pedido_formatado",
+      "credentials": {
+        "supabaseApi": {
+          "id": "{{ SELECIONE_SUA_API_SUPABASE }}",
+          "name": "supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Calcular total do pedido baseado em itens com tamanho (requerido: itens array com nome, tamanho, quantidade)",
+        "operation": "getAll",
+        "tableId": "cardapio",
+        "returnAll": true,
+        "matchType": "allFilters"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        200,
+        250
+      ],
+      "id": "calcular-total",
+      "name": "calcular_total",
+      "credentials": {
+        "supabaseApi": {
+          "id": "{{ SELECIONE_SUA_API_SUPABASE }}",
+          "name": "supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Buscar pedido completo por ID ou telefone do cliente (requerido: pedido_id OU cliente_telefone)",
+        "operation": "getAll",
+        "tableId": "pedidos",
+        "returnAll": false,
+        "matchType": "allFilters",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('pedido_id', '', 'string') }}"
+            },
+            {
+              "keyName": "cliente_telefone",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('cliente_telefone', '', 'string') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        400,
+        250
+      ],
+      "id": "buscar-pedido",
+      "name": "buscar_pedido",
+      "credentials": {
+        "supabaseApi": {
+          "id": "{{ SELECIONE_SUA_API_SUPABASE }}",
+          "name": "supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Atualizar status do pedido (requerido: pedido_id, novo_status)",
+        "operation": "update",
+        "tableId": "pedidos",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('pedido_id', '', 'string') }}"
+            }
+          ]
+        },
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        600,
+        250
+      ],
+      "id": "atualizar-status-pedido",
+      "name": "atualizar_status_pedido",
+      "credentials": {
+        "supabaseApi": {
+          "id": "{{ SELECIONE_SUA_API_SUPABASE }}",
+          "name": "supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Validar endereço - verificar campos obrigatórios (requerido: rua, numero, bairro, cidade)",
+        "tableId": "enderecos",
+        "dataToSend": "autoMapInputData"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        800,
+        250
+      ],
+      "id": "validar-endereco",
+      "name": "validar_endereco",
+      "credentials": {
+        "supabaseApi": {
+          "id": "{{ SELECIONE_SUA_API_SUPABASE }}",
+          "name": "supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Sugerir complementos - verificar se faltam bebidas/doces (requerido: itens_pedido array)",
+        "operation": "getAll",
+        "tableId": "cardapio",
+        "returnAll": true,
+        "matchType": "allFilters"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        250
+      ],
+      "id": "sugerir-complemento",
+      "name": "sugerir_complemento",
+      "credentials": {
+        "supabaseApi": {
+          "id": "{{ SELECIONE_SUA_API_SUPABASE }}",
+          "name": "supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Criar novo cliente na base de dados (requerido: nome, telefone; opcional: email, endereco_padrao)",
+        "tableId": "clientes",
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inputs_to_Ignore', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        200,
+        400
+      ],
+      "id": "criar-cliente",
+      "name": "criar_cliente",
+      "credentials": {
+        "supabaseApi": {
+          "id": "{{ SELECIONE_SUA_API_SUPABASE }}",
+          "name": "supabase"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "validar_abertura": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "validar_cliente": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "buscar_produto": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "processar_pedido": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "processar_pedido_formatado": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "calcular_total": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "buscar_pedido": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "atualizar_status_pedido": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "validar_endereco": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "sugerir_complemento": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "criar_cliente": {
+      "ai_tool": [
+        []
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "wilson-pizza-agentes-sdr"
+  }
+}
