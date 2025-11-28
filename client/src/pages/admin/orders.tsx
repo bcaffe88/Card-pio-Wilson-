@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AdminLayout from "./layout";
 import { useAdminStore, Order, OrderStatus } from "@/lib/admin-store";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -12,16 +12,23 @@ import {
   Package, 
   Send, 
   MessageCircle,
-  XCircle
+  XCircle,
+  Bell
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminOrders() {
-  const { orders, updateOrderStatus } = useAdminStore();
+  const { orders, updateOrderStatus, markOrderAsViewed, getUnviewedOrdersCount } = useAdminStore();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("pending");
+  const [unviewedCount, setUnviewedCount] = useState(0);
+
+  useEffect(() => {
+    // Update unviewed count whenever orders change
+    setUnviewedCount(getUnviewedOrdersCount());
+  }, [orders, getUnviewedOrdersCount]);
 
   const getStatusColor = (status: OrderStatus) => {
     switch (status) {
@@ -64,12 +71,13 @@ export default function AdminOrders() {
   });
 
   const OrderCard = ({ order }: { order: Order }) => (
-    <Card className="border-l-4 border-l-primary">
+    <Card className={`border-l-4 ${!order.viewed ? 'border-l-red-500 bg-red-500/5' : 'border-l-primary'}`}>
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
-          <div>
+          <div className="flex-1">
             <CardTitle className="text-lg flex items-center gap-2">
               {order.id}
+              {!order.viewed && <Bell className="w-4 h-4 text-red-500 animate-pulse" />}
               <Badge variant="outline" className={getStatusColor(order.status)}>
                 {getStatusLabel(order.status)}
               </Badge>
@@ -147,12 +155,26 @@ export default function AdminOrders() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div>
-          <h2 className="text-3xl font-heading font-bold">Fila de Pedidos</h2>
-          <p className="text-muted-foreground">Gerencie o status dos pedidos em tempo real.</p>
+        <div className="flex justify-between items-start">
+          <div>
+            <h2 className="text-3xl font-heading font-bold">Fila de Pedidos</h2>
+            <p className="text-muted-foreground">Gerencie o status dos pedidos em tempo real.</p>
+          </div>
+          {unviewedCount > 0 && (
+            <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2">
+              <Bell className="w-5 h-5 text-red-500 animate-pulse" />
+              <span className="font-semibold text-red-500">{unviewedCount} novo{unviewedCount !== 1 ? 's' : ''}</span>
+            </div>
+          )}
         </div>
 
-        <Tabs defaultValue="active" className="w-full" onValueChange={setActiveTab}>
+        <Tabs defaultValue="active" className="w-full" onValueChange={(tab) => {
+          setActiveTab(tab);
+          // Mark visible orders as viewed when switching tabs
+          filteredOrders.forEach(order => {
+            if (!order.viewed) markOrderAsViewed(order.id);
+          });
+        }}>
           <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
             <TabsTrigger value="active">Ativos</TabsTrigger>
             <TabsTrigger value="history">Histórico</TabsTrigger>

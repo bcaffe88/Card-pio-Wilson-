@@ -1,0 +1,221 @@
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Card, CardContent } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { Trash2, Upload } from "lucide-react";
+
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  prices: { [key: string]: number };
+  image: string;
+  active: boolean;
+}
+
+interface ProductEditModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  product: Product | null;
+  categories: string[];
+  onSave: (product: Product) => void;
+  onDelete: (productId: string) => void;
+}
+
+export default function ProductEditModal({
+  isOpen,
+  onClose,
+  product,
+  categories,
+  onSave,
+  onDelete
+}: ProductEditModalProps) {
+  const { toast } = useToast();
+  const [formData, setFormData] = useState<Product>(
+    product || {
+      id: '',
+      name: '',
+      description: '',
+      category: '',
+      prices: { P: 0, M: 0, G: 0, Super: 0 },
+      image: '',
+      active: true
+    }
+  );
+
+  const handleSave = () => {
+    // API call will be: POST /api/products/{id}
+    // WITH body: { name, description, category, prices, image, active }
+    console.log('Sending to API: POST /api/products/:id', formData);
+    
+    onSave(formData);
+    toast({
+      title: "Produto atualizado",
+      description: "As alterações serão sincronizadas com o servidor."
+    });
+    onClose();
+  };
+
+  const handleDelete = () => {
+    if (window.confirm(`Deseja realmente deletar "${formData.name}"?`)) {
+      // API call will be: DELETE /api/products/{id}
+      console.log('Sending to API: DELETE /api/products/:id', formData.id);
+      
+      onDelete(formData.id);
+      toast({
+        title: "Produto deletado",
+        description: "O produto foi removido do cardápio.",
+        variant: "destructive"
+      });
+      onClose();
+    }
+  };
+
+  if (!isOpen || !product) return null;
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Editar Produto</DialogTitle>
+          <DialogDescription>
+            Atualize os detalhes do produto. As mudanças serão sincronizadas com o banco de dados.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-6 py-4">
+          {/* Imagem */}
+          <div className="space-y-2">
+            <Label>Imagem do Produto</Label>
+            <Card className="border-dashed cursor-pointer hover:bg-muted/50">
+              <CardContent className="p-4">
+                <div className="w-full h-40 rounded-lg bg-muted flex items-center justify-center overflow-hidden mb-3">
+                  {formData.image ? (
+                    <img src={formData.image} alt={formData.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <Upload className="w-8 h-8 text-muted-foreground" />
+                  )}
+                </div>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  className="text-xs"
+                  onChange={(e) => {
+                    // File upload will be: POST /api/upload
+                    // Then update formData.image with returned URL
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      console.log('File selected for upload:', file.name);
+                      // Placeholder - backend will handle actual upload to Supabase Storage
+                    }
+                  }}
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  Recomendado: 500x500px. Será enviado para Supabase Storage.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Nome e Categoria */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Nome do Produto</Label>
+              <Input
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="Ex: Pizza Calabresa"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Categoria</Label>
+              <Select value={formData.category} onValueChange={(val) => setFormData({ ...formData, category: val })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map(cat => (
+                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Descrição */}
+          <div className="space-y-2">
+            <Label>Descrição</Label>
+            <Textarea
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Descreva os detalhes do produto..."
+              rows={3}
+            />
+          </div>
+
+          {/* Preços */}
+          <div className="space-y-2">
+            <Label>Preços por Tamanho</Label>
+            <div className="grid grid-cols-4 gap-3">
+              {['P', 'M', 'G', 'Super'].map(size => (
+                <div key={size} className="space-y-1">
+                  <Label className="text-xs">{size}</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={formData.prices[size] || 0}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      prices: { ...formData.prices, [size]: parseFloat(e.target.value) }
+                    })}
+                    placeholder="0.00"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Status Ativo/Inativo */}
+          <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg">
+            <div className="space-y-1">
+              <Label className="font-medium">Produto Ativo</Label>
+              <p className="text-xs text-muted-foreground">
+                {formData.active ? "Visível no cardápio" : "Oculto do cardápio"}
+              </p>
+            </div>
+            <Switch
+              checked={formData.active}
+              onCheckedChange={(val) => setFormData({ ...formData, active: val })}
+            />
+          </div>
+        </div>
+
+        <DialogFooter className="flex justify-between">
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            className="gap-2"
+          >
+            <Trash2 className="w-4 h-4" />
+            Deletar Produto
+          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onClose}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSave}>
+              Salvar Alterações
+            </Button>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

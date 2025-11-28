@@ -8,16 +8,61 @@ import { Badge } from "@/components/ui/badge";
 import { MENU_ITEMS } from "@/data/menu";
 import { RefreshCw, Plus, Edit, Trash } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import ProductEditModal from "@/components/product-edit-modal";
 
 export default function AdminMenu() {
   const { toast } = useToast();
   const [isSyncing, setIsSyncing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [products, setProducts] = useState(MENU_ITEMS.map(item => ({
+    id: item.id,
+    name: item.name,
+    description: item.description || '',
+    category: item.category,
+    prices: item.prices,
+    image: item.image,
+    active: true
+  })));
 
-  const filteredItems = MENU_ITEMS.filter(item => 
+  const filteredItems = products.filter(item => 
     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const categories = [...new Set(products.map(p => p.category))];
+
+  const handleEditProduct = (product: any) => {
+    setEditingProduct(product);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveProduct = (updatedProduct: any) => {
+    // API call will be: PUT /api/products/{id}
+    // The backend will sync to Supabase table 'cardapio'
+    console.log('Saving product to API:', updatedProduct);
+    
+    setProducts(products.map(p => 
+      p.id === updatedProduct.id ? updatedProduct : p
+    ));
+    toast({
+      title: "Produto atualizado",
+      description: "As alterações foram enviadas para o servidor."
+    });
+  };
+
+  const handleDeleteProduct = (productId: string) => {
+    // API call will be: DELETE /api/products/{id}
+    console.log('Deleting product from API:', productId);
+    
+    setProducts(products.filter(p => p.id !== productId));
+    toast({
+      title: "Produto deletado",
+      description: "O produto foi removido do cardápio.",
+      variant: "destructive"
+    });
+  };
 
   const handleSync = () => {
     setIsSyncing(true);
@@ -97,11 +142,14 @@ export default function AdminMenu() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8"
+                            onClick={() => handleEditProduct(item)}
+                            data-testid="button-edit-product"
+                          >
                             <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
-                            <Trash className="w-4 h-4" />
                           </Button>
                         </div>
                       </TableCell>
@@ -115,6 +163,15 @@ export default function AdminMenu() {
             </div>
           </CardContent>
         </Card>
+
+        <ProductEditModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          product={editingProduct}
+          categories={categories}
+          onSave={handleSaveProduct}
+          onDelete={handleDeleteProduct}
+        />
       </div>
     </AdminLayout>
   );

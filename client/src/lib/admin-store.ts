@@ -12,6 +12,7 @@ export interface Order {
   status: OrderStatus;
   createdAt: string;
   paymentMethod: string;
+  viewed: boolean; // NEW: Track if order has been viewed
 }
 
 interface AdminState {
@@ -36,6 +37,8 @@ interface AdminState {
   // Orders
   orders: Order[];
   updateOrderStatus: (id: string, status: OrderStatus) => void;
+  markOrderAsViewed: (id: string) => void; // NEW: Mark order as viewed
+  getUnviewedOrdersCount: () => number; // NEW: Get count of unviewed orders
 }
 
 // Mock Initial Orders
@@ -48,7 +51,8 @@ const initialOrders: Order[] = [
     total: 89.00,
     status: 'pending',
     createdAt: new Date(Date.now() - 1000 * 60 * 15).toISOString(), // 15 mins ago
-    paymentMethod: 'Pix'
+    paymentMethod: 'Pix',
+    viewed: false
   },
   {
     id: 'ORD-002',
@@ -58,7 +62,8 @@ const initialOrders: Order[] = [
     total: 72.00,
     status: 'production',
     createdAt: new Date(Date.now() - 1000 * 60 * 45).toISOString(), // 45 mins ago
-    paymentMethod: 'Cartão'
+    paymentMethod: 'Cartão',
+    viewed: true
   },
   {
     id: 'ORD-003',
@@ -68,7 +73,8 @@ const initialOrders: Order[] = [
     total: 60.00,
     status: 'ready',
     createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(), // 1 hour ago
-    paymentMethod: 'Dinheiro'
+    paymentMethod: 'Dinheiro',
+    viewed: true
   }
 ];
 
@@ -96,6 +102,13 @@ export const useAdminStore = create<AdminState>()(
       updateOrderStatus: (id, status) => set((state) => ({
         orders: state.orders.map(o => o.id === id ? { ...o, status } : o)
       })),
+      markOrderAsViewed: (id) => set((state) => ({
+        orders: state.orders.map(o => o.id === id ? { ...o, viewed: true } : o)
+      })),
+      getUnviewedOrdersCount: () => {
+        const state = useAdminStore.getState();
+        return state.orders.filter(o => !o.viewed && o.status !== 'delivered' && o.status !== 'cancelled').length;
+      },
     }),
     {
       name: 'admin-storage',
