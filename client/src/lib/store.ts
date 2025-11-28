@@ -3,14 +3,16 @@ import { PizzaFlavor, Size, MENU_ITEMS, CrustOption, EdgeOption } from '@/data/m
 
 export interface CartItem {
   id: string; // Unique ID for cart item
-  size: Size;
+  productId?: string; // ID do produto original (para itens simples não-customizáveis)
+  category?: string; // Categoria do item
+  size?: Size;
   flavors: PizzaFlavor[];
   quantity: number;
   price: number;
   notes?: string;
-  crust: string; // Crust ID
-  edge: string; // Edge ID
-  edgePrice: number;
+  crust?: string; // Crust ID
+  edge?: string; // Edge ID
+  edgePrice?: number;
   selectedMolho?: string; // Para massas
 }
 

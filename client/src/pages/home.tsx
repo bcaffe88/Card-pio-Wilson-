@@ -161,21 +161,45 @@ export default function Home() {
                       </span>
                     </div>
                     
-                    <Button 
-                      onClick={() => {
-                        if (item.isMassa) {
-                          setSelectedMassa(item);
-                          setIsMassasBuilderOpen(true);
-                        } else {
-                          openBuilder(item);
-                        }
-                      }}
-                      size="sm" 
-                      className="rounded-full font-semibold bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-lg active:scale-95 transition-all"
-                    >
-                      <Plus className="w-4 h-4 mr-1" />
-                      Montar
-                    </Button>
+                    {(item.category === 'Salgadas' || item.category === 'Doces' || item.isMassa) ? (
+                      <Button 
+                        onClick={() => {
+                          if (item.isMassa) {
+                            setSelectedMassa(item);
+                            setIsMassasBuilderOpen(true);
+                          } else {
+                            openBuilder(item);
+                          }
+                        }}
+                        size="sm" 
+                        className="rounded-full font-semibold bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-lg active:scale-95 transition-all"
+                      >
+                        <Plus className="w-4 h-4 mr-1" />
+                        Montar
+                      </Button>
+                    ) : (
+                      <Button 
+                        onClick={() => {
+                          // Add simple item directly to cart
+                          const minPrice = Math.min(...Object.values(item.prices) as number[]);
+                          const { addToCart } = useCartStore.getState();
+                          addToCart({
+                            size: 'M',
+                            flavors: [item],
+                            quantity: 1,
+                            price: minPrice,
+                            category: item.category,
+                            productId: item.id,
+                            edgePrice: 0
+                          });
+                        }}
+                        size="sm" 
+                        className="rounded-full font-semibold bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-lg active:scale-95 transition-all"
+                      >
+                        <Plus className="w-4 h-4 mr-1" />
+                        Adicionar
+                      </Button>
+                    )}
                   </div>
                 </div>
               </motion.div>

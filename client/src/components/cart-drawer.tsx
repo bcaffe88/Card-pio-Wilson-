@@ -33,20 +33,33 @@ export function CartDrawer() {
     const phoneNumber = "5587999480699";
     
     const itemsList = items.map(item => {
-      const flavors = item.flavors.map(f => f.name).join(', ');
-      const crustName = CRUST_OPTIONS.find(c => c.id === item.crust)?.name || 'Massa Média';
-      const edgeName = EDGE_OPTIONS.find(e => e.id === item.edge)?.name || 'Sem Borda';
-      const edgePrice = item.edgePrice > 0 ? `(+R$ ${item.edgePrice.toFixed(2)})` : '';
+      const category = item.category || item.flavors[0]?.category;
+      const isMassa = item.flavors[0]?.isMassa;
       
-      // Se item.notes contém informações de massa (molho e ingredientes), exibe de forma formatada
-      let itemDetails = `- ${item.quantity}x Pizza ${SIZES[item.size].label} (${flavors})\n  ${crustName} | ${edgeName} ${edgePrice}`;
-      
-      // Se existem notas (para massas com molho/ingredientes), adiciona embaixo
-      if (item.notes && item.notes.trim()) {
-        itemDetails += `\n  _${item.notes}_`;
+      // Formatação diferente por categoria
+      if (isMassa || category === 'Massas') {
+        // Formato para Massas: Nome + Molho + Ingredientes
+        const flavorName = item.flavors[0]?.name || 'Massa';
+        return `- ${item.quantity}x ${flavorName}\n  ${item.notes || 'Sem molho'}`;
+      } else if (category === 'Salgadas' || category === 'Doces') {
+        // Formato para Pizzas: Tamanho + Sabores + Massa + Borda
+        const flavors = item.flavors.map(f => f.name).join(', ');
+        const crustName = CRUST_OPTIONS.find(c => c.id === item.crust)?.name || 'Massa Média';
+        const edgeName = EDGE_OPTIONS.find(e => e.id === item.edge)?.name || 'Sem Borda';
+        const edgePrice = (item.edgePrice || 0) > 0 ? `(+R$ ${item.edgePrice?.toFixed(2)})` : '';
+        
+        let itemDetails = `- ${item.quantity}x Pizza ${SIZES[item.size || 'M'].label} (${flavors})\n  ${crustName} | ${edgeName} ${edgePrice}`;
+        
+        if (item.notes && item.notes.trim()) {
+          itemDetails += `\n  _${item.notes}_`;
+        }
+        
+        return itemDetails;
+      } else {
+        // Formato simples para outras categorias: Quantidade + Nome + Preço
+        const flavorName = item.flavors[0]?.name || 'Item';
+        return `- ${item.quantity}x ${flavorName}`;
       }
-      
-      return itemDetails;
     }).join('\n');
 
     const deliveryInfo = deliveryMethod === 'entrega' 
@@ -117,6 +130,9 @@ ${notes ? `*📝 OBSERVAÇÕES:* ${notes}` : ''}
                   {items.map((item) => {
                      const edgeName = EDGE_OPTIONS.find(e => e.id === item.edge)?.name;
                      const crustName = CRUST_OPTIONS.find(c => c.id === item.crust)?.name;
+                     const category = item.category || item.flavors[0]?.category;
+                     const isPizza = category === 'Salgadas' || category === 'Doces';
+                     const isMassa = category === 'Massas';
                      
                      return (
                       <div key={item.id} className="flex gap-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -127,7 +143,7 @@ ${notes ? `*📝 OBSERVAÇÕES:* ${notes}` : ''}
                         <div className="flex-1 space-y-1">
                           <div className="flex justify-between items-start">
                             <h4 className="font-bold text-sm line-clamp-2 leading-tight">
-                              {item.flavors.map(f => f.name).join(' + ')}
+                              {isPizza || isMassa ? item.flavors.map(f => f.name).join(' + ') : item.flavors[0].name}
                             </h4>
                             <button 
                               onClick={() => removeFromCart(item.id)}
@@ -137,11 +153,14 @@ ${notes ? `*📝 OBSERVAÇÕES:* ${notes}` : ''}
                             </button>
                           </div>
                           
-                          <div className="text-xs text-muted-foreground space-y-0.5">
-                            <p>Tamanho {SIZES[item.size].label}</p>
-                            <p>{crustName}</p>
-                            {item.edge !== 'sem-borda' && <p className="text-accent">{edgeName}</p>}
-                          </div>
+                          {(isPizza || isMassa) && (
+                            <div className="text-xs text-muted-foreground space-y-0.5">
+                              <p>Tamanho {SIZES[item.size || 'M'].label}</p>
+                              <p>{crustName}</p>
+                              {item.edge !== 'sem-borda' && <p className="text-accent">{edgeName}</p>}
+                              {isMassa && item.notes && <p className="text-accent italic">{item.notes}</p>}
+                            </div>
+                          )}
                           
                           <div className="flex justify-between items-center pt-2">
                             <span className="font-bold text-primary">
