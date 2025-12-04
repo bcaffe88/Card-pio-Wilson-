@@ -1,13 +1,49 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { insertCardapioSchema, insertClienteSchema, insertEnderecoSchema, insertPedidoSchema, insertItemPedidoSchema } from "@shared/schema";
+import multer from "multer";
+import { uploadFileToSupabase } from "./storage";
+import { db } from "./db";
+import { cardapio, clientes, insertCardapioSchema, insertClienteSchema } from "@shared/schema";
 import { z } from "zod";
+import { eq } from "drizzle-orm";
+
+// Configuração do Multer para usar a memória
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // Limite de 5MB por arquivo
+  },
+});
 
 export async function registerRoutes(
   httpServer: Server,
-  app: Express
+  app: Express,
 ): Promise<Server> {
+  
+  // ROTA DE UPLOAD DE IMAGEM
+  app.post("/api/upload", upload.single("image"), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "Nenhum arquivo enviado." });
+      }
+
+      const file = req.file;
+      const bucketName = "imagens-cardapio"; // Nome do seu bucket no Supabase
+
+      const publicUrl = await uploadFileToSupabase(
+        bucketName,
+        file.originalname,
+        file.buffer,
+        file.mimetype,
+      );
+
+      res.json({ publicUrl });
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      res.status(500).json({ error: "Erro ao fazer upload da imagem.", details: error.message });
+    }
+  });
+
   // CARDÁPIO ROUTES
   app.get("/api/cardapio", async (req, res) => {
     try {

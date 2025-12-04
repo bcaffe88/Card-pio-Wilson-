@@ -83,6 +83,17 @@ export const horarios_funcionamento = pgTable("horarios_funcionamento", {
   created_at: timestamp("created_at").default(sql`now()`),
 });
 
+// CONFIGURAÇÕES DO RESTAURANTE
+export const configuracoes = pgTable("configuracoes", {
+  // Usamos um ID fixo para garantir que haja apenas uma linha nesta tabela
+  id: integer("id").primaryKey().default(1),
+  nome_restaurante: text("nome_restaurante").notNull(),
+  endereco: text("endereco"),
+  telefone: text("telefone"),
+  logo_url: text("logo_url"),
+  updated_at: timestamp("updated_at").default(sql`now()`),
+});
+
 // SCHEMAS DRIZZLE-ZOD
 export const insertCardapioSchema = createInsertSchema(cardapio).omit({
   id: true,
@@ -118,6 +129,11 @@ export const insertHorarioSchema = createInsertSchema(horarios_funcionamento).om
   created_at: true,
 });
 
+export const insertConfiguracoesSchema = createInsertSchema(configuracoes).omit({
+  id: true,
+  updated_at: true,
+});
+
 // TYPES
 export type Cardapio = typeof cardapio.$inferSelect;
 export type InsertCardapio = z.infer<typeof insertCardapioSchema>;
@@ -136,6 +152,9 @@ export type InsertItemPedido = z.infer<typeof insertItemPedidoSchema>;
 
 export type HorarioFuncionamento = typeof horarios_funcionamento.$inferSelect;
 export type InsertHorario = z.infer<typeof insertHorarioSchema>;
+
+export type Configuracoes = typeof configuracoes.$inferSelect;
+export type InsertConfiguracoes = z.infer<typeof insertConfiguracoesSchema>;
 
 // STATUS TYPE
 export type OrderStatus = "pending" | "confirmed" | "production" | "ready" | "sent" | "delivered" | "cancelled";

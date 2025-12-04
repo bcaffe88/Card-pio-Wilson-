@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import AdminLayout from "./layout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,11 +8,12 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { useAdminStore } from "@/lib/admin-store";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Upload, Database, Webhook, Clock } from "lucide-react";
+import { Save, Upload, Database, Webhook, Clock, Loader2 } from "lucide-react";
 
 export default function AdminSettings() {
   const store = useAdminStore();
   const { toast } = useToast();
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
     restaurantName: store.restaurantName,
     restaurantAddress: store.restaurantAddress,
@@ -34,6 +35,44 @@ export default function AdminSettings() {
     { day: 'Sábado', open: '10:00', close: '00:00', active: true },
     { day: 'Domingo', open: '10:00', close: '00:00', active: true },
   ]);
+
+  const handleLogoUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Falha no upload");
+      }
+
+      const data = await response.json();
+      setFormData(prev => ({ ...prev, restaurantLogo: data.publicUrl }));
+      
+      toast({
+        title: "Sucesso!",
+        description: "Logo atualizada. Salve as alterações para aplicar.",
+        variant: "success"
+      });
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível enviar a imagem. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleSave = () => {
     store.updateSettings(formData);
@@ -66,7 +105,9 @@ export default function AdminSettings() {
             <CardContent className="space-y-4">
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-20 h-20 rounded-lg bg-muted border-2 border-dashed border-border flex items-center justify-center overflow-hidden relative group cursor-pointer hover:bg-muted/80 transition-colors">
-                  {formData.restaurantLogo ? (
+                  {isUploading ? (
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                  ) : formData.restaurantLogo ? (
                     <img src={formData.restaurantLogo} alt="Logo" className="w-full h-full object-cover" />
                   ) : (
                     <span className="text-xs text-muted-foreground text-center p-2">Upload Logo</span>
@@ -75,7 +116,12 @@ export default function AdminSettings() {
                 <div className="flex-1">
                   <Label>Logo da Marca</Label>
                   <p className="text-xs text-muted-foreground mb-2">Recomendado: 500x500px PNG ou JPG</p>
-                  <Input type="file" className="text-xs" />
+                  <Input 
+                    type="file" 
+                    className="text-xs" 
+                    onChange={handleLogoUpload} 
+                    disabled={isUploading}
+                  />
                 </div>
               </div>
 

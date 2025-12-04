@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, Upload } from "lucide-react";
+import { Trash2, Upload, Loader2 } from "lucide-react";
 
 interface Product {
   id: string;
@@ -39,6 +39,7 @@ export default function ProductEditModal({
   onDelete
 }: ProductEditModalProps) {
   const { toast } = useToast();
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState<Product>(() => 
     product || {
       id: '',
@@ -57,6 +58,44 @@ export default function ProductEditModal({
       setFormData(product);
     }
   }, [product]);
+
+  const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const body = new FormData();
+    body.append("image", file);
+
+    try {
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: body,
+      });
+
+      if (!response.ok) {
+        throw new Error("Falha no upload da imagem do produto.");
+      }
+
+      const data = await response.json();
+      setFormData(prev => ({ ...prev, image: data.publicUrl }));
+      
+      toast({
+        title: "Sucesso!",
+        description: "Imagem do produto atualizada. Salve para aplicar.",
+        variant: "success"
+      });
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Erro de Upload",
+        description: "Não foi possível enviar a imagem. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleSave = () => {
     // API call will be: POST /api/products/{id}
@@ -105,7 +144,9 @@ export default function ProductEditModal({
             <Card className="border-dashed cursor-pointer hover:bg-muted/50">
               <CardContent className="p-4">
                 <div className="w-full h-40 rounded-lg bg-muted flex items-center justify-center overflow-hidden mb-3">
-                  {formData.image ? (
+                  {isUploading ? (
+                    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                  ) : formData.image ? (
                     <img src={formData.image} alt={formData.name} className="w-full h-full object-cover" />
                   ) : (
                     <Upload className="w-8 h-8 text-muted-foreground" />
@@ -115,15 +156,8 @@ export default function ProductEditModal({
                   type="file"
                   accept="image/*"
                   className="text-xs"
-                  onChange={(e) => {
-                    // File upload will be: POST /api/upload
-                    // Then update formData.image with returned URL
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      console.log('File selected for upload:', file.name);
-                      // Placeholder - backend will handle actual upload to Supabase Storage
-                    }
-                  }}
+                  onChange={handleImageUpload}
+                  disabled={isUploading}
                 />
                 <p className="text-xs text-muted-foreground mt-2">
                   Recomendado: 500x500px. Será enviado para Supabase Storage.

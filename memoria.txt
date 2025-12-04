@@ -1,0 +1,23 @@
+# Contexto Atual do Projeto: Sincronização de Imagens com Supabase
+
+**Objetivo:** Permitir que o administrador troque a logomarca do restaurante e as imagens dos produtos através do painel de admin, com as alterações persistindo no banco de dados Supabase e refletindo no cardápio público.
+
+**Progresso até Agora:**
+
+1.  **Backend - Endpoint de Upload:**
+    *   A rota `POST /api/upload` foi criada no Express (`server/routes.ts`).
+    *   Utiliza `multer` para receber os arquivos em memória.
+    *   Utiliza o cliente Supabase (`server/storage.ts`) para enviar os arquivos para um bucket público no Supabase Storage chamado `imagens-cardapio`.
+    *   Retorna a `publicUrl` da imagem após o upload.
+
+2.  **Frontend - Lógica de Upload:**
+    *   A página de Configurações (`/admin/settings`) foi modificada para permitir o upload da logomarca.
+    *   O modal de edição de produto (`/admin/menu`) foi modificado para permitir o upload da imagem do produto.
+    *   Ambos os componentes agora chamam com sucesso o endpoint `/api/upload` e atualizam seu estado interno (a imagem na tela) com a URL retornada.
+
+**Tarefa Pendente (O Que Estamos Fazendo Agora):**
+
+*   **Persistência no Banco de Dados:** A alteração da URL da imagem ainda não é salva no banco de dados. Se a página for atualizada, a imagem antiga volta.
+    *   **Próximo Passo 1 (Backend):** Criar uma tabela `configuracoes` no Supabase para salvar a URL da logo e outras configurações globais. Criar endpoints `GET /api/configuracoes` e `PUT /api/configuracoes`.
+    *   **Próximo Passo 2 (Backend):** Implementar o endpoint `PUT /api/cardapio/:id` para salvar a nova URL da imagem de um produto específico.
+    *   **Próximo Passo 3 (Frontend):** Fazer com que os botões "Salvar Alterações" nas páginas de admin chamem esses novos endpoints para persistir os dados no banco de dados.
