@@ -97,17 +97,35 @@ export default function ProductEditModal({
     }
   };
 
-  const handleSave = () => {
-    // API call will be: POST /api/products/{id}
-    // WITH body: { name, description, category, prices, image, active }
-    console.log('Sending to API: POST /api/products/:id', formData);
-    
-    onSave(formData);
-    toast({
-      title: "Produto atualizado",
-      description: "As alterações serão sincronizadas com o servidor."
-    });
-    onClose();
+  const handleSave = async () => {
+    try {
+      const response = await fetch(`/api/cardapio/${formData.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Falha ao atualizar o produto.");
+      }
+      
+      const updatedProduct = await response.json();
+      onSave(updatedProduct); // Atualiza o estado na página pai
+
+      toast({
+        title: "Produto atualizado",
+        description: "As alterações foram salvas no banco de dados.",
+        variant: "success",
+      });
+      onClose();
+    } catch (error) {
+      console.error("Erro ao salvar produto:", error);
+      toast({
+        title: "Erro ao Salvar",
+        description: "Não foi possível salvar as alterações do produto.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDelete = () => {
