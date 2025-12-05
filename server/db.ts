@@ -6,7 +6,10 @@ if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL environment variable is required");
 }
 
-const client = postgres(process.env.DATABASE_URL);
+const client = postgres(process.env.DATABASE_URL, {
+  // Força o uso de IPv4 para evitar o erro ENETUNREACH
+  family: 4,
+});
 export const db = drizzle(client, { schema });
 
 export type Database = typeof db;
