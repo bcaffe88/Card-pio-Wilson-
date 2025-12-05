@@ -1,0 +1,11 @@
+[phases.setup]
+apt_packages = ["git", "postgresql-client"]
+
+[phases.build]
+buildCommand = "npm run build"
+
+[phases.start]
+startCommand = "npm run start"
+
+[environments]
+NODE_VERSION = "20"

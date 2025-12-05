@@ -1,7 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 
-// Trigger new deploy on Railway
+// Force new deploy on Railway to pick up latest code and nixpacks.toml
 import { serveStatic } from "./static";
 import { createServer } from "http";
 
