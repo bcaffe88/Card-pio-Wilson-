@@ -5,6 +5,9 @@ import { log } from "./index";
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
 
+console.log("Supabase URL (from env):", supabaseUrl);
+console.log("Supabase Key (from env):", supabaseKey ? "[REDACTED]" : "[MISSING]");
+
 if (!supabaseUrl || !supabaseKey) {
   log("Missing Supabase environment variables for storage", "error");
   // Em um ambiente de produção, você pode querer lançar um erro.
