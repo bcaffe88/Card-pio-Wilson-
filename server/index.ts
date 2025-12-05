@@ -1,5 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
+
+// Trigger new deploy on Railway
 import { serveStatic } from "./static";
 import { createServer } from "http";
 
