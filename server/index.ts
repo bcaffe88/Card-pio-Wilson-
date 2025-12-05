@@ -1,7 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 
-// Force new deploy on Railway to pick up latest code and nixpacks.toml
+// Force new deploy on Railway after schema generation changes
 import { serveStatic } from "./static";
 import { createServer } from "http";
 
