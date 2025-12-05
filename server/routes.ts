@@ -47,8 +47,8 @@ export async function registerRoutes(
   // CARDÁPIO ROUTES
   app.get("/api/cardapio", async (req, res) => {
     try {
-      const cardapio = await storage.getAllCardapio();
-      res.json(cardapio);
+      const cardapioResult = await db.select().from(cardapio);
+      res.json(cardapioResult);
     } catch (error) {
       res.status(500).json({ error: "Erro ao buscar cardápio" });
     }
@@ -56,8 +56,8 @@ export async function registerRoutes(
 
   app.get("/api/cardapio/categoria/:categoria", async (req, res) => {
     try {
-      const { categoria } = req.params;
-      const items = await storage.getCardapioByCategoria(categoria);
+      const { categoria: categoriaParam } = req.params;
+      const items = await db.select().from(cardapio).where(eq(cardapio.categoria, categoriaParam));
       res.json(items);
     } catch (error) {
       res.status(500).json({ error: "Erro ao buscar por categoria" });
@@ -67,7 +67,7 @@ export async function registerRoutes(
   app.get("/api/cardapio/buscar/:termo", async (req, res) => {
     try {
       const { termo } = req.params;
-      const items = await storage.searchCardapio(termo);
+      const items = await db.select().from(cardapio).where(eq(cardapio.nome_item, termo));
       res.json(items);
     } catch (error) {
       res.status(500).json({ error: "Erro ao buscar produtos" });
@@ -77,11 +77,11 @@ export async function registerRoutes(
   app.get("/api/cardapio/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const item = await storage.getCardapio(id);
-      if (!item) {
+      const item = await db.select().from(cardapio).where(eq(cardapio.id, id));
+      if (!item.length) {
         return res.status(404).json({ error: "Produto não encontrado" });
       }
-      res.json(item);
+      res.json(item[0]);
     } catch (error) {
       res.status(500).json({ error: "Erro ao buscar produto" });
     }
@@ -98,16 +98,16 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Telefone inválido" });
       }
 
-      const existe = await storage.getClienteByTelefone(telefoneNormalizado);
-      if (existe) {
-        return res.json(existe); // Retorna cliente existente se já cadastrado
+      const existe = await db.select().from(clientes).where(eq(clientes.telefone, telefoneNormalizado));
+      if (existe.length) {
+        return res.json(existe[0]); // Retorna cliente existente se já cadastrado
       }
 
-      const cliente = await storage.createCliente({
+      const cliente = await db.insert(clientes).values({
         ...data,
         telefone: telefoneNormalizado,
-      });
-      res.status(201).json(cliente);
+      }).returning();
+      res.status(201).json(cliente[0]);
     } catch (error: any) {
       res.status(400).json({ error: error.message || "Erro ao criar cliente" });
     }
@@ -117,12 +117,12 @@ export async function registerRoutes(
     try {
       const { telefone } = req.params;
       const telefoneNormalizado = telefone.replace(/\D/g, "");
-      const cliente = await storage.getClienteByTelefone(telefoneNormalizado);
+      const cliente = await db.select().from(clientes).where(eq(clientes.telefone, telefoneNormalizado));
       
-      if (!cliente) {
+      if (!cliente.length) {
         return res.status(404).json({ found: false, message: "Cliente não encontrado" });
       }
-      res.json({ found: true, cliente });
+      res.json({ found: true, cliente: cliente[0] });
     } catch (error) {
       res.status(500).json({ error: "Erro ao buscar cliente" });
     }
@@ -131,11 +131,11 @@ export async function registerRoutes(
   app.get("/api/clientes/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const cliente = await storage.getCliente(id);
-      if (!cliente) {
+      const cliente = await db.select().from(clientes).where(eq(clientes.id, id));
+      if (!cliente.length) {
         return res.status(404).json({ error: "Cliente não encontrado" });
       }
-      res.json(cliente);
+      res.json(cliente[0]);
     } catch (error) {
       res.status(500).json({ error: "Erro ao buscar cliente" });
     }
@@ -145,8 +145,8 @@ export async function registerRoutes(
     try {
       const { id } = req.params;
       const data = insertClienteSchema.partial().parse(req.body);
-      const cliente = await storage.updateCliente(id, data);
-      res.json(cliente);
+      const cliente = await db.update(clientes).set(data).where(eq(clientes.id, id)).returning();
+      res.json(cliente[0]);
     } catch (error: any) {
       res.status(400).json({ error: error.message || "Erro ao atualizar cliente" });
     }
@@ -156,8 +156,8 @@ export async function registerRoutes(
   app.post("/api/enderecos", async (req, res) => {
     try {
       const data = insertEnderecoSchema.parse(req.body);
-      const endereco = await storage.createEndereco(data);
-      res.status(201).json(endereco);
+      const endereco = await db.insert(enderecos).values(data).returning();
+      res.status(201).json(endereco[0]);
     } catch (error: any) {
       res.status(400).json({ error: error.message || "Erro ao criar endereço" });
     }
@@ -166,8 +166,8 @@ export async function registerRoutes(
   app.get("/api/enderecos/:cliente_id", async (req, res) => {
     try {
       const { cliente_id } = req.params;
-      const enderecos = await storage.getEnderecosByCliente(cliente_id);
-      res.json(enderecos);
+      const enderecosResult = await db.select().from(enderecos).where(eq(enderecos.cliente_id, cliente_id));
+      res.json(enderecosResult);
     } catch (error) {
       res.status(500).json({ error: "Erro ao buscar endereços" });
     }
@@ -177,8 +177,8 @@ export async function registerRoutes(
     try {
       const { id } = req.params;
       const data = insertEnderecoSchema.partial().parse(req.body);
-      const endereco = await storage.updateEndereco(id, data);
-      res.json(endereco);
+      const endereco = await db.update(enderecos).set(data).where(eq(enderecos.id, id)).returning();
+      res.json(endereco[0]);
     } catch (error: any) {
       res.status(400).json({ error: error.message || "Erro ao atualizar endereço" });
     }
@@ -187,8 +187,8 @@ export async function registerRoutes(
   app.delete("/api/enderecos/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const deleted = await storage.deleteEndereco(id);
-      if (!deleted) {
+      const deleted = await db.delete(enderecos).where(eq(enderecos.id, id)).returning();
+      if (!deleted.length) {
         return res.status(404).json({ error: "Endereço não encontrado" });
       }
       res.json({ success: true });
@@ -212,14 +212,17 @@ export async function registerRoutes(
       }
 
       // Buscar/criar cliente
-      let cliente = await storage.getClienteByTelefone(cliente_telefone);
-      if (!cliente) {
-        cliente = await storage.createCliente({
+      let clienteResult = await db.select().from(clientes).where(eq(clientes.telefone, cliente_telefone));
+      let cliente;
+      if (!clienteResult.length) {
+        cliente = (await db.insert(clientes).values({
           nome: cliente_nome,
           telefone: cliente_telefone,
           email: cliente_email,
           endereco_padrao: `${endereco.rua}, ${endereco.numero}`,
-        });
+        }).returning())[0];
+      } else {
+        cliente = clienteResult[0];
       }
 
       // Calcular total
@@ -229,28 +232,28 @@ export async function registerRoutes(
       }
 
       // Criar pedido
-      const pedido = await storage.createPedido({
+      const pedido = (await db.insert(pedidos).values({
         cliente_id: cliente.id,
         cliente_nome: cliente.nome,
         cliente_telefone: cliente.telefone,
         cliente_email: cliente.email,
         status: "pending",
-        total: total.toString() as any,
+        total: total.toString(),
         endereco_entrega: endereco,
         forma_pagamento,
         observacoes,
-      });
+      }).returning())[0];
 
       // Criar itens do pedido
       for (const item of itens) {
-        await storage.createItemPedido({
+        await db.insert(itens_pedido).values({
           pedido_id: pedido.id,
           produto_nome: item.produto_nome,
           categoria: item.categoria,
           tamanho: item.tamanho,
           sabores: item.sabores,
           quantidade: item.quantidade,
-          preco_unitario: item.preco_unitario.toString() as any,
+          preco_unitario: item.preco_unitario.toString(),
           observacoes: item.observacoes,
         });
       }
@@ -274,13 +277,13 @@ export async function registerRoutes(
   app.get("/api/pedidos/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const pedido = await storage.getPedido(id);
-      if (!pedido) {
+      const pedido = await db.select().from(pedidos).where(eq(pedidos.id, id));
+      if (!pedido.length) {
         return res.status(404).json({ error: "Pedido não encontrado" });
       }
 
-      const itens = await storage.getItensPedido(id);
-      res.json({ ...pedido, itens });
+      const itens = await db.select().from(itens_pedido).where(eq(itens_pedido.pedido_id, id));
+      res.json({ ...pedido[0], itens });
     } catch (error) {
       res.status(500).json({ error: "Erro ao buscar pedido" });
     }
@@ -289,8 +292,8 @@ export async function registerRoutes(
   app.get("/api/pedidos/cliente/:cliente_id", async (req, res) => {
     try {
       const { cliente_id } = req.params;
-      const pedidos = await storage.getPedidosByCliente(cliente_id);
-      res.json(pedidos);
+      const pedidosResult = await db.select().from(pedidos).where(eq(pedidos.cliente_id, cliente_id));
+      res.json(pedidosResult);
     } catch (error) {
       res.status(500).json({ error: "Erro ao buscar pedidos" });
     }
@@ -306,8 +309,8 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Status inválido" });
       }
 
-      const pedido = await storage.updatePedidoStatus(id, status);
-      res.json(pedido);
+      const pedido = await db.update(pedidos).set({ status }).where(eq(pedidos.id, id)).returning();
+      res.json(pedido[0]);
     } catch (error) {
       res.status(500).json({ error: "Erro ao atualizar status" });
     }
@@ -315,11 +318,11 @@ export async function registerRoutes(
 
   app.get("/api/admin/pedidos", async (req, res) => {
     try {
-      const pedidos = await storage.getAllPedidos();
+      const allPedidos = await db.select().from(pedidos);
       const pedidosComItens = await Promise.all(
-        pedidos.map(async (p) => ({
+        allPedidos.map(async (p) => ({
           ...p,
-          itens: await storage.getItensPedido(p.id),
+          itens: await db.select().from(itens_pedido).where(eq(itens_pedido.pedido_id, p.id)),
         }))
       );
       res.json(pedidosComItens);
@@ -331,7 +334,7 @@ export async function registerRoutes(
   // HORÁRIOS ROUTES
   app.get("/api/horarios-funcionamento", async (req, res) => {
     try {
-      const horarios = await storage.getHorarios();
+      const horarios = await db.select().from(horarios_funcionamento);
       res.json(horarios);
     } catch (error) {
       res.status(500).json({ error: "Erro ao buscar horários" });
