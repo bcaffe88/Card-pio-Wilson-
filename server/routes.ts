@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import multer from "multer";
 import { uploadFileToSupabase } from "./storage";
 import { db } from "./db";
-import { cardapio, clientes, insertCardapioSchema, insertClienteSchema } from "@shared/schema";
+import { cardapio, clientes, configuracoes, insertCardapioSchema, insertClienteSchema } from "@shared/schema";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 
