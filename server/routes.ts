@@ -44,6 +44,37 @@ export async function registerRoutes(
     }
   });
 
+  // ROTAS DE CONFIGURAÇÕES
+  app.get("/api/configuracoes", async (req, res) => {
+    try {
+      const result = await db.query.configuracoes.findFirst({
+        where: eq(configuracoes.id, 1)
+      });
+      res.json(result);
+    } catch (error: any) {
+      console.error(error);
+      res.status(500).json({ error: "Erro ao buscar configurações.", details: error.message });
+    }
+  });
+
+  app.put("/api/configuracoes", async (req, res) => {
+    try {
+      const data = req.body;
+      const result = await db.insert(configuracoes).values({ 
+        id: 1, 
+        ...data 
+      }).onConflictDoUpdate({
+        target: configuracoes.id,
+        set: { ...data, updated_at: new Date() }
+      }).returning();
+      
+      res.json(result[0]);
+    } catch (error: any) {
+      console.error(error);
+      res.status(500).json({ error: "Erro ao salvar configurações.", details: error.message });
+    }
+  });
+
   // CARDÁPIO ROUTES
   app.get("/api/cardapio", async (req, res) => {
     try {
@@ -84,6 +115,30 @@ export async function registerRoutes(
       res.json(item[0]);
     } catch (error) {
       res.status(500).json({ error: "Erro ao buscar produto" });
+    }
+  });
+
+  app.put("/api/cardapio/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const data = insertCardapioSchema.partial().parse(req.body);
+
+      const updatedProduct = await db.update(cardapio)
+        .set({ ...data, updated_at: new Date() })
+        .where(eq(cardapio.id, id))
+        .returning();
+
+      if (updatedProduct.length === 0) {
+        return res.status(404).json({ error: "Produto não encontrado para atualizar" });
+      }
+
+      res.json(updatedProduct[0]);
+    } catch (error: any) {
+      console.error(error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Dados inválidos.", details: error.errors });
+      }
+      res.status(500).json({ error: "Erro ao atualizar produto.", details: error.message });
     }
   });
 

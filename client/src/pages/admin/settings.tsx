@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from "react";
+import { useState, type ChangeEvent, useEffect } from "react";
 import AdminLayout from "./layout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,24 +6,56 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { useAdminStore } from "@/lib/admin-store";
 import { useToast } from "@/hooks/use-toast";
 import { Save, Upload, Database, Webhook, Clock, Loader2 } from "lucide-react";
 
+// Removido useAdminStore pois agora os dados vêm da API
+
 export default function AdminSettings() {
-  const store = useAdminStore();
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  
   const [formData, setFormData] = useState({
-    restaurantName: store.restaurantName,
-    restaurantAddress: store.restaurantAddress,
-    restaurantPhone: store.restaurantPhone,
-    restaurantLogo: store.restaurantLogo,
-    supabaseUrl: store.supabaseUrl,
-    supabaseKey: store.supabaseKey,
-    webhookUrl: store.webhookUrl,
-    whatsappNotification: store.whatsappNotification
+    nome_restaurante: '',
+    endereco: '',
+    telefone: '',
+    logo_url: '',
+    // Mantendo estes campos para o formulário, mesmo que não persistam na mesma tabela
+    supabaseUrl: '',
+    supabaseKey: '',
+    webhookUrl: '',
+    whatsappNotification: false
   });
+
+  // Carregar dados iniciais da API
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch("/api/configuracoes");
+        if (response.ok) {
+          const data = await response.json();
+          if (data) {
+            setFormData(prev => ({
+              ...prev,
+              nome_restaurante: data.nome_restaurante || '',
+              endereco: data.endereco || '',
+              telefone: data.telefone || '',
+              logo_url: data.logo_url || '',
+            }));
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao buscar configurações:", error);
+        toast({ title: "Erro", description: "Não foi possível carregar as configurações.", variant: "destructive" });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchSettings();
+  }, [toast]);
 
   // Mock Operating Hours State
   const [hours, setHours] = useState([
@@ -41,13 +73,13 @@ export default function AdminSettings() {
     if (!file) return;
 
     setIsUploading(true);
-    const formData = new FormData();
-    formData.append("image", file);
+    const uploadForm = new FormData();
+    uploadForm.append("image", file);
 
     try {
       const response = await fetch("/api/upload", {
         method: "POST",
-        body: formData,
+        body: uploadForm,
       });
 
       if (!response.ok) {
@@ -55,7 +87,7 @@ export default function AdminSettings() {
       }
 
       const data = await response.json();
-      setFormData(prev => ({ ...prev, restaurantLogo: data.publicUrl }));
+      setFormData(prev => ({ ...prev, logo_url: data.publicUrl }));
       
       toast({
         title: "Sucesso!",
@@ -74,13 +106,53 @@ export default function AdminSettings() {
     }
   };
 
-  const handleSave = () => {
-    store.updateSettings(formData);
-    toast({
-      title: "Configurações salvas",
-      description: "As alterações foram aplicadas com sucesso."
-    });
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const settingsToSave = {
+        nome_restaurante: formData.nome_restaurante,
+        endereco: formData.endereco,
+        telefone: formData.telefone,
+        logo_url: formData.logo_url,
+      };
+
+      const response = await fetch("/api/configuracoes", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settingsToSave),
+      });
+
+      if (!response.ok) {
+        throw new Error("Falha ao salvar as configurações");
+      }
+
+      toast({
+        title: "Configurações salvas",
+        description: "As alterações foram aplicadas com sucesso no banco de dados.",
+        variant: "success"
+      });
+
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Erro ao Salvar",
+        description: "Não foi possível salvar as alterações.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="w-8 h-8 animate-spin" />
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
@@ -107,8 +179,8 @@ export default function AdminSettings() {
                 <div className="w-20 h-20 rounded-lg bg-muted border-2 border-dashed border-border flex items-center justify-center overflow-hidden relative group cursor-pointer hover:bg-muted/80 transition-colors">
                   {isUploading ? (
                     <Loader2 className="w-6 h-6 animate-spin" />
-                  ) : formData.restaurantLogo ? (
-                    <img src={formData.restaurantLogo} alt="Logo" className="w-full h-full object-cover" />
+                  ) : formData.logo_url ? (
+                    <img src={formData.logo_url} alt="Logo" className="w-full h-full object-cover" />
                   ) : (
                     <span className="text-xs text-muted-foreground text-center p-2">Upload Logo</span>
                   )}
@@ -129,16 +201,16 @@ export default function AdminSettings() {
                 <div className="space-y-2">
                   <Label>Nome do Estabelecimento</Label>
                   <Input 
-                    value={formData.restaurantName}
-                    onChange={(e) => setFormData({...formData, restaurantName: e.target.value})}
+                    value={formData.nome_restaurante}
+                    onChange={(e) => setFormData({...formData, nome_restaurante: e.target.value})}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Telefone para Pedidos (WhatsApp)</Label>
                   <Input 
-                    value={formData.restaurantPhone}
+                    value={formData.telefone}
                     placeholder="5587999999999"
-                    onChange={(e) => setFormData({...formData, restaurantPhone: e.target.value})}
+                    onChange={(e) => setFormData({...formData, telefone: e.target.value})}
                   />
                 </div>
               </div>
@@ -146,8 +218,8 @@ export default function AdminSettings() {
               <div className="space-y-2">
                 <Label>Endereço Completo</Label>
                 <Input 
-                  value={formData.restaurantAddress}
-                  onChange={(e) => setFormData({...formData, restaurantAddress: e.target.value})}
+                  value={formData.endereco}
+                  onChange={(e) => setFormData({...formData, endereco: e.target.value})}
                 />
               </div>
             </CardContent>
@@ -285,8 +357,12 @@ export default function AdminSettings() {
         </div>
 
         <div className="flex justify-end sticky bottom-4 z-10">
-          <Button onClick={handleSave} size="lg" className="shadow-xl font-bold">
-            <Save className="w-4 h-4 mr-2" />
+          <Button onClick={handleSave} size="lg" className="shadow-xl font-bold" disabled={isSaving}>
+            {isSaving ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4 mr-2" />
+            )}
             Salvar Alterações
           </Button>
         </div>
