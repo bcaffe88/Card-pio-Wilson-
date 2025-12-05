@@ -1,7 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 
-// Force new deploy on Railway after schema generation changes
+// Trigger new deploy on Railway after Drizzle build fixes
 import { serveStatic } from "./static";
 import { createServer } from "http";
 
