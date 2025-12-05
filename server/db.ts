@@ -1,12 +1,20 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
+import { URL } from "url";
 import * as schema from "@shared/schema";
 
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL environment variable is required");
 }
 
-const client = postgres(process.env.DATABASE_URL, {
+const dbUrl = new URL(process.env.DATABASE_URL);
+
+const client = postgres({
+  host: dbUrl.hostname,
+  port: parseInt(dbUrl.port, 10) || 5432,
+  user: dbUrl.username,
+  password: dbUrl.password,
+  database: dbUrl.pathname.substring(1), // Remove a barra inicial
   // Força o uso de IPv4 para evitar o erro ENETUNREACH
   family: 4,
 });
