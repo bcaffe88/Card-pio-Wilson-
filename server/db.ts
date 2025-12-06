@@ -15,8 +15,8 @@ const client = postgres({
   user: dbUrl.username,
   password: dbUrl.password,
   database: dbUrl.pathname.substring(1), // Remove a barra inicial
-  // Força o uso de IPv4 para evitar o erro ENETUNREACH
-  family: 4,
+
+
 });
 export const db = drizzle(client, { schema });
 
