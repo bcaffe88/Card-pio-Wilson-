@@ -168,8 +168,8 @@ export const MENU_ITEMS: PizzaFlavor[] = [
     image: chickenImg,
     category: 'Salgadas'
   },
-  {
-    id: 'siciliana',
+  // MENU_ITEMS removido. Use apenas dados do banco via API.
+  ];
     name: 'Siciliana',
     description: 'Molho de tomate, mussareala, champignon.', // Typo in image preserved/fixed? Fixed "mussareala" -> mussarela in code for correctness but description from menu.
     prices: { 'Super': 70, 'G': 50, 'M': 38, 'P': 28 },

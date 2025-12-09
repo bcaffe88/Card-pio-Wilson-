@@ -16,7 +16,7 @@ export default function AdminMenu() {
   const [searchTerm, setSearchTerm] = useState("");
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]); // Initialize products as an empty array
   const [isLoading, setIsLoading] = useState(true);
 
   // Fetch products from database on component mount
@@ -51,16 +51,12 @@ export default function AdminMenu() {
         description: "Não foi possível carregar os produtos do banco de dados.",
         variant: "destructive"
       });
-      // Fallback to MENU_ITEMS if fetch fails
-      setProducts(MENU_ITEMS.map(item => ({
-        id: item.id,
-        name: item.name,
-        description: item.description || '',
-        category: item.category,
-        prices: item.prices,
-        image: item.image,
-        active: true
-      })));
+      // Não faz fallback para MENU_ITEMS, apenas mostra erro
+      toast({
+        title: "Erro ao carregar produtos",
+        description: "Não foi possível carregar os produtos do banco de dados.",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
