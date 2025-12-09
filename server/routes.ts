@@ -5,7 +5,7 @@ import { uploadFileToSupabase } from "./storage";
 import { db } from "./db";
 import { cardapio, clientes, configuracoes, insertCardapioSchema, insertClienteSchema } from "@shared/schema";
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 
 // Configuração do Multer para usar a memória
 const upload = multer({
@@ -118,7 +118,13 @@ export async function registerRoutes(
     }
   });
 
-  app.put("/api/cardapio/:id", async (req, res) => {
+  // Função simples para verificar se a string é um UUID
+const isUUID = (str: string) => {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(str);
+};
+
+app.put("/api/cardapio/:id", async (req, res) => {
     try {
       const { id } = req.params;
       const data = insertCardapioSchema.partial().parse(req.body);
@@ -129,9 +135,14 @@ export async function registerRoutes(
         updateData.imagem_url = req.body.image;
       }
 
+      // Determinar a condição de busca: por ID (UUID) ou por nome_item (slug)
+      const whereCondition = isUUID(id) 
+        ? eq(cardapio.id, id) 
+        : eq(cardapio.nome_item, id);
+
       const updatedProduct = await db.update(cardapio)
         .set({ ...updateData, updated_at: new Date() })
-        .where(eq(cardapio.id, id))
+        .where(whereCondition)
         .returning();
 
       if (updatedProduct.length === 0) {
