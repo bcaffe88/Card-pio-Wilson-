@@ -101,10 +101,21 @@ export default function ProductEditModal({
 
   const handleSave = async () => {
     try {
+      // Transform component format to API format
+      const apiPayload = {
+        id: formData.id,
+        name: formData.name,
+        description: formData.description,
+        category: formData.category,
+        prices: formData.prices,
+        image: formData.image,
+        active: formData.active
+      };
+
       const response = await fetch(`/api/cardapio/${formData.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(apiPayload),
       });
 
       if (!response.ok) {
@@ -112,7 +123,19 @@ export default function ProductEditModal({
       }
       
       const updatedProduct = await response.json();
-      onSave(updatedProduct); // Atualiza o estado na página pai
+      
+      // Transform database response back to component format
+      const transformedProduct = {
+        id: updatedProduct.id,
+        name: updatedProduct.nome_item,
+        description: updatedProduct.descricao || '',
+        category: updatedProduct.categoria,
+        prices: updatedProduct.precos || {},
+        image: updatedProduct.imagem_url || '',
+        active: updatedProduct.disponivel !== false
+      };
+
+      onSave(transformedProduct);
 
       toast({
         title: "Produto atualizado",

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AdminLayout from "./layout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,15 +16,55 @@ export default function AdminMenu() {
   const [searchTerm, setSearchTerm] = useState("");
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [products, setProducts] = useState(MENU_ITEMS.map(item => ({
-    id: item.id,
-    name: item.name,
-    description: item.description || '',
-    category: item.category,
-    prices: item.prices,
-    image: item.image,
-    active: true
-  })));
+  const [products, setProducts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch products from database on component mount
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/cardapio');
+      if (!response.ok) throw new Error('Failed to fetch products');
+      
+      const data = await response.json();
+      
+      // Transform database format to component format
+      const transformedProducts = data.map((item: any) => ({
+        id: item.id,
+        name: item.nome_item,
+        description: item.descricao || '',
+        category: item.categoria,
+        prices: item.precos || {},
+        image: item.imagem_url || '',
+        active: item.disponivel !== false
+      }));
+      
+      setProducts(transformedProducts);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      toast({
+        title: "Erro ao carregar produtos",
+        description: "Não foi possível carregar os produtos do banco de dados.",
+        variant: "destructive"
+      });
+      // Fallback to MENU_ITEMS if fetch fails
+      setProducts(MENU_ITEMS.map(item => ({
+        id: item.id,
+        name: item.name,
+        description: item.description || '',
+        category: item.category,
+        prices: item.prices,
+        image: item.image,
+        active: true
+      })));
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const filteredItems = products.filter(item => 
     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -38,24 +78,62 @@ export default function AdminMenu() {
     setIsModalOpen(true);
   };
 
-  const handleSaveProduct = (updatedProduct: any) => {
-    // API call will be: PUT /api/products/{id}
-    // The backend will sync to Supabase table 'cardapio'
-    console.log('Saving product to API:', updatedProduct);
-    
-    // Adiciona cache-busting na imagem para forçar recarregamento
-    const productWithCacheBust = {
-      ...updatedProduct,
-      image: updatedProduct.image ? `${updatedProduct.image}${updatedProduct.image.includes('?') ? '&' : '?'}t=${Date.now()}` : updatedProduct.image
-    };
-    
-    setProducts(products.map(p => 
-      p.id === updatedProduct.id ? productWithCacheBust : p
-    ));
-    toast({
-      title: "Produto atualizado",
-      description: "As alterações foram enviadas para o servidor."
-    });
+  const handleSaveProduct = async (updatedProduct: any) => {
+    try {
+      // Map component format back to API format
+      const apiPayload = {
+        id: updatedProduct.id,
+        name: updatedProduct.name,
+        description: updatedProduct.description,
+        category: updatedProduct.category,
+        prices: updatedProduct.prices,
+        image: updatedProduct.image,
+        active: updatedProduct.active
+      };
+
+      console.log('Saving product to API:', apiPayload);
+      
+      const response = await fetch(`/api/cardapio/${updatedProduct.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(apiPayload)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save product');
+      }
+
+      const savedProduct = await response.json();
+
+      // Update local state with the response from server (includes cache-busting)
+      const transformedProduct = {
+        id: savedProduct.id,
+        name: savedProduct.nome_item,
+        description: savedProduct.descricao || '',
+        category: savedProduct.categoria,
+        prices: savedProduct.precos || {},
+        image: savedProduct.imagem_url || '',
+        active: savedProduct.disponivel !== false
+      };
+
+      setProducts(products.map(p => 
+        p.id === updatedProduct.id ? transformedProduct : p
+      ));
+
+      toast({
+        title: "Produto atualizado",
+        description: "As alterações foram salvas com sucesso."
+      });
+    } catch (error) {
+      console.error('Error saving product:', error);
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível salvar as alterações do produto.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleDeleteProduct = (productId: string) => {
@@ -70,16 +148,24 @@ export default function AdminMenu() {
     });
   };
 
-  const handleSync = () => {
-    setIsSyncing(true);
-    // Simulate sync delay
-    setTimeout(() => {
-      setIsSyncing(false);
+  const handleSync = async () => {
+    try {
+      setIsSyncing(true);
+      await fetchProducts();
       toast({
         title: "Sincronização Concluída",
-        description: "Cardápio atualizado com base na tabela do Supabase."
+        description: "Cardápio atualizado com base no banco de dados."
       });
-    }, 2000);
+    } catch (error) {
+      console.error('Error syncing:', error);
+      toast({
+        title: "Erro na sincronização",
+        description: "Não foi possível sincronizar o cardápio.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   return (
