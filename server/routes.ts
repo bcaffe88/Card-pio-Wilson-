@@ -5,7 +5,8 @@ import { uploadFileToSupabase } from "./storage";
 import { db } from "./db";
 import { cardapio, clientes, configuracoes, insertCardapioSchema, insertClienteSchema } from "@shared/schema";
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { eq, or, sql } from "drizzle-orm";
+import { log } from "./index";
 
 // Configuração do Multer para usar a memória
 const upload = multer({
@@ -118,26 +119,45 @@ export async function registerRoutes(
     }
   });
 
-  app.put("/api/cardapio/:id", async (req, res) => {
+  // Função simples para verificar se a string é um UUID
+const isUUID = (str: string) => {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(str);
+};
+
+app.put("/api/cardapio/:id", async (req, res) => {
     try {
       const { id } = req.params;
+      log(`PUT /api/cardapio/${id}: Recebendo requisição.`, "routes");
+      log(`PUT /api/cardapio/${id}: req.body = ${JSON.stringify(req.body)}`, "routes");
+
       const data = insertCardapioSchema.partial().parse(req.body);
       
-      // Correção para o campo de imagem que vem como 'image' do frontend
       const updateData: any = { ...data };
       if (req.body.image !== undefined) {
         updateData.imagem_url = req.body.image;
+        log(`PUT /api/cardapio/${id}: Imagem URL detectada: ${req.body.image}`, "routes");
       }
+
+      // Determinar a condição de busca: por ID (UUID) ou por nome_item (slug)
+      const whereCondition = isUUID(id) 
+        ? eq(cardapio.id, id) 
+        : eq(sql`lower(${cardapio.nome_item})`, id.toLowerCase());
+
+      log(`PUT /api/cardapio/${id}: whereCondition gerado.`, "routes");
+      log(`PUT /api/cardapio/${id}: updateData = ${JSON.stringify(updateData)}`, "routes");
 
       const updatedProduct = await db.update(cardapio)
         .set({ ...updateData, updated_at: new Date() })
-        .where(eq(cardapio.id, id))
+        .where(whereCondition)
         .returning();
 
       if (updatedProduct.length === 0) {
+        log(`PUT /api/cardapio/${id}: Produto não encontrado para atualizar. ID/Nome: ${id}`, "routes");
         return res.status(404).json({ error: "Produto não encontrado para atualizar" });
       }
 
+      log(`PUT /api/cardapio/${id}: Produto atualizado com sucesso. Resultado: ${JSON.stringify(updatedProduct[0])}`, "routes");
       res.json(updatedProduct[0]);
     } catch (error: any) {
       console.error(error);

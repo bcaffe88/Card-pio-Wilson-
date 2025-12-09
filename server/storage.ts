@@ -8,7 +8,7 @@ const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
 if (!supabaseUrl || !supabaseKey) {
 
   // Em um ambiente de produção, você pode querer lançar um erro.
-  // throw new Error("Missing Supabase environment variables for storage");
+  throw new Error("Missing Supabase environment variables for storage");
 }
 
 // Criamos um cliente Supabase, mas apenas se as chaves existirem.
