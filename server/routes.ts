@@ -142,7 +142,7 @@ app.put("/api/cardapio/:id", async (req, res) => {
       // Determinar a condição de busca: por ID (UUID) ou por nome_item (slug)
       const whereCondition = isUUID(id) 
         ? eq(cardapio.id, id) 
-        : eq(sql\`lower(${cardapio.nome_item})\`, id.toLowerCase());
+        : eq(sql`lower(${cardapio.nome_item})`, id.toLowerCase());
 
       log(`PUT /api/cardapio/${id}: whereCondition gerado.`, "routes");
       log(`PUT /api/cardapio/${id}: updateData = ${JSON.stringify(updateData)}`, "routes");
