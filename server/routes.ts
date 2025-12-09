@@ -5,7 +5,7 @@ import { uploadFileToSupabase } from "./storage";
 import { db } from "./db";
 import { cardapio, clientes, configuracoes, insertCardapioSchema, insertClienteSchema } from "@shared/schema";
 import { z } from "zod";
-import { eq, or } from "drizzle-orm";
+import { eq, or, sql } from "drizzle-orm";
 
 // Configuração do Multer para usar a memória
 const upload = multer({
@@ -138,7 +138,7 @@ app.put("/api/cardapio/:id", async (req, res) => {
       // Determinar a condição de busca: por ID (UUID) ou por nome_item (slug)
       const whereCondition = isUUID(id) 
         ? eq(cardapio.id, id) 
-        : eq(cardapio.nome_item, id);
+        : eq(sql\`lower(\${cardapio.nome_item})\`, id.toLowerCase());
 
       const updatedProduct = await db.update(cardapio)
         .set({ ...updateData, updated_at: new Date() })
