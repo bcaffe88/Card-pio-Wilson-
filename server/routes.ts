@@ -124,9 +124,15 @@ export async function registerRoutes(
     try {
       const { id } = req.params;
       const data = insertCardapioSchema.partial().parse(req.body);
+      
+      // Correção para o campo de imagem que vem como 'image' do frontend
+      const updateData: any = { ...data };
+      if (req.body.image !== undefined) {
+        updateData.imagem_url = req.body.image;
+      }
 
       const updatedProduct = await db.update(cardapio)
-        .set({ ...data, updated_at: new Date() })
+        .set({ ...updateData, updated_at: new Date() })
         .where(eq(cardapio.id, id))
         .returning();
 
