@@ -1,15 +1,24 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import multer from "multer";
-import { uploadFileToSupabase } from "./storage";
+// import { uploadFileToSupabase } from "./storage"; // Removido: Usaremos armazenamento local
 import { db } from "./db";
-import { cardapio, clientes, insertCardapioSchema, insertClienteSchema } from "@shared/schema";
+import { cardapio, clientes, configuracoes, insertCardapioSchema, insertClienteSchema } from "@shared/schema";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 
-// Configuração do Multer para usar a memória
+// Configuração do Multer para usar o disco
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Diretório onde as imagens serão salvas
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + '.' + file.originalname.split('.').pop());
+  }
+});
 const upload = multer({
-  storage: multer.memoryStorage(),
+  storage: storage,
   limits: {
     fileSize: 5 * 1024 * 1024, // Limite de 5MB por arquivo
   },
@@ -28,14 +37,7 @@ export async function registerRoutes(
       }
 
       const file = req.file;
-      const bucketName = "imagens-cardapio"; // Nome do seu bucket no Supabase
-
-      const publicUrl = await uploadFileToSupabase(
-        bucketName,
-        file.originalname,
-        file.buffer,
-        file.mimetype,
-      );
+      const publicUrl = `/uploads/${file.filename}`;
 
       res.json({ publicUrl });
     } catch (error: any) {
