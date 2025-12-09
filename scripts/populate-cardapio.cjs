@@ -106,7 +106,9 @@ const cardapioData = [
 ];
 
 async function populateCardapio() {
-  const client = new Client();
+  const client = new Client({
+    connectionString: 'postgresql://postgres:mGBXIHVcdYaEHGFqJaOyVIIlBemGuEZR@centerbeam.proxy.rlwy.net:17816/railway'
+  });
   
   try {
     console.log('🔌 Conectando ao Supabase...');
@@ -118,38 +120,77 @@ async function populateCardapio() {
     await client.query('DELETE FROM cardapio');
     console.log('✅ Dados antigos removidos');
 
+    // Imagens genéricas por categoria
+    const categoriaImagens = {
+      'Salgadas': 'pizza.jpg',
+      'Doces': 'pizza-doce.jpg',
+      'Massas': 'massa.jpg',
+      'Pastéis de Forno': 'pastel.jpg',
+      'Lasanhas': 'lasanha.jpg',
+      'Calzones': 'calzone.jpg',
+      'Petiscos': 'petisco.jpg',
+      'Bebidas': 'bebida.jpg'
+    };
+
     // Inserir novos produtos
     console.log(`📝 Inserindo ${cardapioData.length} produtos...`);
-    
     for (const produto of cardapioData) {
+      // Gera url da imagem genérica
+      // Mapeamento das imagens do frontend
+      const imagemMap = {
+        'costela': 'pizza_calabresa_onio_8ea1076f.jpg',
+        'calabresa-especial': 'delicious_pepperoni__f6d6fa05.jpg',
+        'carne-de-sol': 'pizza_calabresa_onio_8ea1076f.jpg',
+        'a-moda-do-chefe': 'pizza_calabresa_onio_8ea1076f.jpg',
+        'espanhola': 'delicious_pepperoni__f6d6fa05.jpg',
+        'pepperone': 'delicious_pepperoni__f6d6fa05.jpg',
+        'camarao': 'pizza_frango_com_cat_c5255c4b.jpg',
+        'frango-bolonhesa': 'pizza_frango_com_cat_c5255c4b.jpg',
+        'siciliana': 'pizza_calabresa_onio_8ea1076f.jpg',
+        'nordestina': 'pizza_calabresa_onio_8ea1076f.jpg',
+        'a-sua-moda': 'pizza_calabresa_onio_8ea1076f.jpg',
+        'vegetariana': 'pizza_calabresa_onio_8ea1076f.jpg',
+        // Doces
+        'chocolate-com-morango': 'sweet_pizza_chocolat_b4c83fb7.jpg',
+        'banana-nevada': 'sweet_pizza_chocolat_b4c83fb7.jpg',
+        'cartola': 'sweet_pizza_chocolat_b4c83fb7.jpg',
+        'romeu-e-julieta': 'sweet_pizza_chocolat_b4c83fb7.jpg',
+        'dois-amores': 'sweet_pizza_chocolat_b4c83fb7.jpg',
+        // Frango
+        'frango-c-cream-cheese': 'pizza_frango_com_cat_c5255c4b.jpg',
+        'frango-c-mussarela': 'pizza_frango_com_cat_c5255c4b.jpg',
+        'frango-c-catupiry': 'pizza_frango_com_cat_c5255c4b.jpg',
+        // Default para outros
+      };
+      const imagemFile = imagemMap[produto.id] || 'pizza_calabresa_onio_8ea1076f.jpg';
+      const imagem_url = `/attached_assets/stock_images/${imagemFile}`;
+      // Gera objeto de preços apenas com os campos válidos
+      const precos = {};
+      if (produto.preco_p !== undefined && produto.preco_p !== null) precos.P = produto.preco_p;
+      if (produto.preco_m !== undefined && produto.preco_m !== null) precos.M = produto.preco_m;
+      if (produto.preco_g !== undefined && produto.preco_g !== null) precos.G = produto.preco_g;
+      if (produto.preco_gg !== undefined && produto.preco_gg !== null) precos.GG = produto.preco_gg;
+      if (produto.preco_super !== undefined && produto.preco_super !== null) precos.Super = produto.preco_super;
       const query = `
-        INSERT INTO cardapio (id, nome, descricao, categoria, preco_p, preco_m, preco_g, preco_gg, preco_super, ativo)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-        ON CONFLICT (id) DO UPDATE SET
-          nome = $2,
-          descricao = $3,
-          categoria = $4,
-          preco_p = $5,
-          preco_m = $6,
-          preco_g = $7,
-          preco_gg = $8,
-          preco_super = $9,
-          ativo = $10
+        INSERT INTO cardapio (nome_item, descricao, categoria, precos, disponivel, imagem_url)
+        VALUES ($1, $2, $3, $4, $5, $6)
       `;
-      
+      // Usa 'disponivel' (preferencialmente) ou converte de 'ativo'
+      // Garante que todos os produtos usem apenas 'disponivel'
+      const disponivel = produto.disponivel !== undefined ? produto.disponivel : true;
       await client.query(query, [
-        produto.id,
         produto.nome,
         produto.descricao,
         produto.categoria,
-        produto.preco_p,
-        produto.preco_m,
-        produto.preco_g,
-        produto.preco_gg,
-        produto.preco_super,
-        produto.ativo
+        precos,
+        disponivel,
+        imagem_url
       ]);
     }
+
+    // Popular logomarca na tabela de configurações
+    const logoUrl = 'https://ktbzjpwvzcrzzoacfciv.supabase.co/storage/v1/object/public/imagens-cardapio/1764962741635-r855-advertisement-wilson-pizzas-2022-11.jpg';
+    await client.query(`UPDATE configuracoes SET logo_url = $1 WHERE id = 1`, [logoUrl]);
 
     console.log(`✅ ${cardapioData.length} produtos inseridos com sucesso!`);
 
@@ -157,7 +198,7 @@ async function populateCardapio() {
     const result = await client.query(`
       SELECT categoria, COUNT(*) as total
       FROM cardapio
-      WHERE ativo = true
+      WHERE disponivel = true
       GROUP BY categoria
       ORDER BY categoria
     `);
