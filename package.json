@@ -9,12 +9,12 @@
   "scripts": {
     "dev:client": "vite dev --port 5000",
     "dev": "NODE_ENV=development tsx server/index.ts",
-    "build": "pnpm exec drizzle-kit generate --schema ./shared/schema.ts --dialect postgresql --out ./dist/drizzle && pnpm exec drizzle-kit push && tsx script/build.ts",
+    "build": "npm run drizzle:generate-schema && npm run db:push && tsx script/build.ts",
     "start": "node dist/index.cjs",
     "check": "tsc",
-    "db:push": "pnpm exec drizzle-kit push",
+    "db:push": "npx drizzle-kit push",
     "db:migrate": "npx drizzle-kit push",
-    "drizzle:generate-schema": "pnpm exec drizzle-kit generate --schema ./shared/schema.ts --dialect postgresql --out ./dist/drizzle"
+    "drizzle:generate-schema": "npx drizzle-kit generate --schema ./shared/schema.ts --dialect postgresql --out ./dist/drizzle"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
