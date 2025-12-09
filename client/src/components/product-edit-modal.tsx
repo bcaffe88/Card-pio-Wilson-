@@ -78,7 +78,9 @@ export default function ProductEditModal({
       }
 
       const data = await response.json();
-      setFormData(prev => ({ ...prev, image: data.publicUrl }));
+      // Adiciona timestamp para cache-busting e forçar recarregamento da imagem
+      const imageUrlWithCacheBust = `${data.publicUrl}?t=${Date.now()}`;
+      setFormData(prev => ({ ...prev, image: imageUrlWithCacheBust }));
       
       toast({
         title: "Sucesso!",

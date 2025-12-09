@@ -43,8 +43,14 @@ export default function AdminMenu() {
     // The backend will sync to Supabase table 'cardapio'
     console.log('Saving product to API:', updatedProduct);
     
+    // Adiciona cache-busting na imagem para forçar recarregamento
+    const productWithCacheBust = {
+      ...updatedProduct,
+      image: updatedProduct.image ? `${updatedProduct.image}${updatedProduct.image.includes('?') ? '&' : '?'}t=${Date.now()}` : updatedProduct.image
+    };
+    
     setProducts(products.map(p => 
-      p.id === updatedProduct.id ? updatedProduct : p
+      p.id === updatedProduct.id ? productWithCacheBust : p
     ));
     toast({
       title: "Produto atualizado",
