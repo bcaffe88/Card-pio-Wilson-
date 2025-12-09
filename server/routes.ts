@@ -138,7 +138,7 @@ app.put("/api/cardapio/:id", async (req, res) => {
       // Determinar a condição de busca: por ID (UUID) ou por nome_item (slug)
       const whereCondition = isUUID(id) 
         ? eq(cardapio.id, id) 
-        : eq(sql\`lower(\${cardapio.nome_item})\`, id.toLowerCase());
+        : eq(sql\`lower(${cardapio.nome_item})\`, id.toLowerCase());
 
       const updatedProduct = await db.update(cardapio)
         .set({ ...updateData, updated_at: new Date() })
