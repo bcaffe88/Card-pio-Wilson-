@@ -199,7 +199,7 @@ export default function Home() {
                     <div className="flex flex-col">
                       <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">A partir de</span>
                       <span className="text-lg font-bold text-accent">
-                        R$ {Math.min(...Object.values(item.prices) as number[]).toFixed(2)}
+                        R$ {Math.min(...Object.values(item.prices).filter((p): p is number => typeof p === 'number' && p > 0)).toFixed(2)}
                       </span>
                     </div>
                     
@@ -223,7 +223,7 @@ export default function Home() {
                       <Button 
                         onClick={() => {
                           // Add simple item directly to cart
-                          const minPrice = Math.min(...Object.values(item.prices) as number[]);
+                          const minPrice = Math.min(...Object.values(item.prices).filter((p): p is number => typeof p === 'number' && p > 0));
                           const { addToCart } = useCartStore.getState();
                           addToCart({
                             size: 'M',
