@@ -20,48 +20,10 @@ export default function AdminMenu() {
   const [products, setProducts] = useState<any[]>(MENU_ITEMS.map(item => ({ ...item })));
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch products from database on component mount
+  // Fetch and merge products (hybrid) on component mount
   useEffect(() => {
-    fetchProducts();
+    fetchAndMergeProducts();
   }, []);
-
-  const fetchProducts = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch('/api/cardapio');
-      if (!response.ok) throw new Error('Failed to fetch products');
-      
-      const data = await response.json();
-      
-      // Transform database format to component format
-      const transformedProducts = data.map((item: any) => ({
-        id: item.id,
-        name: item.nome_item,
-        description: item.descricao || '',
-        category: item.categoria,
-        prices: item.precos || {},
-        image: item.imagem_url || '',
-        active: item.disponivel !== false
-      }));
-      
-      setProducts(transformedProducts);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      toast({
-        title: "Erro ao carregar produtos",
-        description: "Não foi possível carregar os produtos do banco de dados.",
-        variant: "destructive"
-      });
-      // Não faz fallback para MENU_ITEMS, apenas mostra erro
-      toast({
-        title: "Erro ao carregar produtos",
-        description: "Não foi possível carregar os produtos do banco de dados.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const filteredItems = products.filter(item => 
     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -84,75 +46,30 @@ export default function AdminMenu() {
         description: updatedProduct.description,
         category: updatedProduct.category,
         prices: updatedProduct.prices,
-        image: updatedProduct.image,
-        active: updatedProduct.active
-      };
-
-      console.log('Saving product to API:', apiPayload);
-      
-      const response = await fetch(`/api/cardapio/${updatedProduct.id}`, {
-        method: 'PUT',
-        useEffect(() => {
-          // Estratégia híbrida: carrega MENU_ITEMS e mescla dados do banco
-          const fetchProducts = async () => {
-            try {
-              setIsLoading(true);
-              const response = await fetch('/api/cardapio');
-              if (!response.ok) throw new Error('Failed to fetch products');
-              const data = await response.json();
-              // Mescla produtos do banco nos locais pelo id
-              setProducts(prev => {
-                let merged = prev.map(localItem => {
-                  const dbItem = data.find((item: any) => item.id === localItem.id || item.nome_item?.toLowerCase() === localItem.name?.toLowerCase());
-                  if (dbItem) {
-                    return {
-                      ...localItem,
-                      // Só sobrescreve se vier do banco
-                      image: dbItem.imagem_url || localItem.image,
-                      description: dbItem.descricao || localItem.description,
-                      prices: dbItem.precos || localItem.prices,
-                      active: dbItem.disponivel !== undefined ? dbItem.disponivel : localItem.active
-                    };
-                  }
-                  return localItem;
-                });
-                // Adiciona produtos do banco que não existem localmente
-                data.forEach((dbItem: any) => {
-                  if (!merged.find(localItem => localItem.id === dbItem.id)) {
-                    merged.push({
-                      id: dbItem.id,
-                      name: dbItem.nome_item,
-                      description: dbItem.descricao || '',
-                      category: dbItem.categoria,
-                      prices: dbItem.precos || {},
-                      image: dbItem.imagem_url || '',
-                      active: dbItem.disponivel !== false
-                    });
-                  }
-                });
-                return merged;
-              });
-            } catch (error) {
-              console.error('Error fetching products:', error);
-              toast({
-                title: "Erro ao carregar produtos",
-                description: "Não foi possível carregar os produtos do banco de dados.",
-                variant: "destructive"
-              });
-            } finally {
-              setIsLoading(false);
-            }
+        try {
+          // Map component format back to API format
+          const apiPayload = {
+            id: updatedProduct.id,
+            name: updatedProduct.name,
+            description: updatedProduct.description,
+            category: updatedProduct.category,
+            prices: updatedProduct.prices,
+            image: updatedProduct.image,
+            active: updatedProduct.active
           };
-          fetchProducts();
-        }, []);
-  const handleDeleteProduct = (productId: string) => {
-    // API call will be: DELETE /api/products/{id}
-    console.log('Deleting product from API:', productId);
-    
-    setProducts(products.filter(p => p.id !== productId));
-    toast({
-      title: "Produto deletado",
-      description: "O produto foi removido do cardápio.",
+
+          console.log('Saving product to API:', apiPayload);
+      
+          const response = await fetch(`/api/cardapio/${updatedProduct.id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(apiPayload),
+          });
+          if (!response.ok) throw new Error('Failed to update product');
+          // After saving, re-fetch and merge products
+          await fetchAndMergeProducts();
       variant: "destructive"
     });
   };
@@ -162,6 +79,55 @@ export default function AdminMenu() {
       setIsSyncing(true);
       await fetchProducts();
       toast({
+
+      // Estratégia híbrida: carrega MENU_ITEMS e mescla dados do banco
+      const fetchAndMergeProducts = async () => {
+        try {
+          setIsLoading(true);
+          const response = await fetch('/api/cardapio');
+          if (!response.ok) throw new Error('Failed to fetch products');
+          const data = await response.json();
+          setProducts(prev => {
+            let merged = prev.map(localItem => {
+              const dbItem = data.find((item: any) => item.id === localItem.id || item.nome_item?.toLowerCase() === localItem.name?.toLowerCase());
+              if (dbItem) {
+                return {
+                  ...localItem,
+                  image: dbItem.imagem_url || localItem.image,
+                  description: dbItem.descricao || localItem.description,
+                  prices: dbItem.precos || localItem.prices,
+                  active: dbItem.disponivel !== undefined ? dbItem.disponivel : localItem.active
+                };
+              }
+              return localItem;
+            });
+            // Adiciona produtos do banco que não existem localmente
+            data.forEach((dbItem: any) => {
+              if (!merged.find(localItem => localItem.id === dbItem.id)) {
+                merged.push({
+                  id: dbItem.id,
+                  name: dbItem.nome_item,
+                  description: dbItem.descricao || '',
+                  category: dbItem.categoria,
+                  prices: dbItem.precos || {},
+                  image: dbItem.imagem_url || '',
+                  active: dbItem.disponivel !== false
+                });
+              }
+            });
+            return merged;
+          });
+        } catch (error) {
+          console.error('Error fetching products:', error);
+          toast({
+            title: "Erro ao carregar produtos",
+            description: "Não foi possível carregar os produtos do banco de dados.",
+            variant: "destructive"
+          });
+        } finally {
+          setIsLoading(false);
+        }
+      };
         title: "Sincronização Concluída",
         description: "Cardápio atualizado com base no banco de dados."
       });
