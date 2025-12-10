@@ -20,7 +20,51 @@ export default function Home() {
   // Derived state for cart count
   const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
-  const filteredItems = MENU_ITEMS.filter(item => {
+  const [hybridItems, setHybridItems] = useState(MENU_ITEMS.map(item => ({ ...item })));
+
+  useEffect(() => {
+    // Estratégia híbrida: carrega MENU_ITEMS e mescla dados do banco
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('/api/cardapio');
+        if (!response.ok) throw new Error('Failed to fetch products');
+        const data = await response.json();
+        setHybridItems(prev => {
+          let merged = prev.map(localItem => {
+            const dbItem = data.find((item: any) => item.id === localItem.id || item.nome_item?.toLowerCase() === localItem.name?.toLowerCase());
+            if (dbItem) {
+              return {
+                ...localItem,
+                image: dbItem.imagem_url || localItem.image,
+                description: dbItem.descricao || localItem.description,
+                prices: dbItem.precos || localItem.prices,
+              };
+            }
+            return localItem;
+          });
+          // Adiciona produtos do banco que não existem localmente
+          data.forEach((dbItem: any) => {
+            if (!merged.find(localItem => localItem.id === dbItem.id)) {
+              merged.push({
+                id: dbItem.id,
+                name: dbItem.nome_item,
+                description: dbItem.descricao || '',
+                category: dbItem.categoria,
+                prices: dbItem.precos || {},
+                image: dbItem.imagem_url || '',
+              });
+            }
+          });
+          return merged;
+        });
+      } catch (error) {
+        // Silencioso, fallback local
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  const filteredItems = hybridItems.filter(item => {
     const matchesCategory = activeCategory === 'Todos' || item.category === activeCategory;
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           item.description.toLowerCase().includes(searchQuery.toLowerCase());

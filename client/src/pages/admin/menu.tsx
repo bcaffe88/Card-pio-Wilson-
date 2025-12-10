@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import AdminLayout from "./layout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -16,7 +17,7 @@ export default function AdminMenu() {
   const [searchTerm, setSearchTerm] = useState("");
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [products, setProducts] = useState<any[]>([]); // Initialize products as an empty array
+  const [products, setProducts] = useState<any[]>(MENU_ITEMS.map(item => ({ ...item })));
   const [isLoading, setIsLoading] = useState(true);
 
   // Fetch products from database on component mount
@@ -91,47 +92,59 @@ export default function AdminMenu() {
       
       const response = await fetch(`/api/cardapio/${updatedProduct.id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(apiPayload)
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save product');
-      }
-
-      const savedProduct = await response.json();
-
-      // Update local state with the response from server (includes cache-busting)
-      const transformedProduct = {
-        id: savedProduct.id,
-        name: savedProduct.nome_item,
-        description: savedProduct.descricao || '',
-        category: savedProduct.categoria,
-        prices: savedProduct.precos || {},
-        image: savedProduct.imagem_url || '',
-        active: savedProduct.disponivel !== false
-      };
-
-      setProducts(products.map(p => 
-        p.id === updatedProduct.id ? transformedProduct : p
-      ));
-
-      toast({
-        title: "Produto atualizado",
-        description: "As alterações foram salvas com sucesso."
-      });
-    } catch (error) {
-      console.error('Error saving product:', error);
-      toast({
-        title: "Erro ao salvar",
-        description: "Não foi possível salvar as alterações do produto.",
-        variant: "destructive"
-      });
-    }
-  };
-
+        useEffect(() => {
+          // Estratégia híbrida: carrega MENU_ITEMS e mescla dados do banco
+          const fetchProducts = async () => {
+            try {
+              setIsLoading(true);
+              const response = await fetch('/api/cardapio');
+              if (!response.ok) throw new Error('Failed to fetch products');
+              const data = await response.json();
+              // Mescla produtos do banco nos locais pelo id
+              setProducts(prev => {
+                let merged = prev.map(localItem => {
+                  const dbItem = data.find((item: any) => item.id === localItem.id || item.nome_item?.toLowerCase() === localItem.name?.toLowerCase());
+                  if (dbItem) {
+                    return {
+                      ...localItem,
+                      // Só sobrescreve se vier do banco
+                      image: dbItem.imagem_url || localItem.image,
+                      description: dbItem.descricao || localItem.description,
+                      prices: dbItem.precos || localItem.prices,
+                      active: dbItem.disponivel !== undefined ? dbItem.disponivel : localItem.active
+                    };
+                  }
+                  return localItem;
+                });
+                // Adiciona produtos do banco que não existem localmente
+                data.forEach((dbItem: any) => {
+                  if (!merged.find(localItem => localItem.id === dbItem.id)) {
+                    merged.push({
+                      id: dbItem.id,
+                      name: dbItem.nome_item,
+                      description: dbItem.descricao || '',
+                      category: dbItem.categoria,
+                      prices: dbItem.precos || {},
+                      image: dbItem.imagem_url || '',
+                      active: dbItem.disponivel !== false
+                    });
+                  }
+                });
+                return merged;
+              });
+            } catch (error) {
+              console.error('Error fetching products:', error);
+              toast({
+                title: "Erro ao carregar produtos",
+                description: "Não foi possível carregar os produtos do banco de dados.",
+                variant: "destructive"
+              });
+            } finally {
+              setIsLoading(false);
+            }
+          };
+          fetchProducts();
+        }, []);
   const handleDeleteProduct = (productId: string) => {
     // API call will be: DELETE /api/products/{id}
     console.log('Deleting product from API:', productId);
