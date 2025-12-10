@@ -24,12 +24,12 @@ requireAdminAuth - Middleware Express que:
 
 ### 2. Endpoints Protegidos
 
-| Endpoint | Método | Proteção | Antes |
-|----------|--------|----------|--------|
-| /api/configuracoes | PUT | ✅ requireAdminAuth | ❌ Aberto |
-| /api/cardapio/:id | PUT | ✅ requireAdminAuth | ❌ Aberto |
-| /api/pedidos/:id/status | PUT | ✅ requireAdminAuth | ❌ Aberto |
-| /api/admin/pedidos | GET | ✅ requireAdminAuth | ❌ Aberto |
+| Endpoint                | Método | Proteção           | Antes    |
+| ----------------------- | ------ | ------------------ | -------- |
+| /api/configuracoes      | PUT    | ✅ requireAdminAuth | ❌ Aberto |
+| /api/cardapio/:id       | PUT    | ✅ requireAdminAuth | ❌ Aberto |
+| /api/pedidos/:id/status | PUT    | ✅ requireAdminAuth | ❌ Aberto |
+| /api/admin/pedidos      | GET    | ✅ requireAdminAuth | ❌ Aberto |
 
 ### 3. Utilidades Frontend (`client/src/lib/admin-auth.ts`)
 
@@ -151,11 +151,11 @@ const response = await fetchWithAuth("/api/configuracoes", {
 
 ### Segurança
 
-| Aspecto | Antes | Depois |
-|---------|-------|--------|
-| Acesso a admin | Sem restrição | Requer senha |
-| Modificação menu | Sem autenticação | Protegido com middleware |
-| Alteração pedidos | Sem autenticação | Protegido com middleware |
+| Aspecto                 | Antes            | Depois                   |
+| ----------------------- | ---------------- | ------------------------ |
+| Acesso a admin          | Sem restrição    | Requer senha             |
+| Modificação menu        | Sem autenticação | Protegido com middleware |
+| Alteração pedidos       | Sem autenticação | Protegido com middleware |
 | Alteração configurações | Sem autenticação | Protegido com middleware |
 
 ### Performance

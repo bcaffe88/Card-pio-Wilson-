@@ -18,6 +18,7 @@ export interface Order {
   created_at?: string;
   paymentMethod: string;
   forma_pagamento?: string;
+  endereco_entrega?: any;
   viewed: boolean;
   viewed_?: boolean;
 }
@@ -92,6 +93,7 @@ export const useAdminStore = create<AdminState>()(
               status: order.status || 'pending',
               createdAt: order.created_at || new Date().toISOString(),
               paymentMethod: order.forma_pagamento || 'Indefinido',
+              endereco_entrega: order.endereco_entrega || {},
               viewed: order.viewed || false
             }));
             set({ orders: transformedOrders });

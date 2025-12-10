@@ -82,26 +82,26 @@
 ## 📊 Estatísticas de Código
 
 ### Arquivos Criados
-| Arquivo | Linhas | Tipo | Status |
-|---------|--------|------|--------|
-| server/webhook-service.ts | 48 | TypeScript | ✅ |
-| server/whatsapp-service.ts | 33 | TypeScript | ✅ |
-| server/auth-middleware.ts | 54 | TypeScript | ✅ |
-| client/src/lib/admin-auth.ts | 68 | TypeScript | ✅ |
-| client/src/components/admin-login-modal.tsx | 104 | TypeScript/React | ✅ |
-| **Documentação** | **500+** | Markdown | ✅ |
+| Arquivo                                     | Linhas   | Tipo             | Status |
+| ------------------------------------------- | -------- | ---------------- | ------ |
+| server/webhook-service.ts                   | 48       | TypeScript       | ✅      |
+| server/whatsapp-service.ts                  | 33       | TypeScript       | ✅      |
+| server/auth-middleware.ts                   | 54       | TypeScript       | ✅      |
+| client/src/lib/admin-auth.ts                | 68       | TypeScript       | ✅      |
+| client/src/components/admin-login-modal.tsx | 104      | TypeScript/React | ✅      |
+| **Documentação**                            | **500+** | Markdown         | ✅      |
 
 **Total:** 5 arquivos TypeScript + 8 docs markdown
 
 ### Arquivos Modificados
-| Arquivo | Mudanças | Status |
-|---------|----------|--------|
-| shared/schema.ts | Commented out 5 fields | ✅ |
-| client/src/components/cart-drawer.tsx | Fixed address + validation | ✅ |
-| client/src/lib/admin-store.ts | Removed duplicate property | ✅ |
-| client/src/pages/admin/settings.tsx | Removed non-existent fields | ✅ |
-| server/routes.ts | Protected 4 endpoints + imports | ✅ |
-| INDEX.md | Updated references | ✅ |
+| Arquivo                               | Mudanças                        | Status |
+| ------------------------------------- | ------------------------------- | ------ |
+| shared/schema.ts                      | Commented out 5 fields          | ✅      |
+| client/src/components/cart-drawer.tsx | Fixed address + validation      | ✅      |
+| client/src/lib/admin-store.ts         | Removed duplicate property      | ✅      |
+| client/src/pages/admin/settings.tsx   | Removed non-existent fields     | ✅      |
+| server/routes.ts                      | Protected 4 endpoints + imports | ✅      |
+| INDEX.md                              | Updated references              | ✅      |
 
 **Total:** 6 arquivos modificados
 
@@ -141,26 +141,26 @@
 ## 📈 Issues Corrigidos
 
 ### CRITICAL Issues (8 Total)
-| # | Issue | Status | File | Commit |
-|---|-------|--------|------|--------|
-| 1 | Address structure mismatch | ✅ FIXED | cart-drawer.tsx | b0c9457 |
-| 2 | Duplicate orders property | ✅ FIXED | admin-store.ts | b0c9457 |
-| 3 | Parameter naming mismatch | ✅ FIXED | routes.ts | b0c9457 |
-| 4 | Settings form crash | ✅ FIXED | settings.tsx | b0c9457 |
-| 5 | No delivery validation | ✅ FIXED | cart-drawer.tsx | b0c9457 |
-| 6 | Total field type error | ✅ FIXED | routes.ts | b0c9457 |
-| 7 | **No admin authentication** | ✅ FIXED | routes.ts | 3b6303e |
-| 8 | Webhook infrastructure | ✅ FIXED | webhook-service.ts | b0c9457 |
+| #   | Issue                       | Status  | File               | Commit  |
+| --- | --------------------------- | ------- | ------------------ | ------- |
+| 1   | Address structure mismatch  | ✅ FIXED | cart-drawer.tsx    | b0c9457 |
+| 2   | Duplicate orders property   | ✅ FIXED | admin-store.ts     | b0c9457 |
+| 3   | Parameter naming mismatch   | ✅ FIXED | routes.ts          | b0c9457 |
+| 4   | Settings form crash         | ✅ FIXED | settings.tsx       | b0c9457 |
+| 5   | No delivery validation      | ✅ FIXED | cart-drawer.tsx    | b0c9457 |
+| 6   | Total field type error      | ✅ FIXED | routes.ts          | b0c9457 |
+| 7   | **No admin authentication** | ✅ FIXED | routes.ts          | 3b6303e |
+| 8   | Webhook infrastructure      | ✅ FIXED | webhook-service.ts | b0c9457 |
 
 ### HIGH Issues (12 Total)
-| # | Issue | Status | Time Est. |
-|---|-------|--------|-----------|
-| 1 | Missing checkout validation | ✅ FIXED | Done |
-| 2 | Hardcoded phone number | ⏳ TODO | 0.5h |
-| 3 | Admin store sync issues | ✅ FIXED | Done |
-| 4 | No pagination on orders API | ⏳ TODO | 1h |
-| 5 | Missing validation in PUT cardápio | ⏳ TODO | 1h |
-| 6-12 | (Others) | ⏳ TODO | ~4h |
+| #    | Issue                              | Status  | Time Est. |
+| ---- | ---------------------------------- | ------- | --------- |
+| 1    | Missing checkout validation        | ✅ FIXED | Done      |
+| 2    | Hardcoded phone number             | ⏳ TODO  | 0.5h      |
+| 3    | Admin store sync issues            | ✅ FIXED | Done      |
+| 4    | No pagination on orders API        | ⏳ TODO  | 1h        |
+| 5    | Missing validation in PUT cardápio | ⏳ TODO  | 1h        |
+| 6-12 | (Others)                           | ⏳ TODO  | ~4h       |
 
 ---
 
@@ -264,17 +264,17 @@ b0c9457 - fix: add webhook and whatsapp services, validate delivery address
 
 ## 📚 Documentação Criada
 
-| Arquivo | Páginas | Cobertura |
-|---------|---------|-----------|
-| CODE_AUDIT_REPORT.md | 15 | All 29 issues |
-| CRITICAL_FIXES.md | 12 | 8 critical issues |
-| AUDIT_SUMMARY.md | 8 | Executive summary |
-| IMPLEMENTATION_CHECKLIST.md | 6 | Task tracking |
-| QUICK_REFERENCE.md | 4 | Quick lookup |
-| VISUAL_SUMMARY.md | 8 | Charts & graphs |
-| AUTHENTICATION.md | 3 | Auth system |
-| SECURITY_IMPROVEMENTS.md | 8 | Security details |
-| AUTHENTICATION_IMPLEMENTATION_REPORT.md | 10 | This sprint |
+| Arquivo                                 | Páginas | Cobertura         |
+| --------------------------------------- | ------- | ----------------- |
+| CODE_AUDIT_REPORT.md                    | 15      | All 29 issues     |
+| CRITICAL_FIXES.md                       | 12      | 8 critical issues |
+| AUDIT_SUMMARY.md                        | 8       | Executive summary |
+| IMPLEMENTATION_CHECKLIST.md             | 6       | Task tracking     |
+| QUICK_REFERENCE.md                      | 4       | Quick lookup      |
+| VISUAL_SUMMARY.md                       | 8       | Charts & graphs   |
+| AUTHENTICATION.md                       | 3       | Auth system       |
+| SECURITY_IMPROVEMENTS.md                | 8       | Security details  |
+| AUTHENTICATION_IMPLEMENTATION_REPORT.md | 10      | This sprint       |
 
 **Total:** 74+ páginas de documentação
 

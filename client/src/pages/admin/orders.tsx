@@ -112,6 +112,17 @@ export default function AdminOrders() {
             </div>
           ))}
         </div>
+        
+        {/* Exibir endereço se for entrega */}
+        {order.endereco_entrega && order.endereco_entrega.rua && (
+          <div className="mt-3 text-xs p-2 rounded bg-blue-500/10 border border-blue-500/20 text-blue-600">
+            <div className="font-semibold mb-1">📍 Entrega:</div>
+            <div>{order.endereco_entrega.rua}, {order.endereco_entrega.numero}</div>
+            {order.endereco_entrega.bairro && <div>{order.endereco_entrega.bairro}</div>}
+            {order.endereco_entrega.complemento && <div className="text-xs italic mt-1">{order.endereco_entrega.complemento}</div>}
+          </div>
+        )}
+        
         <div className="mt-3 text-xs font-medium text-muted-foreground bg-secondary/50 p-2 rounded">
           Pagamento: {order.paymentMethod}
         </div>

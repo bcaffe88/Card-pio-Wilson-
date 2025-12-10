@@ -14,7 +14,7 @@ import { SIZES, CRUST_OPTIONS, EDGE_OPTIONS } from "@/data/menu";
 // import { useAdminStore } from "@/lib/admin-store"; 
 
 export function CartDrawer() {
-  const { items, isCartOpen, toggleCart, removeFromCart, updateQuantity } = useCartStore();
+  const { items, isCartOpen, toggleCart, removeFromCart, updateQuantity, clearCart } = useCartStore();
   const [step, setStep] = useState<'cart' | 'checkout'>('cart');
   
   // Checkout State
@@ -163,6 +163,8 @@ ${notes ? `*📝 OBSERVAÇÕES:* ${notes}` : ''}
 
       if (response.ok) {
         console.log('✅ Pedido salvo no banco de dados');
+        // Limpar carrinho após salvar com sucesso
+        clearCart();
       } else {
         console.warn('⚠️ Aviso: Pedido não foi salvo no banco, mas será enviado para WhatsApp');
       }
@@ -174,6 +176,10 @@ ${notes ? `*📝 OBSERVAÇÕES:* ${notes}` : ''}
     // Abrir WhatsApp DEPOIS de salvar
     const encodedMessage = encodeURIComponent(message);
     window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
+    
+    // Fechar o drawer após enviar para WhatsApp
+    toggleCart(false);
+    setStep('cart');
   };
 
   return (
