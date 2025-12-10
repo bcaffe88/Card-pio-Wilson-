@@ -6,6 +6,7 @@ import { z } from "zod";
 // CARDÁPIO
 export const cardapio = pgTable("cardapio", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  item_id: varchar("item_id").unique(), // ID do MENU_ITEMS para merge
   nome_item: text("nome_item").notNull(),
   categoria: text("categoria").notNull(),
   descricao: text("descricao"),

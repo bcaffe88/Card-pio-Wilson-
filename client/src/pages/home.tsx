@@ -30,15 +30,17 @@ export default function Home() {
         if (!response.ok) throw new Error('Failed to fetch products');
         const data = await response.json();
         
-        // Cria um mapa de MENU_ITEMS para fácil lookup
+        // Cria um mapa de MENU_ITEMS para fácil lookup usando item_id
         const menuItemsMap = new Map(MENU_ITEMS.map(item => [item.id, item]));
         
         // Transforma produtos do banco e enriquece com dados do MENU_ITEMS local
         const transformed = data.map((dbItem: any) => {
-          const localItem = menuItemsMap.get(dbItem.id);
+          // Usa item_id para lookup no MENU_ITEMS
+          const localItem = menuItemsMap.get(dbItem.item_id);
           
           return {
-            id: dbItem.id,
+            id: dbItem.id, // UUID do banco para operações
+            itemId: dbItem.item_id, // ID do MENU_ITEMS para merge
             name: dbItem.nome_item,
             description: dbItem.descricao || localItem?.description || '',
             category: dbItem.categoria,
