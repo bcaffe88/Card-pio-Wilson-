@@ -18,48 +18,29 @@ export default function AdminMenu() {
   const [searchTerm, setSearchTerm] = useState("");
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [products, setProducts] = useState<any[]>(MENU_ITEMS.map(item => ({ ...item })));
+  const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Estratégia híbrida: carrega MENU_ITEMS e mescla dados do banco
+  // Estratégia SIMPLES: carrega APENAS do banco de dados (Railway)
   const fetchAndMergeProducts = async () => {
     try {
       setIsLoading(true);
       const response = await fetch('/api/cardapio');
       if (!response.ok) throw new Error('Failed to fetch products');
       const data = await response.json();
-      setProducts(prev => {
-        let merged = prev.map(localItem => {
-          const dbItem = data.find((item: any) => item.id === localItem.id || item.nome_item?.toLowerCase() === localItem.name?.toLowerCase());
-          if (dbItem) {
-            return {
-              ...localItem,
-              id: dbItem.id, // ✅ CRÍTICO: Substituir slug pelo UUID do banco
-              name: dbItem.nome_item, // ✅ Garantir nome do banco
-              image: dbItem.imagem_url || localItem.image,
-              description: dbItem.descricao || localItem.description,
-              prices: dbItem.precos || localItem.prices,
-              active: dbItem.disponivel !== undefined ? dbItem.disponivel : localItem.active
-            };
-          }
-          return localItem;
-        });
-        // Adiciona produtos do banco que não existem localmente
-        data.forEach((dbItem: any) => {
-          if (!merged.find(localItem => localItem.id === dbItem.id)) {
-            merged.push({
-              id: dbItem.id,
-              name: dbItem.nome_item,
-              description: dbItem.descricao || '',
-              category: dbItem.categoria,
-              prices: dbItem.precos || {},
-              image: dbItem.imagem_url || '',
-              active: dbItem.disponivel !== false
-            });
-          }
-        });
-        return merged;
-      });
+      
+      // Transforma produtos do banco para formato do frontend
+      const transformed = data.map((dbItem: any) => ({
+        id: dbItem.id,
+        name: dbItem.nome_item,
+        description: dbItem.descricao || '',
+        category: dbItem.categoria,
+        prices: dbItem.precos || {},
+        image: dbItem.imagem_url || '',
+        active: dbItem.disponivel !== false
+      }));
+      
+      setProducts(transformed);
     } catch (error) {
       console.error('Error fetching products:', error);
       toast({
@@ -67,12 +48,14 @@ export default function AdminMenu() {
         description: "Não foi possível carregar os produtos do banco de dados.",
         variant: "destructive"
       });
+      // Fallback para MENU_ITEMS apenas se banco falhar
+      setProducts(MENU_ITEMS.map(item => ({ ...item })));
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Fetch and merge products (hybrid) on component mount
+  // Fetch products on component mount
   useEffect(() => {
     fetchAndMergeProducts();
   }, []);

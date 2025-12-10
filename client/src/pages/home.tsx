@@ -20,45 +20,32 @@ export default function Home() {
   // Derived state for cart count
   const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
-  const [hybridItems, setHybridItems] = useState(MENU_ITEMS.map(item => ({ ...item })));
+  const [hybridItems, setHybridItems] = useState<any[]>([]);
 
   useEffect(() => {
-    // Estratégia híbrida: carrega MENU_ITEMS e mescla dados do banco
+    // Estratégia SIMPLES: carrega APENAS do banco de dados (Railway)
     const fetchProducts = async () => {
       try {
         const response = await fetch('/api/cardapio');
         if (!response.ok) throw new Error('Failed to fetch products');
         const data = await response.json();
-        setHybridItems(prev => {
-          let merged = prev.map(localItem => {
-            const dbItem = data.find((item: any) => item.id === localItem.id || item.nome_item?.toLowerCase() === localItem.name?.toLowerCase());
-            if (dbItem) {
-              return {
-                ...localItem,
-                image: dbItem.imagem_url || localItem.image,
-                description: dbItem.descricao || localItem.description,
-                prices: dbItem.precos || localItem.prices,
-              };
-            }
-            return localItem;
-          });
-          // Adiciona produtos do banco que não existem localmente
-          data.forEach((dbItem: any) => {
-            if (!merged.find(localItem => localItem.id === dbItem.id)) {
-              merged.push({
-                id: dbItem.id,
-                name: dbItem.nome_item,
-                description: dbItem.descricao || '',
-                category: dbItem.categoria,
-                prices: dbItem.precos || {},
-                image: dbItem.imagem_url || '',
-              });
-            }
-          });
-          return merged;
-        });
+        
+        // Transforma produtos do banco para formato do frontend
+        const transformed = data.map((dbItem: any) => ({
+          id: dbItem.id,
+          name: dbItem.nome_item,
+          description: dbItem.descricao || '',
+          category: dbItem.categoria,
+          prices: dbItem.precos || {},
+          image: dbItem.imagem_url || '',
+          active: dbItem.disponivel !== false
+        }));
+        
+        setHybridItems(transformed);
       } catch (error) {
-        // Silencioso, fallback local
+        console.error('Error fetching products:', error);
+        // Fallback para MENU_ITEMS apenas se banco falhar
+        setHybridItems(MENU_ITEMS.map(item => ({ ...item })));
       }
     };
     fetchProducts();
