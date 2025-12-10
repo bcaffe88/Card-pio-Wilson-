@@ -1,7 +1,22 @@
-  Vou verificar a configuração do seu repositório local para confirmar o remote e o último commit.
-✦ Peço desculpas, o comando falhou. Vou tentar os comandos separadamente. Primeiro, vou verificar o remote.
-╭────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮│ ✓  Shell git remote -v [current working directory C:\Users\pc\Documents\bmad\MenuOnline] (Checking the configured remote repo… ││                                                                                                                                ││ gitsafe-backup  git://gitsafe:5418/backup.git (fetch)                                                                          ││ gitsafe-backup  git://gitsafe:5418/backup.git (push)                                                                           ││ origin  https://github.com/bcaffe88/Card-pio-Wilson-.git (fetch)                                                               ││ origin  https://github.com/bcaffe88/Card-pio-Wilson-.git (push)                                                                │╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-✦ Ok, o remote origin está configurado corretamente para o seu repositório no GitHub.
+✘ [ERROR] Syntax error "`"
+    server/routes.ts:145:17:
+      145 │         : eq(sql\`lower(${cardapio.nome_item})\`, id.toLowerCase());
+          ╵                  ^
+1 error
+Error: Build failed with 1 error:
 
-  Agora, vou verificar o último commit local.
-╭────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮│ ✓  Shell git log -n 1 [current working directory C:\Users\pc\Documents\bmad\MenuOnline] (Checking the last local commit.)      ││                                                                                                                                ││ commit e8d297aa800e9ba730bea5e941e5931d0e49d5a9 (HEAD -> main)                                                                 ││ Author: bcaffe88 <bruno.caffe@gmail.com>                                                                                       ││ Date:   Thu Dec 4 15:44:16 2025 -0300                                                                                          ││                                                                                                                                ││     feat: Persiste alterações do painel admin no banco de dados                                                                ││                                                                                                                                ││     - Implementa endpoints GET e PUT para /api/configuracoes, permitindo carregar e salvar as configurações do rest            ││ aurante.                                                                                                                       ││                                                                                                                                ││     - Implementa o endpoint PUT /api/cardapio/:id para atualizar os dados de um produto.                                       ││                                                                                                                                ││     - Conecta o frontend do painel de admin (/admin/settings e /admin/menu) a esses endpoints.                                 ││                                                                                                                                ││     - As alterações de logo, informações do restaurante e detalhes dos produtos agora são carregadas e salvas perma            ││ nentemente no banco de dados.   
+server/routes.ts:145:17: ERROR: Syntax error "`"
+    at failureErrorWithLog (/app/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:1467:15)
+    at /app/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:926:25
+    at /app/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:878:52
+    at buildResponseToResult (/app/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:924:7)
+    at /app/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:951:16
+    at responseCallbacks.<computed> (/app/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:603:9)
+    at handleIncomingPacket (/app/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:658:12)
+    at Socket.readFromStdout (/app/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:581:7)
+    at Socket.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12) {
+  errors: [Getter/Setter],
+  warnings: [Getter/Setter]
+}
+Build Failed: build daemon returned an error < failed to solve: process "/bin/bash -ol pipefail -c npm run build" did not complete successfully: exit code: 1 >
