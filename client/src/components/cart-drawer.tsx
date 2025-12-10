@@ -25,7 +25,7 @@ export function CartDrawer() {
   const [address, setAddress] = useState(''); // New address state
 
   // Mock Restaurant Address (In real app, get from AdminStore)
-  const restaurantAddress = "Rua Principal, 123, Centro - Ouricuri/PE";
+  const restaurantAddress = "Av. Antônio Pedro da Silva, 555, Centro, Ouricuri-PE";
 
   const total = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
