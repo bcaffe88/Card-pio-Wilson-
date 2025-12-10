@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { fetchWithAuth } from "@/lib/admin-auth";
 import { Trash2, Upload, Loader2 } from "lucide-react";
 
 interface Product {
@@ -112,9 +113,8 @@ export default function ProductEditModal({
         active: formData.active
       };
 
-      const response = await fetch(`/api/cardapio/${formData.id}`, {
+      const response = await fetchWithAuth(`/api/cardapio/${formData.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(apiPayload),
       });
 
