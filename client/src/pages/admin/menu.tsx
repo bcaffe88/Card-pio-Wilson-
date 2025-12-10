@@ -160,40 +160,37 @@ export default function AdminMenu() {
             </Button>
             <Button className="flex-1 md:flex-none">
               <Plus className="w-4 h-4 mr-2" />
-              Novo Produto
-            </Button>
-          </div>
-        </div>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex justify-between items-center">
-              <CardTitle>Produtos Cadastrados</CardTitle>
-              <Input 
-                placeholder="Buscar produto..." 
-                className="max-w-xs" 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="rounded-md border">
-              {filteredItems.length === 0 ? (
-                <div className="p-8 text-center text-muted-foreground">
-                  Nenhum produto cadastrado.
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[80px]">Imagem</TableHead>
-                      <TableHead>Nome</TableHead>
-                      <TableHead>Categoria</TableHead>
-                      <TableHead>Preço Base (G)</TableHead>
-                      <TableHead className="text-right">Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
+              try {
+                // Map component format back to API format
+                const apiPayload = {
+                  id: updatedProduct.id,
+                  name: updatedProduct.name,
+                  description: updatedProduct.description,
+                  category: updatedProduct.category,
+                  prices: updatedProduct.prices,
+                  image: updatedProduct.image,
+                  active: updatedProduct.active
+                };
+                console.log('Saving product to API:', apiPayload);
+                const response = await fetch(`/api/cardapio/${updatedProduct.id}`, {
+                  method: 'PUT',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(apiPayload),
+                });
+                if (!response.ok) throw new Error('Failed to update product');
+                // After saving, re-fetch and merge products
+                await fetchAndMergeProducts();
+              } catch (error) {
+                console.error('Error saving product:', error);
+                toast({
+                  title: "Erro ao salvar produto",
+                  description: "Não foi possível salvar o produto.",
+                  variant: "destructive"
+                });
+              }
+            };
                   <TableBody>
                     {filteredItems.map((item) => (
                       item && (
