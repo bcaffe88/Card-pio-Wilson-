@@ -104,40 +104,37 @@ export default function AdminMenu() {
             // Adiciona produtos do banco que não existem localmente
             data.forEach((dbItem: any) => {
               if (!merged.find(localItem => localItem.id === dbItem.id)) {
-                merged.push({
-                  id: dbItem.id,
-                  name: dbItem.nome_item,
-                  description: dbItem.descricao || '',
-                  category: dbItem.categoria,
-                  prices: dbItem.precos || {},
-                  image: dbItem.imagem_url || '',
-                  active: dbItem.disponivel !== false
-                });
-              }
-            });
-            return merged;
-          });
-        } catch (error) {
-          console.error('Error fetching products:', error);
-          toast({
-            title: "Erro ao carregar produtos",
-            description: "Não foi possível carregar os produtos do banco de dados.",
-            variant: "destructive"
-          });
-        } finally {
-          setIsLoading(false);
-        }
-      };
-        title: "Sincronização Concluída",
-        description: "Cardápio atualizado com base no banco de dados."
-      });
-    } catch (error) {
-      console.error('Error syncing:', error);
-      toast({
-        title: "Erro na sincronização",
-        description: "Não foi possível sincronizar o cardápio.",
-        variant: "destructive"
-      });
+                try {
+                  // Map component format back to API format
+                  const apiPayload = {
+                    id: updatedProduct.id,
+                    name: updatedProduct.name,
+                    description: updatedProduct.description,
+                    category: updatedProduct.category,
+                    prices: updatedProduct.prices,
+                    image: updatedProduct.image,
+                    active: updatedProduct.active
+                  };
+                  console.log('Saving product to API:', apiPayload);
+                  const response = await fetch(`/api/cardapio/${updatedProduct.id}`, {
+                    method: 'PUT',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(apiPayload),
+                  });
+                  if (!response.ok) throw new Error('Failed to update product');
+                  // After saving, re-fetch and merge products
+                  await fetchAndMergeProducts();
+                } catch (error) {
+                  console.error('Error saving product:', error);
+                  toast({
+                    title: "Erro ao salvar produto",
+                    description: "Não foi possível salvar o produto.",
+                    variant: "destructive"
+                  });
+                }
+              };
     } finally {
       setIsSyncing(false);
     }
