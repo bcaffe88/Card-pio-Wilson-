@@ -18,7 +18,7 @@ interface MassasBuilderProps {
 
 export function MassasBuilder({ isOpen, item, onClose }: MassasBuilderProps) {
   const { addToCart } = useCartStore();
-  const [selectedMolho, setSelectedMolho] = useState<string>('molho-tomate');
+  const [selectedMolho, setSelectedMolho] = useState<string>('molho-vermelho');
   const [selectedIngredientes, setSelectedIngredientes] = useState<string[]>([]);
   const [quantity, setQuantity] = useState(1);
 
