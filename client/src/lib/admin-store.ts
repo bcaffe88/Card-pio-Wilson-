@@ -45,7 +45,7 @@ interface AdminState {
   // Orders
   orders: Order[];
   loadOrdersFromAPI: () => Promise<void>;
-  updateOrderStatus: (id: string, status: OrderStatus) => void;
+  updateOrderStatus: (id: string, status: OrderStatus) => Promise<void>;
   markOrderAsViewed: (id: string) => void;
   getUnviewedOrdersCount: () => number;
 }
@@ -105,9 +105,31 @@ export const useAdminStore = create<AdminState>()(
         }
       },
 
-      updateOrderStatus: (id, status) => set((state) => ({
-        orders: state.orders.map(o => o.id === id ? { ...o, status } : o)
-      })),
+      updateOrderStatus: async (id, status) => {
+        try {
+          // Importar fetchWithAuth para fazer requisição autenticada
+          const { fetchWithAuth } = await import('./admin-auth');
+          
+          const response = await fetchWithAuth(`/api/pedidos/${id}/status`, {
+            method: 'PUT',
+            body: JSON.stringify({ status }),
+          });
+
+          if (!response.ok) {
+            console.error('Erro ao atualizar status do pedido');
+            return;
+          }
+
+          // Atualizar estado local após sucesso
+          set((state) => ({
+            orders: state.orders.map(o => o.id === id ? { ...o, status } : o)
+          }));
+
+          console.log(`✅ Pedido ${id} atualizado para ${status}`);
+        } catch (error) {
+          console.error('Erro ao atualizar status:', error);
+        }
+      },
       markOrderAsViewed: (id) => set((state) => ({
         orders: state.orders.map(o => o.id === id ? { ...o, viewed: true } : o)
       })),

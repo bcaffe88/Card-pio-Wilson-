@@ -64,8 +64,8 @@ export default function AdminOrders() {
     }
   };
 
-  const handleStatusChange = (id: string, newStatus: OrderStatus) => {
-    updateOrderStatus(id, newStatus);
+  const handleStatusChange = async (id: string, newStatus: OrderStatus) => {
+    await updateOrderStatus(id, newStatus);
     toast({
       title: "Status Atualizado",
       description: `Pedido ${id} alterado para ${getStatusLabel(newStatus)}`

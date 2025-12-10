@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { MENU_ITEMS } from "@/data/menu";
 import { RefreshCw, Plus, Edit, Trash } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { fetchWithAuth } from "@/lib/admin-auth";
 import ProductEditModal from "@/components/product-edit-modal";
 
 export default function AdminMenu() {
@@ -86,11 +87,8 @@ export default function AdminMenu() {
 
       console.log('Saving product to API:', apiPayload);
 
-      const response = await fetch(`/api/cardapio/${updatedProduct.id}`, {
+      const response = await fetchWithAuth(`/api/cardapio/${updatedProduct.id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(apiPayload),
       });
       if (!response.ok) throw new Error('Failed to update product');
