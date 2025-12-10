@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -23,13 +23,32 @@ export function CartDrawer() {
   const [changeFor, setChangeFor] = useState('');
   const [notes, setNotes] = useState('');
   const [address, setAddress] = useState(''); // New address state
+  const [restaurantAddress, setRestaurantAddress] = useState("Av. Antônio Pedro da Silva, 555, Centro, Ouricuri-PE");
 
-  // Mock Restaurant Address (In real app, get from AdminStore)
-  const restaurantAddress = "Av. Antônio Pedro da Silva, 555, Centro, Ouricuri-PE";
+  // ✅ Carregar endereço do restaurante do banco de dados
+  useEffect(() => {
+    const loadRestaurantAddress = async () => {
+      try {
+        const response = await fetch('/api/configuracoes');
+        if (response.ok) {
+          const config = await response.json();
+          // config é um objeto, não um array
+          if (config?.endereco) {
+            setRestaurantAddress(config.endereco);
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao carregar configurações:', error);
+        // Continuar com valor padrão se falhar
+        setRestaurantAddress("Av. Antônio Pedro da Silva, 555, Centro, Ouricuri-PE");
+      }
+    };
+    loadRestaurantAddress();
+  }, []);
 
   const total = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     const phoneNumber = "5587999480699";
     
     const itemsList = items.map(item => {
@@ -92,6 +111,49 @@ ${notes ? `*📝 OBSERVAÇÕES:* ${notes}` : ''}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
     `.trim();
 
+    // Salvar pedido no banco ANTES de abrir WhatsApp
+    try {
+      const itensFormatados = items.map(item => ({
+        produto_nome: item.flavors[0]?.name || 'Item',
+        categoria: item.category || item.flavors[0]?.category || 'Sem categoria',
+        tamanho: item.size || 'M',
+        sabores: item.flavors.map(f => f.name).join(', '),
+        quantidade: item.quantity,
+        preco_unitario: item.price,
+        observacoes: item.notes || '',
+      }));
+
+      const pedidoData = {
+        cliente_nome: 'Cliente WhatsApp',
+        cliente_telefone: phoneNumber.replace(/\D/g, ''),
+        cliente_email: '',
+        itens: itensFormatados,
+        endereco: {
+          rua: address.split(',')[0] || 'Endereço do cliente',
+          numero: '0',
+          completo: address || 'A confirmar com cliente'
+        },
+        forma_pagamento: paymentFormatted,
+        observacoes: notes || 'Pedido enviado via WhatsApp'
+      };
+
+      const response = await fetch('/api/pedidos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pedidoData)
+      });
+
+      if (response.ok) {
+        console.log('✅ Pedido salvo no banco de dados');
+      } else {
+        console.warn('⚠️ Aviso: Pedido não foi salvo no banco, mas será enviado para WhatsApp');
+      }
+    } catch (error) {
+      console.error('❌ Erro ao salvar pedido:', error);
+      // Continuar mesmo se falhar, pois o pedido será enviado por WhatsApp
+    }
+
+    // Abrir WhatsApp DEPOIS de salvar
     const encodedMessage = encodeURIComponent(message);
     window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
   };
