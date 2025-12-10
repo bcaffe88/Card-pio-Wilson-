@@ -1,4 +1,5 @@
 
+
 import { useState, useEffect } from "react";
 import AdminLayout from "./layout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -19,6 +20,55 @@ export default function AdminMenu() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [products, setProducts] = useState<any[]>(MENU_ITEMS.map(item => ({ ...item })));
   const [isLoading, setIsLoading] = useState(true);
+
+  // Estratégia híbrida: carrega MENU_ITEMS e mescla dados do banco
+  const fetchAndMergeProducts = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/cardapio');
+      if (!response.ok) throw new Error('Failed to fetch products');
+      const data = await response.json();
+      setProducts(prev => {
+        let merged = prev.map(localItem => {
+          const dbItem = data.find((item: any) => item.id === localItem.id || item.nome_item?.toLowerCase() === localItem.name?.toLowerCase());
+          if (dbItem) {
+            return {
+              ...localItem,
+              image: dbItem.imagem_url || localItem.image,
+              description: dbItem.descricao || localItem.description,
+              prices: dbItem.precos || localItem.prices,
+              active: dbItem.disponivel !== undefined ? dbItem.disponivel : localItem.active
+            };
+          }
+          return localItem;
+        });
+        // Adiciona produtos do banco que não existem localmente
+        data.forEach((dbItem: any) => {
+          if (!merged.find(localItem => localItem.id === dbItem.id)) {
+            merged.push({
+              id: dbItem.id,
+              name: dbItem.nome_item,
+              description: dbItem.descricao || '',
+              category: dbItem.categoria,
+              prices: dbItem.precos || {},
+              image: dbItem.imagem_url || '',
+              active: dbItem.disponivel !== false
+            });
+          }
+        });
+        return merged;
+      });
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      toast({
+        title: "Erro ao carregar produtos",
+        description: "Não foi possível carregar os produtos do banco de dados.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Fetch and merge products (hybrid) on component mount
   useEffect(() => {
@@ -77,67 +127,32 @@ export default function AdminMenu() {
     }
   };
 
+  const handleDeleteProduct = (productId: string) => {
+    console.log('Deleting product from API:', productId);
+    
+    setProducts(products.filter(p => p.id !== productId));
+    toast({
+      title: "Produto deletado",
+      description: "O produto foi removido do cardápio.",
+      variant: "destructive"
+    });
+  };
+
   const handleSync = async () => {
     try {
       setIsSyncing(true);
-      await fetchProducts();
+      await fetchAndMergeProducts();
       toast({
-
-      // Estratégia híbrida: carrega MENU_ITEMS e mescla dados do banco
-      const fetchAndMergeProducts = async () => {
-        try {
-          setIsLoading(true);
-          const response = await fetch('/api/cardapio');
-          if (!response.ok) throw new Error('Failed to fetch products');
-          const data = await response.json();
-          setProducts(prev => {
-            let merged = prev.map(localItem => {
-              const dbItem = data.find((item: any) => item.id === localItem.id || item.nome_item?.toLowerCase() === localItem.name?.toLowerCase());
-              if (dbItem) {
-                return {
-                  ...localItem,
-                  image: dbItem.imagem_url || localItem.image,
-                  description: dbItem.descricao || localItem.description,
-                  prices: dbItem.precos || localItem.prices,
-                  active: dbItem.disponivel !== undefined ? dbItem.disponivel : localItem.active
-                };
-              }
-              return localItem;
-            });
-            // Adiciona produtos do banco que não existem localmente
-            data.forEach((dbItem: any) => {
-              if (!merged.find(localItem => localItem.id === dbItem.id)) {
-                try {
-                  // Map component format back to API format
-                  const apiPayload = {
-                    id: updatedProduct.id,
-                    name: updatedProduct.name,
-                    description: updatedProduct.description,
-                    category: updatedProduct.category,
-                    prices: updatedProduct.prices,
-                    image: updatedProduct.image,
-                    active: updatedProduct.active
-                  };
-                  console.log('Saving product to API:', apiPayload);
-                  const response = await fetch(`/api/cardapio/${updatedProduct.id}`, {
-                    method: 'PUT',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(apiPayload),
-                  });
-                  if (!response.ok) throw new Error('Failed to update product');
-                  // After saving, re-fetch and merge products
-                  await fetchAndMergeProducts();
-                } catch (error) {
-                  console.error('Error saving product:', error);
-                  toast({
-                    title: "Erro ao salvar produto",
-                    description: "Não foi possível salvar o produto.",
-                    variant: "destructive"
-                  });
-                }
-              };
+        title: "Sincronização Concluída",
+        description: "Cardápio atualizado com base no banco de dados."
+      });
+    } catch (error) {
+      console.error('Error syncing:', error);
+      toast({
+        title: "Erro na sincronização",
+        description: "Não foi possível sincronizar o cardápio.",
+        variant: "destructive"
+      });
     } finally {
       setIsSyncing(false);
     }
@@ -161,39 +176,36 @@ export default function AdminMenu() {
               <RefreshCw className={`w-4 h-4 mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
               {isSyncing ? 'Sincronizando...' : 'Sincronizar DB'}
             </Button>
-            <Button className="flex-1 md:flex-none">
-              <Plus className="w-4 h-4 mr-2" />
-              try {
-                // Map component format back to API format
-                const apiPayload = {
-                  id: updatedProduct.id,
-                  name: updatedProduct.name,
-                  description: updatedProduct.description,
-                  category: updatedProduct.category,
-                  prices: updatedProduct.prices,
-                  image: updatedProduct.image,
-                  active: updatedProduct.active
-                };
-                console.log('Saving product to API:', apiPayload);
-                const response = await fetch(`/api/cardapio/${updatedProduct.id}`, {
-                  method: 'PUT',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(apiPayload),
-                });
-                if (!response.ok) throw new Error('Failed to update product');
-                // After saving, re-fetch and merge products
-                await fetchAndMergeProducts();
-              } catch (error) {
-                console.error('Error saving product:', error);
-                toast({
-                  title: "Erro ao salvar produto",
-                  description: "Não foi possível salvar o produto.",
-                  variant: "destructive"
-                });
-              }
-            };
+          </div>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Produtos</CardTitle>
+            <CardDescription>Gerenciar e editar produtos do cardápio.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-4">
+              <Input
+                placeholder="Pesquisar produtos..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            {isLoading ? (
+              <div className="text-center py-8">Carregando produtos...</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Imagem</TableHead>
+                      <TableHead>Nome</TableHead>
+                      <TableHead>Categoria</TableHead>
+                      <TableHead>Preço</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
                   <TableBody>
                     {filteredItems.map((item) => (
                       item && (
@@ -232,8 +244,8 @@ export default function AdminMenu() {
                     ))}
                   </TableBody>
                 </Table>
-              )}
-            </div>
+              </div>
+            )}
             <div className="mt-4 text-xs text-muted-foreground text-center">
               Mostrando {filteredItems.length} produtos
             </div>
