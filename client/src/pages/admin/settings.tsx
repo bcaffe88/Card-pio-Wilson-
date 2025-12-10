@@ -8,6 +8,8 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { Save, Upload, Database, Webhook, Clock, Loader2 } from "lucide-react";
+import { AdminLoginModal } from "@/components/admin-login-modal";
+import { fetchWithAuth, hasAdminToken } from "@/lib/admin-auth";
 
 // Removido useAdminStore pois agora os dados vêm da API
 
@@ -16,6 +18,7 @@ export default function AdminSettings() {
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(!hasAdminToken());
   
   const [formData, setFormData] = useState({
     nome_restaurante: '',
@@ -138,9 +141,8 @@ export default function AdminSettings() {
         // horarios: JSON.stringify(hours),
       };
 
-      const response = await fetch("/api/configuracoes", {
+      const response = await fetchWithAuth("/api/configuracoes", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(settingsToSave),
       });
 
@@ -388,6 +390,15 @@ export default function AdminSettings() {
             Salvar Alterações
           </Button>
         </div>
+
+        <AdminLoginModal 
+          isOpen={showLoginModal} 
+          onOpenChange={setShowLoginModal}
+          onSuccess={() => {
+            setShowLoginModal(false);
+            // Recarregar dados após login bem-sucedido (fetchSettings já é chamada no useEffect)
+          }}
+        />
       </div>
     </AdminLayout>
   );

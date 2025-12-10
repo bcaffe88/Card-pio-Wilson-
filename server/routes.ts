@@ -7,6 +7,7 @@ import { cardapio, clientes, configuracoes, pedidos, itens_pedido, insertCardapi
 import { z } from "zod";
 import { eq, or, sql, desc } from "drizzle-orm";
 import { log } from "./index";
+import { requireAdminAuth } from "./auth-middleware";
 
 // Configuração do Multer para usar o disco
 const storage = multer.diskStorage({
@@ -60,7 +61,7 @@ export async function registerRoutes(
     }
   });
 
-  app.put("/api/configuracoes", async (req, res) => {
+  app.put("/api/configuracoes", requireAdminAuth, async (req, res) => {
     try {
       const data = req.body;
       const result = await db.insert(configuracoes).values({ 
@@ -127,7 +128,7 @@ const isUUID = (str: string) => {
   return uuidRegex.test(str);
 };
 
-app.put("/api/cardapio/:id", async (req, res) => {
+app.put("/api/cardapio/:id", requireAdminAuth, async (req, res) => {
     try {
       const { id: urlParam } = req.params;
       const { id: bodyId, name } = req.body;
@@ -452,7 +453,7 @@ app.put("/api/cardapio/:id", async (req, res) => {
     }
   });
 
-  app.put("/api/pedidos/:id/status", async (req, res) => {
+  app.put("/api/pedidos/:id/status", requireAdminAuth, async (req, res) => {
     try {
       const { id } = req.params;
       const { status } = req.body;
@@ -469,7 +470,7 @@ app.put("/api/cardapio/:id", async (req, res) => {
     }
   });
 
-  app.get("/api/admin/pedidos", async (req, res) => {
+  app.get("/api/admin/pedidos", requireAdminAuth, async (req, res) => {
     try {
       const allPedidos = await db.select().from(pedidos);
       const pedidosComItens = await Promise.all(
