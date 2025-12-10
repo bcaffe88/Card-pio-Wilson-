@@ -373,6 +373,25 @@ app.put("/api/cardapio/:id", async (req, res) => {
         });
       }
 
+      // Trigger webhook asynchronously (non-blocking)
+      // This will be called after the response is sent
+      setImmediate(() => {
+        // TODO: Implement webhook trigger when schema supports it
+        // triggerWebhook('order.created', {
+        //   pedido_id: pedido.id,
+        //   numero_pedido: pedido.numero_pedido,
+        //   cliente: {
+        //     nome: cliente.nome,
+        //     telefone: cliente.telefone,
+        //     email: cliente.email,
+        //   },
+        //   itens: itens,
+        //   total: pedido.total,
+        //   forma_pagamento: pedido.forma_pagamento,
+        //   endereco_entrega: endereco_entrega,
+        // });
+      });
+
       res.status(201).json({
         id: pedido.id,
         numero_pedido: pedido.numero_pedido,

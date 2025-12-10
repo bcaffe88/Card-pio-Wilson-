@@ -49,6 +49,12 @@ export function CartDrawer() {
   const total = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
   const handleCheckout = async () => {
+    // Validations
+    if (deliveryMethod === 'entrega' && !address.trim()) {
+      alert('Por favor, informe um endereço de entrega');
+      return;
+    }
+
     const phoneNumber = "5587999480699";
     
     const itemsList = items.map(item => {
