@@ -127,16 +127,20 @@ const isUUID = (str: string) => {
 
 app.put("/api/cardapio/:id", async (req, res) => {
     try {
-      const { id } = req.params;
-      log(`PUT /api/cardapio/${id}: Recebendo requisição.`, "routes");
-      log(`PUT /api/cardapio/${id}: req.body = ${JSON.stringify(req.body)}`, "routes");
+      const { id: urlId } = req.params;
+      // Se o body contiver um UUID válido como ID, usar ele. Caso contrário, usar URL param
+      const id = req.body.id && isUUID(req.body.id) ? req.body.id : urlId;
+      
+      log(`PUT /api/cardapio/${urlId}: Recebendo requisição.`, "routes");
+      log(`PUT /api/cardapio/${urlId}: ID final para busca: ${id}`, "routes");
+      log(`PUT /api/cardapio/${urlId}: req.body = ${JSON.stringify(req.body)}`, "routes");
 
       const data = insertCardapioSchema.partial().parse(req.body);
       
       const updateData: any = { ...data };
       if (req.body.image !== undefined) {
         updateData.imagem_url = req.body.image;
-        log(`PUT /api/cardapio/${id}: Imagem URL detectada: ${req.body.image}`, "routes");
+        log(`PUT /api/cardapio/${urlId}: Imagem URL detectada: ${req.body.image}`, "routes");
       }
 
       // Determinar a condição de busca: por ID (UUID) ou por nome_item (slug)
@@ -144,8 +148,8 @@ app.put("/api/cardapio/:id", async (req, res) => {
         ? eq(cardapio.id, id) 
         : eq(sql`lower(${cardapio.nome_item})`, id.toLowerCase());
 
-      log(`PUT /api/cardapio/${id}: whereCondition gerado.`, "routes");
-      log(`PUT /api/cardapio/${id}: updateData = ${JSON.stringify(updateData)}`, "routes");
+      log(`PUT /api/cardapio/${urlId}: whereCondition gerado. isUUID(${id}): ${isUUID(id)}`, "routes");
+      log(`PUT /api/cardapio/${urlId}: updateData = ${JSON.stringify(updateData)}`, "routes");
 
       const updatedProduct = await db.update(cardapio)
         .set({ ...updateData, updated_at: new Date() })
@@ -153,11 +157,11 @@ app.put("/api/cardapio/:id", async (req, res) => {
         .returning();
 
       if (updatedProduct.length === 0) {
-        log(`PUT /api/cardapio/${id}: Produto não encontrado para atualizar. ID/Nome: ${id}`, "routes");
+        log(`PUT /api/cardapio/${urlId}: Produto não encontrado para atualizar. ID/Nome: ${id}`, "routes");
         return res.status(404).json({ error: "Produto não encontrado para atualizar" });
       }
 
-      log(`PUT /api/cardapio/${id}: Produto atualizado com sucesso. Resultado: ${JSON.stringify(updatedProduct[0])}`, "routes");
+      log(`PUT /api/cardapio/${urlId}: Produto atualizado com sucesso. Resultado: ${JSON.stringify(updatedProduct[0])}`, "routes");
       res.json(updatedProduct[0]);
     } catch (error: any) {
       console.error(error);
