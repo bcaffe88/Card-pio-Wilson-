@@ -119,7 +119,7 @@ export default function Home() {
           <div className="flex-1 relative w-full max-w-sm md:max-w-md">
              <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent rounded-full blur-3xl"></div>
              <img 
-               src={MENU_ITEMS[0].image} 
+               src="https://ktbzjpwvzcrzzoacfciv.supabase.co/storage/v1/object/public/imagens-cardapio/1764962741635-r855-advertisement-wilson-pizzas-2022-11.jpg" 
                alt="Pizza Hero" 
                className="relative w-full h-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500 rotate-12 hover:rotate-0"
              />
