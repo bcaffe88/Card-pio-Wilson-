@@ -128,11 +128,23 @@ ${notes ? `*📝 OBSERVAÇÕES:* ${notes}` : ''}
         cliente_telefone: phoneNumber.replace(/\D/g, ''),
         cliente_email: '',
         itens: itensFormatados,
-        endereco: {
-          rua: address.split(',')[0] || 'Endereço do cliente',
-          numero: '0',
-          completo: address || 'A confirmar com cliente'
-        },
+        endereco_entrega: deliveryMethod === 'entrega' 
+          ? {
+              rua: address.split(',')[0]?.trim() || 'Não informado',
+              numero: parseInt(address.match(/\d+/)?.[0] || '0'),
+              bairro: address.split(',')[1]?.trim() || 'Não informado',
+              cidade: address.split(',')[2]?.trim() || 'Ouricuri',
+              cep: '',
+              complemento: address
+            }
+          : {
+              rua: restaurantAddress.split(',')[0]?.trim() || restaurantAddress,
+              numero: 0,
+              bairro: 'Retirada',
+              cidade: 'Ouricuri',
+              cep: '',
+              complemento: `Retirada no local - ${restaurantAddress}`
+            },
         forma_pagamento: paymentFormatted,
         observacoes: notes || 'Pedido enviado via WhatsApp'
       };

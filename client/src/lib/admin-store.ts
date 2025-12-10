@@ -103,7 +103,6 @@ export const useAdminStore = create<AdminState>()(
         }
       },
 
-      orders: initialOrders,
       updateOrderStatus: (id, status) => set((state) => ({
         orders: state.orders.map(o => o.id === id ? { ...o, status } : o)
       })),

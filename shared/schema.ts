@@ -91,12 +91,14 @@ export const configuracoes = pgTable("configuracoes", {
   endereco: text("endereco"),
   telefone: text("telefone"),
   logo_url: text("logo_url"),
-  webhook_url: text("webhook_url"),
-  supabase_url: text("supabase_url"),
-  supabase_key: text("supabase_key"),
-  whatsapp_notification: boolean("whatsapp_notification").default(true),
-  horarios: text("horarios"), // JSON string: [{"day":"Seg","open":"10:00","close":"22:00","active":true}, ...]
   updated_at: timestamp("updated_at").default(sql`now()`),
+  
+  // TODO: Adicionar depois de aplicar migração
+  // webhook_url: text("webhook_url"),
+  // supabase_url: text("supabase_url"),
+  // supabase_key: text("supabase_key"),
+  // whatsapp_notification: boolean("whatsapp_notification").default(true),
+  // horarios: text("horarios"),
 });
 
 // SCHEMAS DRIZZLE-ZOD

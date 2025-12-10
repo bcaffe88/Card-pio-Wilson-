@@ -313,10 +313,10 @@ app.put("/api/cardapio/:id", async (req, res) => {
   // PEDIDOS ROUTES
   app.post("/api/pedidos", async (req, res) => {
     try {
-      const { cliente_nome, cliente_telefone, cliente_email, itens, endereco, forma_pagamento, observacoes } = req.body;
+      const { cliente_nome, cliente_telefone, cliente_email, itens, endereco_entrega, forma_pagamento, observacoes } = req.body;
 
       // Validações básicas
-      if (!cliente_nome || !cliente_telefone || !itens || !endereco || !forma_pagamento) {
+      if (!cliente_nome || !cliente_telefone || !itens || !endereco_entrega || !forma_pagamento) {
         return res.status(400).json({ error: "Dados do pedido incompletos" });
       }
 
@@ -332,7 +332,7 @@ app.put("/api/cardapio/:id", async (req, res) => {
           nome: cliente_nome,
           telefone: cliente_telefone,
           email: cliente_email,
-          endereco_padrao: `${endereco.rua}, ${endereco.numero}`,
+          endereco_padrao: `${endereco_entrega.rua}, ${endereco_entrega.numero}`,
         }).returning())[0];
       } else {
         cliente = clienteResult[0];
@@ -341,18 +341,18 @@ app.put("/api/cardapio/:id", async (req, res) => {
       // Calcular total
       let total = 0;
       for (const item of itens) {
-        total += item.preco_unitario * item.quantidade;
+        total += parseFloat(item.preco_unitario) * item.quantidade;
       }
 
-      // Criar pedido
+      // Criar pedido com total como decimal
       const pedido = (await db.insert(pedidos).values({
         cliente_id: cliente.id,
         cliente_nome: cliente.nome,
         cliente_telefone: cliente.telefone,
         cliente_email: cliente.email,
         status: "pending",
-        total: total.toString(),
-        endereco_entrega: endereco,
+        total: total.toFixed(2), // Mantém como string no decimal do Drizzle
+        endereco_entrega: endereco_entrega,
         forma_pagamento,
         observacoes,
       }).returning())[0];
@@ -366,7 +366,7 @@ app.put("/api/cardapio/:id", async (req, res) => {
           tamanho: item.tamanho,
           sabores: item.sabores,
           quantidade: item.quantidade,
-          preco_unitario: item.preco_unitario.toString(),
+          preco_unitario: parseFloat(item.preco_unitario).toFixed(2),
           observacoes: item.observacoes,
         });
       }
