@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -23,9 +23,26 @@ export function CartDrawer() {
   const [changeFor, setChangeFor] = useState('');
   const [notes, setNotes] = useState('');
   const [address, setAddress] = useState(''); // New address state
+  const [restaurantAddress, setRestaurantAddress] = useState("Rua Principal, 123, Centro - Ouricuri/PE");
 
-  // Mock Restaurant Address (In real app, get from AdminStore)
-  const restaurantAddress = "Rua Principal, 123, Centro - Ouricuri/PE";
+  // ✅ Carregar endereço do restaurante do banco de dados
+  useEffect(() => {
+    const loadRestaurantAddress = async () => {
+      try {
+        const response = await fetch('/api/configuracoes');
+        if (response.ok) {
+          const config = await response.json();
+          if (config[0]?.endereco) {
+            setRestaurantAddress(config[0].endereco);
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao carregar configurações:', error);
+        // Continuar com valor padrão se falhar
+      }
+    };
+    loadRestaurantAddress();
+  }, []);
 
   const total = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 

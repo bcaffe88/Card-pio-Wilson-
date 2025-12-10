@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import multer from "multer";
 import { uploadFileToSupabase } from "./storage";
 import { db } from "./db";
-import { cardapio, clientes, configuracoes, insertCardapioSchema, insertClienteSchema } from "@shared/schema";
+import { cardapio, clientes, configuracoes, pedidos, itens_pedido, insertCardapioSchema, insertClienteSchema } from "@shared/schema";
 import { z } from "zod";
 import { eq, or, sql } from "drizzle-orm";
 import { log } from "./index";
@@ -127,41 +127,69 @@ const isUUID = (str: string) => {
 
 app.put("/api/cardapio/:id", async (req, res) => {
     try {
-      const { id: urlId } = req.params;
-      // Se o body contiver um UUID válido como ID, usar ele. Caso contrário, usar URL param
-      const id = req.body.id && isUUID(req.body.id) ? req.body.id : urlId;
+      const { id: urlParam } = req.params;
+      const { id: bodyId, name } = req.body;
       
-      log(`PUT /api/cardapio/${urlId}: Recebendo requisição.`, "routes");
-      log(`PUT /api/cardapio/${urlId}: ID final para busca: ${id}`, "routes");
-      log(`PUT /api/cardapio/${urlId}: req.body = ${JSON.stringify(req.body)}`, "routes");
+      log(`PUT /api/cardapio/${urlParam}: Recebendo requisição.`, "routes");
+      log(`PUT /api/cardapio/${urlParam}: req.body = ${JSON.stringify(req.body)}`, "routes");
 
-      const data = insertCardapioSchema.partial().parse(req.body);
+      // ESTRATÉGIA DE BUSCA:
+      // 1. Se bodyId é UUID válido → buscar por UUID (MAIS CONFIÁVEL)
+      // 2. Senão, se temos nome do produto → buscar por nome (case-insensitive)
+      // 3. Senão, usar URL param como fallback
       
-      const updateData: any = { ...data };
-      if (req.body.image !== undefined) {
-        updateData.imagem_url = req.body.image;
-        log(`PUT /api/cardapio/${urlId}: Imagem URL detectada: ${req.body.image}`, "routes");
+      let productToUpdate;
+      let searchMethod = '';
+
+      if (bodyId && isUUID(bodyId)) {
+        log(`PUT /api/cardapio/${urlParam}: Buscando por UUID no body: ${bodyId}`, "routes");
+        searchMethod = 'UUID (body)';
+        const result = await db.select().from(cardapio).where(eq(cardapio.id, bodyId));
+        productToUpdate = result[0];
+      } else if (name) {
+        log(`PUT /api/cardapio/${urlParam}: Buscando por nome: ${name}`, "routes");
+        searchMethod = 'nome do produto';
+        // Buscar por nome case-insensitive
+        const result = await db.select().from(cardapio)
+          .where(sql`lower(${cardapio.nome_item}) = lower(${name})`);
+        productToUpdate = result[0];
+      } else {
+        log(`PUT /api/cardapio/${urlParam}: Buscando por URL param: ${urlParam}`, "routes");
+        searchMethod = 'slug (URL)';
+        // Fallback: tentar URL param como slug
+        const result = await db.select().from(cardapio)
+          .where(sql`lower(${cardapio.nome_item}) = lower(${urlParam})`);
+        productToUpdate = result[0];
       }
 
-      // Determinar a condição de busca: por ID (UUID) ou por nome_item (slug)
-      const whereCondition = isUUID(id) 
-        ? eq(cardapio.id, id) 
-        : eq(sql`lower(${cardapio.nome_item})`, id.toLowerCase());
-
-      log(`PUT /api/cardapio/${urlId}: whereCondition gerado. isUUID(${id}): ${isUUID(id)}`, "routes");
-      log(`PUT /api/cardapio/${urlId}: updateData = ${JSON.stringify(updateData)}`, "routes");
-
-      const updatedProduct = await db.update(cardapio)
-        .set({ ...updateData, updated_at: new Date() })
-        .where(whereCondition)
-        .returning();
-
-      if (updatedProduct.length === 0) {
-        log(`PUT /api/cardapio/${urlId}: Produto não encontrado para atualizar. ID/Nome: ${id}`, "routes");
+      if (!productToUpdate) {
+        log(`PUT /api/cardapio/${urlParam}: Produto não encontrado. Método: ${searchMethod}`, "routes");
         return res.status(404).json({ error: "Produto não encontrado para atualizar" });
       }
 
-      log(`PUT /api/cardapio/${urlId}: Produto atualizado com sucesso. Resultado: ${JSON.stringify(updatedProduct[0])}`, "routes");
+      log(`PUT /api/cardapio/${urlParam}: Produto encontrado por ${searchMethod}. UUID: ${productToUpdate.id}`, "routes");
+
+      // Preparar dados para atualização
+      const data = insertCardapioSchema.partial().parse(req.body);
+      const updateData: any = { ...data };
+      
+      if (req.body.image !== undefined) {
+        updateData.imagem_url = req.body.image;
+        log(`PUT /api/cardapio/${urlParam}: Atualizando imagem para: ${req.body.image}`, "routes");
+      }
+
+      // Atualizar usando UUID do produto encontrado
+      const updatedProduct = await db.update(cardapio)
+        .set({ ...updateData, updated_at: new Date() })
+        .where(eq(cardapio.id, productToUpdate.id))
+        .returning();
+
+      if (updatedProduct.length === 0) {
+        log(`PUT /api/cardapio/${urlParam}: Erro na atualização do produto ${productToUpdate.id}`, "routes");
+        return res.status(500).json({ error: "Erro ao atualizar produto" });
+      }
+
+      log(`PUT /api/cardapio/${urlParam}: Produto atualizado com sucesso. Resultado: ${JSON.stringify(updatedProduct[0])}`, "routes");
       res.json(updatedProduct[0]);
     } catch (error: any) {
       console.error(error);

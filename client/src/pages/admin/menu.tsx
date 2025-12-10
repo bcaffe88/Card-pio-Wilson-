@@ -34,6 +34,8 @@ export default function AdminMenu() {
           if (dbItem) {
             return {
               ...localItem,
+              id: dbItem.id, // ✅ CRÍTICO: Substituir slug pelo UUID do banco
+              name: dbItem.nome_item, // ✅ Garantir nome do banco
               image: dbItem.imagem_url || localItem.image,
               description: dbItem.descricao || localItem.description,
               prices: dbItem.precos || localItem.prices,
