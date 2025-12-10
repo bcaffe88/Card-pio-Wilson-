@@ -32,13 +32,15 @@ export function CartDrawer() {
         const response = await fetch('/api/configuracoes');
         if (response.ok) {
           const config = await response.json();
-          if (config[0]?.endereco) {
-            setRestaurantAddress(config[0].endereco);
+          // config é um objeto, não um array
+          if (config?.endereco) {
+            setRestaurantAddress(config.endereco);
           }
         }
       } catch (error) {
         console.error('Erro ao carregar configurações:', error);
         // Continuar com valor padrão se falhar
+        setRestaurantAddress("Av. Antônio Pedro da Silva, 555, Centro, Ouricuri-PE");
       }
     };
     loadRestaurantAddress();

@@ -5,7 +5,7 @@ import { uploadFileToSupabase } from "./storage";
 import { db } from "./db";
 import { cardapio, clientes, configuracoes, pedidos, itens_pedido, insertCardapioSchema, insertClienteSchema } from "@shared/schema";
 import { z } from "zod";
-import { eq, or, sql } from "drizzle-orm";
+import { eq, or, sql, desc } from "drizzle-orm";
 import { log } from "./index";
 
 // Configuração do Multer para usar a memória
@@ -384,6 +384,25 @@ app.put("/api/cardapio/:id", async (req, res) => {
       });
     } catch (error: any) {
       res.status(400).json({ error: error.message || "Erro ao criar pedido" });
+    }
+  });
+
+  // ✅ GET todos os pedidos com itens (para admin)
+  app.get("/api/pedidos", async (req, res) => {
+    try {
+      const pedidosResult = await db.select().from(pedidos).orderBy(desc(pedidos.created_at));
+      
+      // Buscar itens para cada pedido
+      const pedidosComItens = await Promise.all(
+        pedidosResult.map(async (pedido) => {
+          const itens = await db.select().from(itens_pedido).where(eq(itens_pedido.pedido_id, pedido.id));
+          return { ...pedido, itens };
+        })
+      );
+      
+      res.json(pedidosComItens);
+    } catch (error) {
+      res.status(500).json({ error: "Erro ao buscar pedidos" });
     }
   });
 

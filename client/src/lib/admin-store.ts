@@ -5,14 +5,21 @@ export type OrderStatus = 'pending' | 'confirmed' | 'production' | 'ready' | 'se
 
 export interface Order {
   id: string;
+  numero_pedido?: number;
   customerName: string;
+  cliente_nome?: string;
   customerPhone: string;
+  cliente_telefone?: string;
   items: string[];
+  itens?: any[];
   total: number;
   status: OrderStatus;
   createdAt: string;
+  created_at?: string;
   paymentMethod: string;
-  viewed: boolean; // NEW: Track if order has been viewed
+  forma_pagamento?: string;
+  viewed: boolean;
+  viewed_?: boolean;
 }
 
 interface AdminState {
@@ -36,47 +43,14 @@ interface AdminState {
 
   // Orders
   orders: Order[];
+  loadOrdersFromAPI: () => Promise<void>;
   updateOrderStatus: (id: string, status: OrderStatus) => void;
-  markOrderAsViewed: (id: string) => void; // NEW: Mark order as viewed
-  getUnviewedOrdersCount: () => number; // NEW: Get count of unviewed orders
+  markOrderAsViewed: (id: string) => void;
+  getUnviewedOrdersCount: () => number;
 }
 
-// Mock Initial Orders
-const initialOrders: Order[] = [
-  {
-    id: 'ORD-001',
-    customerName: 'João Silva',
-    customerPhone: '5587999999999',
-    items: ['1x Pizza G Calabresa', '1x Pizza M Frango c/ Catupiry'],
-    total: 89.00,
-    status: 'pending',
-    createdAt: new Date(Date.now() - 1000 * 60 * 15).toISOString(), // 15 mins ago
-    paymentMethod: 'Pix',
-    viewed: false
-  },
-  {
-    id: 'ORD-002',
-    customerName: 'Maria Oliveira',
-    customerPhone: '5587988888888',
-    items: ['1x Pizza Super 4 Queijos'],
-    total: 72.00,
-    status: 'production',
-    createdAt: new Date(Date.now() - 1000 * 60 * 45).toISOString(), // 45 mins ago
-    paymentMethod: 'Cartão',
-    viewed: true
-  },
-  {
-    id: 'ORD-003',
-    customerName: 'Pedro Santos',
-    customerPhone: '5587977777777',
-    items: ['2x Pizza P Portuguesa'],
-    total: 60.00,
-    status: 'ready',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(), // 1 hour ago
-    paymentMethod: 'Dinheiro',
-    viewed: true
-  }
-];
+// Mock Initial Orders (fallback apenas se API falhar)
+const initialOrders: Order[] = [];
 
 export const useAdminStore = create<AdminState>()(
   persist(
@@ -86,7 +60,7 @@ export const useAdminStore = create<AdminState>()(
       logout: () => set({ isAuthenticated: false }),
 
       restaurantName: 'Wilson Pizza',
-      restaurantAddress: 'Rua Principal, 123, Centro',
+      restaurantAddress: 'Av. Antônio Pedro da Silva, 555, Centro, Ouricuri-PE',
       restaurantPhone: '5587999480699',
       restaurantLogo: null as string | null,
 
@@ -97,6 +71,37 @@ export const useAdminStore = create<AdminState>()(
       whatsappNotification: true,
 
       updateSettings: (settings) => set((state) => ({ ...state, ...settings })),
+
+      // ✅ Carregar pedidos do API
+      orders: initialOrders,
+      loadOrdersFromAPI: async () => {
+        try {
+          const response = await fetch('/api/pedidos');
+          if (response.ok) {
+            const apiOrders = await response.json();
+            // Transformar dados do banco para formato do store
+            const transformedOrders = (Array.isArray(apiOrders) ? apiOrders : []).map((order: any) => ({
+              id: order.id,
+              numero_pedido: order.numero_pedido,
+              customerName: order.cliente_nome || 'Cliente',
+              customerPhone: order.cliente_telefone || '',
+              items: order.itens?.map((item: any) => 
+                `${item.quantidade}x ${item.produto_nome}${item.tamanho ? ` (${item.tamanho})` : ''}`
+              ) || [],
+              total: parseFloat(order.total) || 0,
+              status: order.status || 'pending',
+              createdAt: order.created_at || new Date().toISOString(),
+              paymentMethod: order.forma_pagamento || 'Indefinido',
+              viewed: order.viewed || false
+            }));
+            set({ orders: transformedOrders });
+            console.log(`✅ Carregados ${transformedOrders.length} pedidos da API`);
+          }
+        } catch (error) {
+          console.error('Erro ao carregar pedidos da API:', error);
+          // Continuar com orders existentes
+        }
+      },
 
       orders: initialOrders,
       updateOrderStatus: (id, status) => set((state) => ({

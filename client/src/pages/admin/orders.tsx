@@ -20,10 +20,19 @@ import { ptBR } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminOrders() {
-  const { orders, updateOrderStatus, markOrderAsViewed, getUnviewedOrdersCount } = useAdminStore();
+  const { orders, updateOrderStatus, markOrderAsViewed, getUnviewedOrdersCount, loadOrdersFromAPI } = useAdminStore();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("pending");
   const [unviewedCount, setUnviewedCount] = useState(0);
+
+  // ✅ Carregar pedidos da API ao montar e a cada 10 segundos
+  useEffect(() => {
+    loadOrdersFromAPI();
+    const interval = setInterval(() => {
+      loadOrdersFromAPI();
+    }, 10000); // Atualizar a cada 10 segundos
+    return () => clearInterval(interval);
+  }, [loadOrdersFromAPI]);
 
   useEffect(() => {
     // Update unviewed count whenever orders change
