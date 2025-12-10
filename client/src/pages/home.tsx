@@ -23,23 +23,34 @@ export default function Home() {
   const [hybridItems, setHybridItems] = useState<any[]>([]);
 
   useEffect(() => {
-    // Estratégia SIMPLES: carrega APENAS do banco de dados (Railway)
+    // Estratégia: Merge banco de dados (imagens, preços atualizados) com MENU_ITEMS (molhos, ingredientes, builder)
     const fetchProducts = async () => {
       try {
         const response = await fetch('/api/cardapio');
         if (!response.ok) throw new Error('Failed to fetch products');
         const data = await response.json();
         
-        // Transforma produtos do banco para formato do frontend
-        const transformed = data.map((dbItem: any) => ({
-          id: dbItem.id,
-          name: dbItem.nome_item,
-          description: dbItem.descricao || '',
-          category: dbItem.categoria,
-          prices: dbItem.precos || {},
-          image: dbItem.imagem_url || '',
-          active: dbItem.disponivel !== false
-        }));
+        // Cria um mapa de MENU_ITEMS para fácil lookup
+        const menuItemsMap = new Map(MENU_ITEMS.map(item => [item.id, item]));
+        
+        // Transforma produtos do banco e enriquece com dados do MENU_ITEMS local
+        const transformed = data.map((dbItem: any) => {
+          const localItem = menuItemsMap.get(dbItem.id);
+          
+          return {
+            id: dbItem.id,
+            name: dbItem.nome_item,
+            description: dbItem.descricao || localItem?.description || '',
+            category: dbItem.categoria,
+            prices: dbItem.precos || localItem?.prices || {},
+            image: dbItem.imagem_url || localItem?.image || '', // Prioriza imagem do banco, fallback para MENU_ITEMS
+            active: dbItem.disponivel !== false,
+            // Enriquece com dados do MENU_ITEMS para builder
+            isMassa: localItem?.isMassa,
+            molhos: localItem?.molhos,
+            ingredientes: localItem?.ingredientes
+          };
+        });
         
         setHybridItems(transformed);
       } catch (error) {
