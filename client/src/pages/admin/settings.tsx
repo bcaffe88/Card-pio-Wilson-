@@ -44,7 +44,21 @@ export default function AdminSettings() {
               endereco: data.endereco || '',
               telefone: data.telefone || '',
               logo_url: data.logo_url || '',
+              webhookUrl: data.webhook_url || '',
+              supabaseUrl: data.supabase_url || '',
+              supabaseKey: data.supabase_key || '',
+              whatsappNotification: data.whatsapp_notification ?? true,
             }));
+            
+            // Carregar horários se existirem no banco
+            if (data.horarios) {
+              try {
+                const parsedHours = JSON.parse(data.horarios);
+                setHours(parsedHours);
+              } catch (e) {
+                console.error("Erro ao parsear horários:", e);
+              }
+            }
           }
         }
       } catch (error) {
@@ -114,6 +128,11 @@ export default function AdminSettings() {
         endereco: formData.endereco,
         telefone: formData.telefone,
         logo_url: formData.logo_url,
+        webhook_url: formData.webhookUrl,
+        supabase_url: formData.supabaseUrl,
+        supabase_key: formData.supabaseKey,
+        whatsapp_notification: formData.whatsappNotification,
+        horarios: JSON.stringify(hours),
       };
 
       const response = await fetch("/api/configuracoes", {
@@ -128,7 +147,7 @@ export default function AdminSettings() {
 
       toast({
         title: "Configurações salvas",
-        description: "As alterações foram aplicadas com sucesso no banco de dados.",
+        description: "Todas as alterações foram persistidas no banco de dados com sucesso.",
         variant: "success"
       });
 

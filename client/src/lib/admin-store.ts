@@ -59,7 +59,7 @@ export const useAdminStore = create<AdminState>()(
       login: () => set({ isAuthenticated: true }),
       logout: () => set({ isAuthenticated: false }),
 
-      restaurantName: 'Wilson Pizza',
+      restaurantName: 'Wilson Pizzas',
       restaurantAddress: 'Av. Antônio Pedro da Silva, 555, Centro, Ouricuri-PE',
       restaurantPhone: '5587999480699',
       restaurantLogo: null as string | null,

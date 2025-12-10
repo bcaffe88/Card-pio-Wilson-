@@ -23,7 +23,7 @@ export function CartDrawer() {
   const [changeFor, setChangeFor] = useState('');
   const [notes, setNotes] = useState('');
   const [address, setAddress] = useState(''); // New address state
-  const [restaurantAddress, setRestaurantAddress] = useState("Rua Principal, 123, Centro - Ouricuri/PE");
+  const [restaurantAddress, setRestaurantAddress] = useState("Av. Antônio Pedro da Silva, 555, Centro, Ouricuri-PE");
 
   // ✅ Carregar endereço do restaurante do banco de dados
   useEffect(() => {
