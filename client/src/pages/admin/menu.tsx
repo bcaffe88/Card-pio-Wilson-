@@ -203,48 +203,60 @@ export default function AdminMenu() {
           </CardHeader>
           <CardContent>
             <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[80px]">Imagem</TableHead>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Categoria</TableHead>
-                    <TableHead>Preço Base (G)</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredItems.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>
-                        <div className="w-10 h-10 rounded-md overflow-hidden bg-muted">
-                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-medium">{item.name}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">{item.category}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        R$ {item.prices['G']?.toFixed(2) || '--'}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8"
-                            onClick={() => handleEditProduct(item)}
-                            data-testid="button-edit-product"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+              {filteredItems.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground">
+                  Nenhum produto cadastrado.
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[80px]">Imagem</TableHead>
+                      <TableHead>Nome</TableHead>
+                      <TableHead>Categoria</TableHead>
+                      <TableHead>Preço Base (G)</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredItems.map((item) => (
+                      item && (
+                        <TableRow key={item.id}>
+                          <TableCell>
+                            <div className="w-10 h-10 rounded-md overflow-hidden bg-muted">
+                              {item.image ? (
+                                <img src={item.image} alt={item.name || ''} className="w-full h-full object-cover" />
+                              ) : (
+                                <span className="text-xs text-muted-foreground">Sem imagem</span>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="font-medium">{item.name || '--'}</TableCell>
+                          <TableCell>
+                            <Badge variant="secondary">{item.category || '--'}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            R$ {item.prices && item.prices['G'] ? item.prices['G'].toFixed(2) : '--'}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8"
+                                onClick={() => handleEditProduct(item)}
+                                data-testid="button-edit-product"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </div>
             <div className="mt-4 text-xs text-muted-foreground text-center">
               Mostrando {filteredItems.length} produtos
