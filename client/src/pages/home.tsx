@@ -21,6 +21,26 @@ export default function Home() {
   const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
   const [hybridItems, setHybridItems] = useState<any[]>([]);
+  const [heroImage, setHeroImage] = useState('https://ktbzjpwvzcrzzoacfciv.supabase.co/storage/v1/object/public/imagens-cardapio/1764962741635-r855-advertisement-wilson-pizzas-2022-11.jpg');
+
+  useEffect(() => {
+    // Carregar configurações incluindo logo/hero image
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch('/api/configuracoes');
+        if (response.ok) {
+          const data = await response.json();
+          if (data?.logo_url) {
+            setHeroImage(data.logo_url);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching settings:', error);
+        // Usa fallback se falhar
+      }
+    };
+    fetchSettings();
+  }, []);
 
   useEffect(() => {
     // Estratégia: Merge banco de dados (imagens, preços atualizados) com MENU_ITEMS (molhos, ingredientes, builder)
@@ -119,7 +139,7 @@ export default function Home() {
           <div className="flex-1 relative w-full max-w-sm md:max-w-md">
              <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent rounded-full blur-3xl"></div>
              <img 
-               src="https://ktbzjpwvzcrzzoacfciv.supabase.co/storage/v1/object/public/imagens-cardapio/1764962741635-r855-advertisement-wilson-pizzas-2022-11.jpg" 
+               src={heroImage}
                alt="Pizza Hero" 
                className="relative w-full h-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500 rotate-12 hover:rotate-0"
              />
