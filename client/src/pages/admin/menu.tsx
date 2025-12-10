@@ -39,39 +39,42 @@ export default function AdminMenu() {
 
   const handleSaveProduct = async (updatedProduct: any) => {
     try {
-      // Map component format back to API format
       const apiPayload = {
         id: updatedProduct.id,
         name: updatedProduct.name,
         description: updatedProduct.description,
         category: updatedProduct.category,
         prices: updatedProduct.prices,
-        try {
-          // Map component format back to API format
-          const apiPayload = {
-            id: updatedProduct.id,
-            name: updatedProduct.name,
-            description: updatedProduct.description,
-            category: updatedProduct.category,
-            prices: updatedProduct.prices,
-            image: updatedProduct.image,
-            active: updatedProduct.active
-          };
+        image: updatedProduct.image,
+        active: updatedProduct.active
+      };
 
-          console.log('Saving product to API:', apiPayload);
+      console.log('Saving product to API:', apiPayload);
+
+      const response = await fetch(`/api/cardapio/${updatedProduct.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(apiPayload),
+      });
+      if (!response.ok) throw new Error('Failed to update product');
       
-          const response = await fetch(`/api/cardapio/${updatedProduct.id}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(apiPayload),
-          });
-          if (!response.ok) throw new Error('Failed to update product');
-          // After saving, re-fetch and merge products
-          await fetchAndMergeProducts();
-      variant: "destructive"
-    });
+      await fetchAndMergeProducts();
+      
+      toast({
+        title: "Produto salvo",
+        description: "O produto foi atualizado com sucesso.",
+      });
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Error saving product:', error);
+      toast({
+        title: "Erro ao salvar produto",
+        description: "Não foi possível salvar o produto.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleSync = async () => {
